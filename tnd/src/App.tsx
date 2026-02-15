@@ -1,29 +1,12 @@
-import { useState } from 'react';
-
-import { Typography, Button, TextField } from '@mui/material';
+import { Box, Stack } from '@mui/material';
+import Page from './components/Page';
+import Header from './components/Header';
 
 export default function App() {
-
-    const [text, setText] = useState<string>("Welcome to Transcendence!");
-    const [input, setInput] = useState<string>("");
-
-    function updateInput(event: React.ChangeEvent<HTMLInputElement>)
-    {
-        setInput(event.target.value);
-    }
-
-    function updateText()
-    {
-        if (input.trim() === "")
-            return;
-        setText(input);
-    }
-
     return (
-        <div>
-            <Typography variant='h2'>{text}</Typography>
-            <Button variant='contained' onClick={updateText}>Update</Button>
-            <TextField value={input} onChange={updateInput}></TextField>
-        </div>
+        <Box sx={{display: 'flex', flexDirection: 'column', height: '100vh', width: '100%'}}>
+            <Header/>
+            <Page/>
+        </Box>
     );
 }
