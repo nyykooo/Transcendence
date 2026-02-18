@@ -11,7 +11,7 @@ export default function Settings()
 
     
   const DrawerList = (
-    <Box sx={{ width: '25vw' }} role="presentation" onClick={toggleDrawer(false)}>
+    <Box sx={{ width: '25%', minWidth: 250 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
         {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
           <ListItem key={text} disablePadding>
