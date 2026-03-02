@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Box, List, Divider, ListItem, ListItemButton, ListItemText, Button, Drawer } from '@mui/material';
 
+import Logo from './Logo';
+
 export default function Settings() 
 {
     const [open, setOpen] = useState(false);
@@ -13,7 +15,7 @@ export default function Settings()
   const DrawerList = (
     <Box sx={{ width: '25%', minWidth: 250 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
-        {['Home', 'Recipes List', 'Recipe'].map((text, index) => (
+        {['Home', 'Recipes List', 'Recipe'].map((text) => (
           <ListItem key={text} disablePadding>
             <ListItemButton>
               <ListItemText primary={text} />
@@ -26,11 +28,13 @@ export default function Settings()
   );
 
   return (
-      <div>
-          <Button onClick={toggleDrawer(true)}>Settings</Button>
-          <Drawer open={open} onClose={toggleDrawer(false)} anchor='right'>
-              {DrawerList}
-          </Drawer>
-      </div>
+      <>
+        <Button onClick={toggleDrawer(true)}>
+          <Logo size={64} path="/assets/image/setting_icon.png"/>
+        </Button>
+        <Drawer open={open} onClose={toggleDrawer(false)} anchor='right'>
+            {DrawerList}
+        </Drawer>
+      </>
   );
 }
