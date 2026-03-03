@@ -30,7 +30,7 @@ export default function Settings()
   return (
       <>
         <Button onClick={toggleDrawer(true)}>
-          <Logo size={64} path="/assets/image/setting_icon.png"/>
+          <Logo size={100} path="/assets/image/setting_icon.png"/>
         </Button>
         <Drawer open={open} onClose={toggleDrawer(false)} anchor='right'>
             {DrawerList}
