@@ -7,6 +7,7 @@ import Settings from './Settings';
 import Logo from './Logo';
 
 import { paths } from '../configs/routes';
+import { images } from '../configs/images';
 import type { PageProps } from '../props/PageProps';
 import NavigationMenu from './NavigationMenu';
 
@@ -36,7 +37,7 @@ export default function Header() {
     return (
         <Stack direction="row" useFlexGap justifyContent="space-between">
             <Button onClick={() => updatePage({route: 'home', label: 'Home'})}>
-                <Logo size={100} path="/assets/image/brunchio_logo.png"/>
+                <Logo size={100} path={images.icons.logo}/>
             </Button>
             <Stack sx={{
                     display: 'flex',

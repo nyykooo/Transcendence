@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Box, List, Divider, ListItem, ListItemButton, ListItemText, Button, Drawer } from '@mui/material';
 
+import { images } from '../configs/images';
+
 import Logo from './Logo';
 
 export default function Settings() 
@@ -30,7 +32,7 @@ export default function Settings()
   return (
       <>
         <Button onClick={toggleDrawer(true)}>
-          <Logo size={100} path="/assets/image/setting_icon.png"/>
+          <Logo size={100} path={images.icons.settings}/>
         </Button>
         <Drawer open={open} onClose={toggleDrawer(false)} anchor='right'>
             {DrawerList}
