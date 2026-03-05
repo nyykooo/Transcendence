@@ -1,5 +1,13 @@
 import { Routes, Route } from "react-router-dom";
-import { Home, RecipeView, RecipeListView, PrivacyPolicy, TermsOfService, NotFound }  from "../views/index";
+import {
+  Home, 
+  RecipeView, 
+  RecipeListView, 
+  PrivacyPolicy, 
+  TermsOfService, 
+  NotFound, 
+  Login
+ }  from "../views/index";
 
 export default function Router() {
   return (
@@ -9,6 +17,7 @@ export default function Router() {
       <Route path="/RecipeListView" element={<RecipeListView />} />
       <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
       <Route path="/TermsOfService" element={<TermsOfService />} />
+      <Route path="/Login" element={<Login />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

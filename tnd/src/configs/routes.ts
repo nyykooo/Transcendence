@@ -20,4 +20,9 @@ export const paths = {
       path: '/TermsOfService',
       name: 'Terms of Service',
     },
+    login: 
+    {
+      path:  '/Login',
+      name: 'Login',
+    },
 }
