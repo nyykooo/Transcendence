@@ -10,7 +10,7 @@ export default function NavigationMenu()
     const navigate = useNavigate();
 
     function updatePage(item: PageProps) {
-        navigate(paths[item.route]);
+        navigate(paths[item.route].path);
     }
 
     return (

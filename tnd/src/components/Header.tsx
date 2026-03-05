@@ -8,7 +8,6 @@ import Logo from './Logo';
 
 import { paths } from '../configs/routes';
 import { images } from '../configs/images';
-import type { PageProps } from '../props/PageProps';
 import NavigationMenu from './NavigationMenu';
 
 export default function Header() {
@@ -17,26 +16,19 @@ export default function Header() {
     
     const location = useLocation();
 
-    function updatePage(item: PageProps) {
-        navigate(paths[item.route]);
-        console.log('navigate to', paths[item.route]);
+    function updatePage(path: string) {
+        navigate(path);
+        console.log('navigate to', path);
     }
 
     function getLocationName() {
         const path = location.pathname;
-
-        const mapLocationToName: Record<string, string> = {
-            [paths.home]: 'Brunchio',
-            [paths.recipesList]: 'Recipes List',
-            [paths.recipe]: 'Recipe',
-        }
-
-        return mapLocationToName[path];
+        return Object.values(paths).find((p) => p.path === path)?.name;
     }
 
     return (
         <Stack direction="row" useFlexGap justifyContent="space-between">
-            <Button onClick={() => updatePage({route: 'home', label: 'Home'})}>
+            <Button onClick={() => updatePage(paths.home.path)}>
                 <Logo size={100} path={images.icons.logo}/>
             </Button>
             <Stack sx={{
