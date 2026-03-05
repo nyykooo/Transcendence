@@ -921,6 +921,18 @@
     "@typescript-eslint/types" "8.54.0"
     eslint-visitor-keys "^4.2.1"
 
+"@use-gesture/core@10.3.1":
+  version "10.3.1"
+  resolved "https://registry.yarnpkg.com/@use-gesture/core/-/core-10.3.1.tgz#976c9421e905f0079d49822cfd5c2e56b808fc56"
+  integrity sha512-WcINiDt8WjqBdUXye25anHiNxPc0VOrlT8F6LLkU6cycrOGUDyY/yyFmsg3k8i5OLvv25llc0QC45GhR/C8llw==
+
+"@use-gesture/react@^10.3.1":
+  version "10.3.1"
+  resolved "https://registry.yarnpkg.com/@use-gesture/react/-/react-10.3.1.tgz#17a743a894d9bd9a0d1980c618f37f0164469867"
+  integrity sha512-Yy19y6O2GJq8f7CHf7L0nxL8bf4PZCPaVOCgJrusOeFHY1LvHgYXnmnXg6N5iwAnbgbZCDjo60SiM6IPJi9C5g==
+  dependencies:
+    "@use-gesture/core" "10.3.1"
+
 "@vitejs/plugin-react@^5.1.1":
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/@vitejs/plugin-react/-/plugin-react-5.1.2.tgz#46f47be184c05a18839cb8705d79578b469ac6eb"
@@ -1355,6 +1367,11 @@ globals@^16.5.0:
   version "16.5.0"
   resolved "https://registry.yarnpkg.com/globals/-/globals-16.5.0.tgz#ccf1594a437b97653b2be13ed4d8f5c9f850cac1"
   integrity sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ==
+
+gsap@^3.14.2:
+  version "3.14.2"
+  resolved "https://registry.yarnpkg.com/gsap/-/gsap-3.14.2.tgz#6a9ea31e5046948e0be61eae006ae576ca5937d6"
+  integrity sha512-P8/mMxVLU7o4+55+1TCnQrPmgjPKnwkzkXOK1asnR9Jg2lna4tEY5qBJjMmAaOBDDZWtlRjBXjLa0w53G/uBLA==
 
 has-flag@^4.0.0:
   version "4.0.0"

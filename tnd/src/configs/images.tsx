@@ -11,9 +11,35 @@ export const images = {
 
     // carousel images live directly on the `images` key – there was no need to
     // nest another `images` object since it was never referenced elsewhere.
-    carousel: {
-        image1: `${assetsPath}/image/carousel/carousel_1.jpg`,
-        image2: `${assetsPath}/image/carousel/carousel_2.jpg`,
-        image3: `${assetsPath}/image/carousel/carousel_3.jpg`,
-    },
+    carousel: 
+        [
+            {
+                src: `${assetsPath}/image/carousel/carousel_1.jpg`,
+                alt: 'Carousel Picture 1'
+            },
+            {
+                src: `${assetsPath}/image/carousel/carousel_2.jpg`,
+                alt: 'Carousel Picture 2'
+            },
+            {
+                src: `${assetsPath}/image/carousel/carousel_3.jpg`,
+                alt: 'Carousel Picture 3'
+            },
+            {
+                src: `${assetsPath}/image/carousel/carousel_4.jpg`,
+                alt: 'Carousel Picture 4'
+            },
+            {
+                src: `${assetsPath}/image/carousel/carousel_5.jpg`,
+                alt: 'Carousel Picture 5'
+            },
+            {
+                src: `${assetsPath}/image/carousel/carousel_6.jpg`,
+                alt: 'Carousel Picture 6'
+            },
+            {
+                src: `${assetsPath}/image/carousel/carousel_7.jpg`,
+                alt: 'Carousel Picture 7'
+            },
+        ]
 };
