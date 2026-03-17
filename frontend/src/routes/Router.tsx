@@ -13,7 +13,7 @@ export default function Router() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/RecipeView" element={<RecipeView />} />
+      <Route path="/RecipeView/:name" element={<RecipeView />} />
       <Route path="/RecipeListView" element={<RecipeListView />} />
       <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
       <Route path="/TermsOfService" element={<TermsOfService />} />
