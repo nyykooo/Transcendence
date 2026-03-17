@@ -4,3 +4,5 @@ export { default as Footer } from './Footer';
 export { default as Logo } from './Logo';
 export { default as NavigationMenu } from './NavigationMenu';
 export { default as Settings } from './Settings';
+export { default as MultipleSelect } from './MultipleSelect';
+export { default as SliderSelector } from './SliderSelector';
