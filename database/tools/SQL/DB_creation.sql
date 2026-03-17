@@ -1,0 +1,22 @@
+CREATE DATABASE "TranscendenceDB"
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_CTYPE = 'en_US.utf8'
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+GRANT ALL ON DATABASE "TranscendenceDB" TO postgres WITH GRANT OPTION;
+-- GRANT ALL ON DATABASE "TranscendenceDB" TO postgres WITH GRANT OPTION;
+
+
+CREATE SCHEMA "DBA_human"
+    AUTHORIZATION postgres;
+
+CREATE SCHEMA dev_dba
+    AUTHORIZATION postgres;
+
+GRANT ALL ON SCHEMA "DBA_human" TO dev_dba WITH GRANT OPTION;
+
+GRANT ALL ON SCHEMA "DBA_human" TO postgres WITH GRANT OPTION;
+
