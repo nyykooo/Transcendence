@@ -1,17 +1,27 @@
-.PHONY: all install run clean re
+.PHONY: all build up start down stop restart 
 
-FRONTEND_DIR = ./frontend
+all: build up
+build:
+	docker-compose -p inception -f ./docker-compose.yml build
+up:
+	docker-compose -f ./docker-compose.yml up -d
+start:
+	docker-compose -f ./docker-compose.yml start
+down:
+	docker-compose -f ./docker-compose.yml down -v --remove-orphans
+stop:
+	docker-compose -f ./docker-compose.yml stop
+restart:
+	docker-compose -f ./docker-compose.yml restart
+prune:
+	docker system prune --all --volumes --force \
+	&& docker volume ls -q | xargs -r docker volume rm
+prune_net:
+	docker network prune --force
 
-all: install run
+fclean: down prune prune_net
 
-install:
-# add to Dockerfile: npm install -g yarn
-	cd $(FRONTEND_DIR) && yarn install --frozen-lockfile
+re: fclean build up
 
-run:
-	cd $(FRONTEND_DIR) && yarn run dev
-
-clean:
-	rm -rf $(FRONTEND_DIR)/node_modules
-
-re: clean install run
+logs:
+	cd srcs && docker-compose logs
