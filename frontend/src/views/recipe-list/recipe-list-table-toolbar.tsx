@@ -2,7 +2,30 @@ import { useState } from 'react';
 
 import { Box, Stack, type SelectChangeEvent } from '@mui/material';
 
-import { MultipleSelect, SliderSelector } from '../../components/components';
+import { MultipleSelect, SliderSelector, MultipleAutoComplete } from '../../components/components';
+
+interface FilmOptionType {
+  title: string;
+}
+
+// Top 100 films as rated by IMDb users. http://www.imdb.com/chart/top
+const top100Films = [
+  {
+    title: 'Banana',
+  },
+  {
+    title: 'Apple',
+  },
+  {
+    title: 'Mango',
+  },
+  {
+    title: 'Pear',
+  },
+  {
+    title: 'Grape',
+  },
+];
 
 export default function RecipeListTableToolbar() {
 
@@ -76,6 +99,13 @@ export default function RecipeListTableToolbar() {
     return (
         <Box sx={{width: '100%', height: '20%'}}>
             <Stack direction="row" spacing={2}>
+                {/*Name == MultipleAutoComplete*/}
+                <MultipleAutoComplete<FilmOptionType>
+                    id="customized-hook-demo"
+                    defaultValue={[top100Films[1]]}
+                    options={top100Films}
+                    getOptionLabel={(option) => option.title}
+                />
                 {/* Diet == Multiple Select */}
                 <MultipleSelect 
                     name="Diets"
