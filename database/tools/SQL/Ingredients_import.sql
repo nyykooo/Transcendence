@@ -1,5 +1,4 @@
--- Insert all data - CORRECT FORMAT
-INSERT INTO "DBA_human"."Ingredients" ("Name", "Price") VALUES
+INSERT INTO dev_dba.ingredients (name, price_per_kg) VALUES
 ('Avocado', 5.43),
 ('Pineapple', 1.20),
 ('Acai', 15.60),
@@ -138,5 +137,5 @@ INSERT INTO "DBA_human"."Ingredients" ("Name", "Price") VALUES
 ('Sunflower Seeds', 2.47),
 ('Puffed Rice', 10.60),
 ('Cranberry', 10.12);
--- Show count of inserted rows
-SELECT COUNT(*) as "Total Ingredients" FROM "DBA_human"."Ingredients";
+
+SELECT COUNT(*) as "Total Ingredients" FROM dev_dba.ingredients;

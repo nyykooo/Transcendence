@@ -3,8 +3,8 @@ RED='\033[1;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-DB_CONTAINER=transcendence_db
-DB_NAME=TranscendenceDB
+DB_CONTAINER=brunchio_db
+DB_NAME=brunchio_db
 DB_USER=postgres
 SCHEMA=DBA_human
 

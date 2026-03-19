@@ -1,1 +1,1 @@
-SELECT * FROM "DBA_human"."Ingredients" LIMIT 10
+SELECT * FROM dev_dba.ingredients LIMIT 10
