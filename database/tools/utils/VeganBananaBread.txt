@@ -1,0 +1,12 @@
+Banana	540	G
+Brown Sugar	150	G
+Flour	200	G
+Walnuts	50	G
+Coconut Milk	150	G
+Ginger	5.45	G
+Yeast	6	G
+Cinnamon	3	G
+Nutmeg	2	G
+Oil	150	G
+Caramelized Nuts Mix	7	G
+Salted Caramel	30	G

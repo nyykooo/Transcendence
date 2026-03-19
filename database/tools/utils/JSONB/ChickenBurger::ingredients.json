@@ -1,0 +1,12 @@
+[
+	{"name": "Curry Bread", "quantity": 80, "unit": "G"},
+	{"name": "Chicken Breast", "quantity": 109, "unit": "G"},
+	{"name": "Caramelized Onion", "quantity": 40, "unit": "G"},
+	{"name": "Avocado", "quantity": 63, "unit": "G"},
+	{"name": "Lemon Mayonnaise", "quantity": 40, "unit": "G"},
+	{"name": "Iberian Salad", "quantity": 15, "unit": "G"},
+	{"name": "Herb Olive Oil", "quantity": 5, "unit": "G"},
+	{"name": "Thyme", "quantity": 1, "unit": "G"},
+	{"name": "Rosemary", "quantity": 2, "unit": "G"},
+	{"name": "Sweet Potato Chips", "quantity": 30, "unit": "G"}
+]

@@ -1,0 +1,4 @@
+Milk	150	G
+Brown Sugar	15	G
+Cinnamon	2	G
+Eggs	1	UN

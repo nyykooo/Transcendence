@@ -1,4 +1,4 @@
-CREATE VIEW "DBA_human".all_recipes_query_user AS
+CREATE VIEW dev_dba.all_recipes_query_user AS
 SELECT
     name,
     CASE diet
@@ -9,10 +9,10 @@ SELECT
         ELSE 'Unknown'
     END AS diet_type,
 	(
-		SELECT array_agg(i."Name" ORDER BY i."Name")
+		SELECT array_agg(i.name ORDER BY i.name)
 		FROM unnest(r.ingredients) AS ing_id
-		JOIN "DBA_human"."Ingredients" i ON ing_id = i."ID"
+		JOIN dev_dba.ingredients i ON ing_id = i.id
 	) AS ingredients,
     cost,
     portions
-FROM "DBA_human".all_recipes r;
+FROM dev_dba.all_recipes r;

@@ -1,0 +1,8 @@
+Avocado	300	G
+Red Onion	82	G
+Tomato	86	G
+Chili Pepper	11	G
+Cilantro	6	G
+Lime	34	G
+Olive Oil	20	G
+Salt	1	G

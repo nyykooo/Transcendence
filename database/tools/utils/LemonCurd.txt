@@ -1,0 +1,6 @@
+Eggs	3	UN
+Water	360	G
+Brown Sugar	200	G
+Lemon	389	G
+Starch	15	G
+Butter	15	G

@@ -1,0 +1,5 @@
+Açaí	150	G
+Granola	30	G
+Strawberry	25	G
+Banana	105	G
+Basil	4	G

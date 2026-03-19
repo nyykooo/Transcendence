@@ -1,0 +1,10 @@
+Eggs	4	UN
+Brown Sugar	80	G
+Whole Milk	90	G
+Flour	80	G
+Vanilla Essence	6	G
+Salt	1	G
+Butter	3	G
+Strawberry Jam	50	G
+Powdered Sugar	16	G
+Strawberry	186	G

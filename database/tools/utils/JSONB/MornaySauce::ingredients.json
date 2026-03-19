@@ -1,0 +1,9 @@
+[
+	{"name": "Whole Milk", "quantity": 500, "unit": "G"},
+	{"name": "Flour", "quantity": 25, "unit": "G"},
+	{"name": "Butter", "quantity": 25, "unit": "G"},
+	{"name": "Emmental Cheese", "quantity": 300, "unit": "G"},
+	{"name": "Parmesan Cheese", "quantity": 200, "unit": "G"},
+	{"name": "Salt", "quantity": 10, "unit": "G"},
+	{"name": "Black Pepper", "quantity": 25, "unit": "G"}
+]

@@ -1,0 +1,12 @@
+[
+	{"name": "Honey", "quantity": 200, "unit": "G"},
+	{"name": "Oats", "quantity": 200, "unit": "G"},
+	{"name": "Puffed Rice", "quantity": 150, "unit": "G"},
+	{"name": "Nuts Mix", "quantity": 100, "unit": "G"},
+	{"name": "Goji Berries", "quantity": 25, "unit": "G"},
+	{"name": "Cranberry", "quantity": 25, "unit": "G"},
+	{"name": "Cinnamon", "quantity": 5, "unit": "G"},
+	{"name": "Laminated Coconut", "quantity": 50, "unit": "G"},
+	{"name": "Pumpkin Seeds", "quantity": 50, "unit": "G"},
+	{"name": "Sunflower Seeds", "quantity": 50, "unit": "G"}
+]

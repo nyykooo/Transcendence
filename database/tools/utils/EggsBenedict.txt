@@ -1,0 +1,5 @@
+Eggs	2	UN
+Brioche Bread	60	G
+Hollandaise Sauce	50	G
+Bacon	20	G
+Chives	4	G

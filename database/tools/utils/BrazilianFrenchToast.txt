@@ -1,0 +1,7 @@
+Brigadeiro	80	G
+Laminated Coconut	8	G
+Strawberry	18.6	G
+Oil	50	G
+French Toast Milk	30	G
+Butter	25	G
+Brioche Bread	60	G

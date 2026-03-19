@@ -1,0 +1,11 @@
+Pineapple	56.7	G
+Kiwi	33.3	G
+Blackberry	15	G
+Cantaloupe Melon	62	G
+Grape	18.15	G
+Banana	67.5	G
+Raspberry	17.85	G
+Oats	5	G
+Caramelized Nuts Mix	10	G
+Laminated Coconut	5	G
+Coconut Foam	30	G

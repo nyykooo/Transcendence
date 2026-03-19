@@ -1,0 +1,10 @@
+[
+	{"name": "Saloia Bread", "quantity": 100, "unit": "G"},
+	{"name": "Zucchini", "quantity": 105, "unit": "G"},
+	{"name": "Pear", "quantity": 71, "unit": "G"},
+	{"name": "Hummus", "quantity": 52, "unit": "G"},
+	{"name": "Caramelized Onion", "quantity": 45, "unit": "G"},
+	{"name": "Sesame Seeds", "quantity": 5, "unit": "G"},
+	{"name": "Chives", "quantity": 6, "unit": "G"},
+	{"name": "Spinach", "quantity": 18, "unit": "G"}
+]

@@ -1,0 +1,7 @@
+Whole Milk	500	G
+Flour	25	G
+Butter	25	G
+Emmental Cheese	300	G
+Parmesan Cheese	200	G
+Salt	10	G
+Black Pepper	25	G

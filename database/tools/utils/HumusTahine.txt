@@ -1,0 +1,6 @@
+Chickpea	206	G
+Olive Oil	50	G
+Lemon	47	G
+Tahini	10	G
+Salt	3	G
+Black Pepper	3	G

@@ -1,0 +1,14 @@
+[
+	{"name": "Quinoa", "quantity": 100, "unit": "G"},
+	{"name": "Chickpea", "quantity": 46, "unit": "G"},
+	{"name": "Cucumber", "quantity": 33, "unit": "G"},
+	{"name": "Mango", "quantity": 91, "unit": "G"},
+	{"name": "Spinach", "quantity": 42, "unit": "G"},
+	{"name": "Iberian Salad", "quantity": 40, "unit": "G"},
+	{"name": "Cherry Tomato", "quantity": 50, "unit": "G"},
+	{"name": "Tzatziki Sauce", "quantity": 20, "unit": "G"},
+	{"name": "Caramelized Nuts Mix", "quantity": 10, "unit": "G"},
+	{"name": "Sesame Seeds", "quantity": 5, "unit": "G"},
+	{"name": "Orange Vinaigrette", "quantity": 10, "unit": "G"},
+	{"name": "Herb Olive Oil", "quantity": 10, "unit": "G"}
+]

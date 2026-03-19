@@ -1,0 +1,7 @@
+Banana	255	G
+Beetroot	303.4	G
+Oats	115	G
+Soy Milk	180	G
+Vanilla Essence	18	G
+Agave Syrup	40	G
+Flour	50	G

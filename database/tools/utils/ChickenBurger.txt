@@ -1,0 +1,10 @@
+Curry Bread	80	G
+Chicken Breast	109	G
+Caramelized Onion	40	G
+Avocado	63	G
+Lemon Mayonnaise	40	G
+Iberian Salad	15	G
+Herb Olive Oil	5	G
+Thyme	1	G
+Rosemary	2	G
+Sweet Potato Chips	30	G

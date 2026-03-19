@@ -1,0 +1,6 @@
+Brown Sugar	240	G
+Water	110	G
+Cream	180	G
+Butter	80	G
+Salt	3	G
+Vanilla Essence	20	G

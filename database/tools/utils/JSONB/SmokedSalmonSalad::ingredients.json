@@ -1,0 +1,10 @@
+[
+	{"name": "Smoked Salmon", "quantity": 65, "unit": "G"},
+	{"name": "Iberian Salad", "quantity": 40, "unit": "G"},
+	{"name": "Avocado", "quantity": 63, "unit": "G"},
+	{"name": "Radish", "quantity": 13, "unit": "G"},
+	{"name": "Caramelized Nuts Mix", "quantity": 10, "unit": "G"},
+	{"name": "Sesame Seeds", "quantity": 5, "unit": "G"},
+	{"name": "Orange Vinaigrette", "quantity": 12, "unit": "G"},
+	{"name": "Herb Olive Oil", "quantity": 10, "unit": "G"}
+]

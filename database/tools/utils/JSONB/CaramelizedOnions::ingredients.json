@@ -1,0 +1,8 @@
+[
+	{"name": "Onion", "quantity": 3280, "unit": "G"},
+	{"name": "Olive Oil", "quantity": 150, "unit": "G"},
+	{"name": "White Wine", "quantity": 150, "unit": "G"},
+	{"name": "Vinegar", "quantity": 250, "unit": "G"},
+	{"name": "Brown Sugar", "quantity": 250, "unit": "G"},
+	{"name": "Worcestershire Sauce", "quantity": 100, "unit": "G"}
+]

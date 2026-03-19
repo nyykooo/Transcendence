@@ -1,0 +1,11 @@
+[
+	{"name": "Olive Oil", "quantity": 500, "unit": "G"},
+	{"name": "Garlic", "quantity": 108, "unit": "G"},
+	{"name": "Onion", "quantity": 2460, "unit": "G"},
+	{"name": "White Wine", "quantity": 250, "unit": "ML"},
+	{"name": "Ginger", "quantity": 327, "unit": "G"},
+	{"name": "Beetroot", "quantity": 4920, "unit": "G"},
+	{"name": "Brown Sugar", "quantity": 75, "unit": "G"},
+	{"name": "Salt", "quantity": 150, "unit": "G"},
+	{"name": "Creme Fraiche", "quantity": 100, "unit": "G"}
+]

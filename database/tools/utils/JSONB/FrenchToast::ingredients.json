@@ -1,0 +1,8 @@
+[
+	{"name": "Dulce de Leche", "quantity": 60, "unit": "G"},
+	{"name": "Mascarpone", "quantity": 60, "unit": "G"},
+	{"name": "Oil", "quantity": 50, "unit": "G"},
+	{"name": "French Toast Milk", "quantity": 30, "unit": "G"},
+	{"name": "Brioche Bread", "quantity": 60, "unit": "G"},
+	{"name": "Butter", "quantity": 25, "unit": "G"}
+]

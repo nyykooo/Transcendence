@@ -1,0 +1,4 @@
+Lemon	622	G
+Olive Oil	80	G
+Black Pepper	3	G
+Salt	3	G

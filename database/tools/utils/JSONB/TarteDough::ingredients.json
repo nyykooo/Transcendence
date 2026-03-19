@@ -1,0 +1,7 @@
+[
+	{"name": "Flour", "quantity": 100, "unit": "G"},
+	{"name": "Butter", "quantity": 60, "unit": "G"},
+	{"name": "Brown Sugar", "quantity": 40, "unit": "G"},
+	{"name": "Eggs", "quantity": 1, "unit": "G"},
+	{"name": "Salt", "quantity": 1, "unit": "G"}
+]

@@ -1,0 +1,6 @@
+[
+	{"name": "Milk", "quantity": 150, "unit": "G"},
+	{"name": "Brown Sugar", "quantity": 15, "unit": "G"},
+	{"name": "Cinnamon", "quantity": 2, "unit": "G"},
+	{"name": "Eggs", "quantity": 1, "unit": "UN"}
+]

@@ -1,0 +1,8 @@
+[
+	{"name": "Eggs", "quantity": 2, "unit": "UN"},
+	{"name": "Paris Mushrooms", "quantity": 59, "unit": "G"},
+	{"name": "Spinach", "quantity": 24, "unit": "G"},
+	{"name": "Mornay Sauce", "quantity": 50, "unit": "G"},
+	{"name": "Chives", "quantity": 4, "unit": "G"},
+	{"name": "Saloia Bread", "quantity": 90, "unit": "G"}
+]

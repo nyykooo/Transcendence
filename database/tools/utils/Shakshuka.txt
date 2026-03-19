@@ -1,0 +1,13 @@
+Eggs	2	UN
+Onion	115	G
+Red Bell Pepper	114	G
+Tomato	551	G
+Garlic	14	G
+Rosemary	2	G
+Thyme	4	G
+Basil	6	G
+Chili Pepper	11	G
+Sweet Paprika	10	G
+Cumin	4	G
+Tomato Concentrate	50	G
+Saloia Bread	100	G

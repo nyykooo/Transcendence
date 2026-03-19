@@ -1,0 +1,10 @@
+Honey	200	G
+Oats	200	G
+Puffed Rice	150	G
+Nuts Mix	100	G
+Goji Berries	25	G
+Cranberry	25	G
+Cinnamon	5	G
+Laminated Coconut	50	G
+Pumpkin Seeds	50	G
+Sunflower Seeds	50	G

@@ -1,0 +1,10 @@
+[
+	{"name": "Flour", "quantity": 500, "unit": "G"},
+	{"name": "Brown Sugar", "quantity": 90, "unit": "G"},
+	{"name": "Eggs", "quantity": 2, "unit": "UN"},
+	{"name": "Yeast", "quantity": 6, "unit": "G"},
+	{"name": "Salt", "quantity": 1, "unit": "G"},
+	{"name": "Whole Milk", "quantity": 200, "unit": "G"},
+	{"name": "Butter", "quantity": 40, "unit": "G"},
+	{"name": "Vanilla Essence", "quantity": 20, "unit": "G"}
+]

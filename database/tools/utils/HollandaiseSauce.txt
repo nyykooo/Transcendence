@@ -1,0 +1,5 @@
+Eggs	3	UN
+Lemon	311	G
+Butter	200	G
+Salt	3	G
+Black Pepper	3	G
