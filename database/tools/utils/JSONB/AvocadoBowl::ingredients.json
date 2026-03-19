@@ -1,0 +1,10 @@
+[
+	{"name": "Avocado", "quantity": 142, "unit": "G"},
+	{"name": "Coconut Milk", "quantity": 150, "unit": "ML"},
+	{"name": "Coconut Cream", "quantity": 20, "unit": "G"},
+	{"name": "Basil", "quantity": 3, "unit": "G"},
+	{"name": "Brown Sugar", "quantity": 40, "unit": "G"},
+	{"name": "Grape", "quantity": 48, "unit": "G"},
+	{"name": "Chia", "quantity": 7, "unit": "G"},
+	{"name": "Oats", "quantity": 15, "unit": "G"}
+]

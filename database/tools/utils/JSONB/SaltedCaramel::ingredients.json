@@ -1,0 +1,8 @@
+[
+	{"name": "Brown Sugar", "quantity": 240, "unit": "G"},
+	{"name": "Water", "quantity": 110, "unit": "G"},
+	{"name": "Cream", "quantity": 180, "unit": "G"},
+	{"name": "Butter", "quantity": 80, "unit": "G"},
+	{"name": "Salt", "quantity": 3, "unit": "G"},
+	{"name": "Vanilla Essence", "quantity": 20, "unit": "G"}
+]

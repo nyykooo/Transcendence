@@ -1,0 +1,14 @@
+[
+	{"name": "Banana", "quantity": 540, "unit": "G"},
+	{"name": "Brown Sugar", "quantity": 150, "unit": "G"},
+	{"name": "Flour", "quantity": 200, "unit": "G"},
+	{"name": "Walnuts", "quantity": 50, "unit": "G"},
+	{"name": "Coconut Milk", "quantity": 150, "unit": "G"},
+	{"name": "Ginger", "quantity": 5.45, "unit": "G"},
+	{"name": "Yeast", "quantity": 6, "unit": "G"},
+	{"name": "Cinnamon", "quantity": 3, "unit": "G"},
+	{"name": "Nutmeg", "quantity": 2, "unit": "G"},
+	{"name": "Oil", "quantity": 150, "unit": "G"},
+	{"name": "Caramelized Nuts Mix", "quantity": 7, "unit": "G"},
+	{"name": "Salted Caramel", "quantity": 30, "unit": "G"}
+]

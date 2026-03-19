@@ -1,0 +1,8 @@
+Olive Oil	200	G
+Garlic	11	G
+Chives	18	G
+Parsley	19	G
+Cilantro	13	G
+Thyme	12	G
+Basil	13	G
+Lemon	62	G

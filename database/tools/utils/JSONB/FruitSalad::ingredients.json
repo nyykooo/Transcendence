@@ -1,0 +1,13 @@
+[
+	{"name": "Pineapple", "quantity": 56.7, "unit": "G"},
+	{"name": "Kiwi", "quantity": 33.3, "unit": "G"},
+	{"name": "Blackberry", "quantity": 15, "unit": "G"},
+	{"name": "Cantaloupe Melon", "quantity": 62, "unit": "G"},
+	{"name": "Grape", "quantity": 18.15, "unit": "G"},
+	{"name": "Banana", "quantity": 67.5, "unit": "G"},
+	{"name": "Raspberry", "quantity": 17.85, "unit": "G"},
+	{"name": "Oats", "quantity": 5, "unit": "G"},
+	{"name": "Caramelized Nuts Mix", "quantity": 10, "unit": "G"},
+	{"name": "Laminated Coconut", "quantity": 5, "unit": "G"},
+	{"name": "Coconut Foam", "quantity": 30, "unit": "G"}
+]

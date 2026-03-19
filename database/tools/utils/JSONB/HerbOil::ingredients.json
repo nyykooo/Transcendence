@@ -1,0 +1,10 @@
+[
+	{"name": "Olive Oil", "quantity": 200, "unit": "G"},
+	{"name": "Garlic", "quantity": 11, "unit": "G"},
+	{"name": "Chives", "quantity": 18, "unit": "G"},
+	{"name": "Parsley", "quantity": 19, "unit": "G"},
+	{"name": "Cilantro", "quantity": 13, "unit": "G"},
+	{"name": "Thyme", "quantity": 12, "unit": "G"},
+	{"name": "Basil", "quantity": 13, "unit": "G"},
+	{"name": "Lemon", "quantity": 62, "unit": "G"}
+]

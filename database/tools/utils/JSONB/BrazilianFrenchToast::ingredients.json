@@ -1,0 +1,9 @@
+[
+	{"name": "Brigadeiro", "quantity": 80, "unit": "G"},
+	{"name": "Laminated Coconut", "quantity": 8, "unit": "G"},
+	{"name": "Strawberry", "quantity": 18.6, "unit": "G"},
+	{"name": "Oil", "quantity": 50, "unit": "G"},
+	{"name": "French Toast Milk", "quantity": 30, "unit": "G"},
+	{"name": "Butter", "quantity": 25, "unit": "G"},
+	{"name": "Brioche Bread", "quantity": 60, "unit": "G"}
+]

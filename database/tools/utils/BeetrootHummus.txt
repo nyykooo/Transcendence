@@ -1,0 +1,7 @@
+Beetroot	148	G
+Chickpea	206	G
+Olive Oil	15	G
+Lemon	47	G
+Tahini	10	G
+Salt	3	G
+Black Pepper	3	G

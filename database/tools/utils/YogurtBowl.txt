@@ -1,0 +1,6 @@
+Greek Yogurt	200	G
+Mint	4	G
+Banana	105	G
+Kiwi	50	G
+Honey	10	G
+Granola	50	G

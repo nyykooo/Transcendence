@@ -1,0 +1,8 @@
+[
+	{"name": "Sucrée Pastry", "quantity": 180, "unit": "G"},
+	{"name": "Tropical Curd", "quantity": 50, "unit": "G"},
+	{"name": "Coconut Chantilly", "quantity": 20, "unit": "G"},
+	{"name": "Meringues", "quantity": 15, "unit": "G"},
+	{"name": "Kiwi", "quantity": 22.2, "unit": "G"},
+	{"name": "Pineapple", "quantity": 56.7, "unit": "G"}
+]

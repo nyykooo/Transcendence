@@ -1,0 +1,8 @@
+[
+	{"name": "Eggs", "quantity": 3, "unit": "UN"},
+	{"name": "Water", "quantity": 360, "unit": "G"},
+	{"name": "Brown Sugar", "quantity": 200, "unit": "G"},
+	{"name": "Lemon", "quantity": 389, "unit": "G"},
+	{"name": "Starch", "quantity": 15, "unit": "G"},
+	{"name": "Butter", "quantity": 15, "unit": "G"}
+]

@@ -1,0 +1,10 @@
+[
+	{"name": "Choco Bagel Bread", "quantity": 100, "unit": "G"},
+	{"name": "Tzatziki Sauce", "quantity": 22, "unit": "G"},
+	{"name": "Chives", "quantity": 4, "unit": "G"},
+	{"name": "Green Apple", "quantity": 22, "unit": "G"},
+	{"name": "Lemon", "quantity": 16, "unit": "G"},
+	{"name": "Salt", "quantity": 1, "unit": "G"},
+	{"name": "Olive Oil", "quantity": 10, "unit": "G"},
+	{"name": "Iberian Salad", "quantity": 20, "unit": "G"}
+]

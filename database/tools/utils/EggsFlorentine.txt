@@ -1,0 +1,6 @@
+Eggs	2	UN
+Paris Mushrooms	59	G
+Spinach	24	G
+Mornay Sauce	50	G
+Chives	4	G
+Saloia Bread	90	G

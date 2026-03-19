@@ -1,0 +1,6 @@
+Onion	3280	G
+Olive Oil	150	G
+White Wine	150	G
+Vinegar	250	G
+Brown Sugar	250	G
+Worcestershire Sauce	100	G

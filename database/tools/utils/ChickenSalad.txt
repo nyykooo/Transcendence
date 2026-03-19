@@ -1,0 +1,12 @@
+Chicken Breast	131	G
+Thyme	1	G
+Rosemary	2	G
+Salt	480	G
+Black Pepper	14	G
+Iberian Salad	40	G
+Avocado	63	G
+Radish	13	G
+Caramelized Nuts Mix	10	G
+Sesame Seeds	5	G
+Orange Vinaigrette	12	G
+Herb Olive Oil	10	G

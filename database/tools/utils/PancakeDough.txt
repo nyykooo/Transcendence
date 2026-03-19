@@ -1,0 +1,8 @@
+Flour	500	G
+Brown Sugar	90	G
+Eggs	2	UN
+Yeast	6	G
+Salt	1	G
+Whole Milk	200	G
+Butter	40	G
+Vanilla Essence	20	G

@@ -1,0 +1,9 @@
+[
+	{"name": "Banana", "quantity": 255, "unit": "G"},
+	{"name": "Beetroot", "quantity": 303.4, "unit": "G"},
+	{"name": "Oats", "quantity": 115, "unit": "G"},
+	{"name": "Soy Milk", "quantity": 180, "unit": "G"},
+	{"name": "Vanilla Essence", "quantity": 18, "unit": "G"},
+	{"name": "Agave Syrup", "quantity": 40, "unit": "G"},
+	{"name": "Flour", "quantity": 50, "unit": "G"}
+]

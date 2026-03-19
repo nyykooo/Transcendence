@@ -1,0 +1,15 @@
+[
+	{"name": "Eggs", "quantity": 2, "unit": "UN"},
+	{"name": "Onion", "quantity": 115, "unit": "G"},
+	{"name": "Red Bell Pepper", "quantity": 114, "unit": "G"},
+	{"name": "Tomato", "quantity": 551, "unit": "G"},
+	{"name": "Garlic", "quantity": 14, "unit": "G"},
+	{"name": "Rosemary", "quantity": 2, "unit": "G"},
+	{"name": "Thyme", "quantity": 4, "unit": "G"},
+	{"name": "Basil", "quantity": 6, "unit": "G"},
+	{"name": "Chili Pepper", "quantity": 11, "unit": "G"},
+	{"name": "Sweet Paprika", "quantity": 10, "unit": "G"},
+	{"name": "Cumin", "quantity": 4, "unit": "G"},
+	{"name": "Tomato Concentrate", "quantity": 50, "unit": "G"},
+	{"name": "Saloia Bread", "quantity": 100, "unit": "G"}
+]

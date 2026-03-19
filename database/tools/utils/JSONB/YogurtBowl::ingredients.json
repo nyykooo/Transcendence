@@ -1,0 +1,8 @@
+[
+	{"name": "Greek Yogurt", "quantity": 200, "unit": "G"},
+	{"name": "Mint", "quantity": 4, "unit": "G"},
+	{"name": "Banana", "quantity": 105, "unit": "G"},
+	{"name": "Kiwi", "quantity": 50, "unit": "G"},
+	{"name": "Honey", "quantity": 10, "unit": "G"},
+	{"name": "Granola", "quantity": 50, "unit": "G"}
+]

@@ -1,0 +1,6 @@
+Greek Yogurt	150	G
+Cucumber	151	G
+Salt	2	G
+Black Pepper	3	G
+Olive Oil	10	G
+Mint	5	G

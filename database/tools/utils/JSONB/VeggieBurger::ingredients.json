@@ -1,0 +1,11 @@
+[
+	{"name": "Zucchini", "quantity": 26, "unit": "G"},
+	{"name": "Garlic", "quantity": 2, "unit": "G"},
+	{"name": "Quinoa", "quantity": 100, "unit": "G"},
+	{"name": "Beetroot Hummus", "quantity": 100, "unit": "G"},
+	{"name": "Tzatziki Sauce", "quantity": 20, "unit": "G"},
+	{"name": "Iberian Salad", "quantity": 15, "unit": "G"},
+	{"name": "Herb Olive Oil", "quantity": 5, "unit": "G"},
+	{"name": "Sweet Potato Chips", "quantity": 30, "unit": "G"},
+	{"name": "Tomato Bread", "quantity": 80, "unit": "G"}
+]

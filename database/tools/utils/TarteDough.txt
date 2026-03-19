@@ -1,0 +1,5 @@
+Flour	100	G
+Butter	60	G
+Brown Sugar	40	G
+Eggs	1	G
+Salt	1	G

@@ -1,0 +1,7 @@
+Eggs	2	UN
+Guacamole	100	G
+Cherry Tomato	15	G
+Iberian Salad	20	G
+Bacon	20	G
+Feta Cheese	20	G
+Saloia Bread	100	G

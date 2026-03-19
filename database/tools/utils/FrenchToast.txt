@@ -1,0 +1,6 @@
+Dulce de Leche	60	G
+Mascarpone	60	G
+Oil	50	G
+French Toast Milk	30	G
+Brioche Bread	60	G
+Butter	25	G

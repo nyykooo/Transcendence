@@ -1,0 +1,8 @@
+Avocado	142	G
+Coconut Milk	150	ML
+Coconut Cream	20	G
+Basil	3	G
+Brown Sugar	40	G
+Grape	48	G
+Chia	7	G
+Oats	15	G

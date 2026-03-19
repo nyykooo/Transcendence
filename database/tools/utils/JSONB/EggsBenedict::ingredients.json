@@ -1,0 +1,7 @@
+[
+	{"name": "Eggs", "quantity": 2, "unit": "UN"},
+	{"name": "Brioche Bread", "quantity": 60, "unit": "G"},
+	{"name": "Hollandaise Sauce", "quantity": 50, "unit": "G"},
+	{"name": "Bacon", "quantity": 20, "unit": "G"},
+	{"name": "Chives", "quantity": 4, "unit": "G"}
+]

@@ -1,0 +1,12 @@
+[
+	{"name": "Eggs", "quantity": 4, "unit": "UN"},
+	{"name": "Brown Sugar", "quantity": 80, "unit": "G"},
+	{"name": "Whole Milk", "quantity": 90, "unit": "G"},
+	{"name": "Flour", "quantity": 80, "unit": "G"},
+	{"name": "Vanilla Essence", "quantity": 6, "unit": "G"},
+	{"name": "Salt", "quantity": 1, "unit": "G"},
+	{"name": "Butter", "quantity": 3, "unit": "G"},
+	{"name": "Strawberry Jam", "quantity": 50, "unit": "G"},
+	{"name": "Powdered Sugar", "quantity": 16, "unit": "G"},
+	{"name": "Strawberry", "quantity": 186, "unit": "G"}
+]

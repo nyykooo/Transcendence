@@ -1,0 +1,10 @@
+[
+	{"name": "Avocado", "quantity": 300, "unit": "G"},
+	{"name": "Red Onion", "quantity": 82, "unit": "G"},
+	{"name": "Tomato", "quantity": 86, "unit": "G"},
+	{"name": "Chili Pepper", "quantity": 11, "unit": "G"},
+	{"name": "Cilantro", "quantity": 6, "unit": "G"},
+	{"name": "Lime", "quantity": 34, "unit": "G"},
+	{"name": "Olive Oil", "quantity": 20, "unit": "G"},
+	{"name": "Salt", "quantity": 1, "unit": "G"}
+]

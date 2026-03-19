@@ -1,0 +1,10 @@
+[
+	{"name": "Bolo do Caco Bread", "quantity": 100, "unit": "G"},
+	{"name": "Avocado", "quantity": 47, "unit": "G"},
+	{"name": "Tomato", "quantity": 57, "unit": "G"},
+	{"name": "Cherry Tomato", "quantity": 15, "unit": "G"},
+	{"name": "Lemon Mayonnaise", "quantity": 40, "unit": "G"},
+	{"name": "Butter", "quantity": 5, "unit": "G"},
+	{"name": "Arugula", "quantity": 15, "unit": "G"},
+	{"name": "Bacon", "quantity": 40, "unit": "G"}
+]
