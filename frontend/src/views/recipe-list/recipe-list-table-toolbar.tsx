@@ -1,31 +1,10 @@
 import { useState } from 'react';
 
-import { Box, Stack, type SelectChangeEvent } from '@mui/material';
+import { Box, Stack, Button, type SelectChangeEvent } from '@mui/material';
 
-import { MultipleSelect, SliderSelector, MultipleAutoComplete } from '../../components/components';
+import { MultipleSelect, SliderSelector, MultipleAutoComplete, Logo } from '../../components/components';
 
-interface FilmOptionType {
-  title: string;
-}
-
-// Top 100 films as rated by IMDb users. http://www.imdb.com/chart/top
-const top100Films = [
-  {
-    title: 'Banana',
-  },
-  {
-    title: 'Apple',
-  },
-  {
-    title: 'Mango',
-  },
-  {
-    title: 'Pear',
-  },
-  {
-    title: 'Grape',
-  },
-];
+import { images } from '../../configs/images';
 
 export default function RecipeListTableToolbar() {
 
@@ -96,15 +75,41 @@ export default function RecipeListTableToolbar() {
         }
     };
 
+
+
+    // ### Recipes ###
+    // mock data for testing, replace with actual data fetching logic
+    const recipes = [
+        'Banana',
+        'Apple',
+        'Mango',
+        'Pear',
+        'Grape',
+    ];
+
+    const [selectedRecipes, setSelectedRecipes] = useState<string[]>();
+
+    const handleChangeRecipes = ( _event: React.SyntheticEvent, newValue: string[] ) => {
+        setSelectedRecipes(newValue); // newValue = array completo dos itens selecionados
+    };
+
+
+    // ### Buttons ###
+    const handleSearch = () =>
+    {
+        
+    }
+
     return (
         <Box sx={{width: '100%', height: '20%'}}>
             <Stack direction="row" spacing={2}>
                 {/*Name == MultipleAutoComplete*/}
-                <MultipleAutoComplete<FilmOptionType>
+                <MultipleAutoComplete<string>
                     id="customized-hook-demo"
-                    defaultValue={[top100Films[1]]}
-                    options={top100Films}
-                    getOptionLabel={(option) => option.title}
+                    defaultValue={undefined}
+                    options={recipes}
+                    getOptionLabel={(option) => option}
+                    onChange={handleChangeRecipes}
                 />
                 {/* Diet == Multiple Select */}
                 <MultipleSelect 
@@ -140,6 +145,10 @@ export default function RecipeListTableToolbar() {
                         name='Portion'
                     />
                 </Stack>
+                <Button onClick={() => handleSearch()}>
+                    <Logo size={20} path={images.icons.search}></Logo>
+                </Button>
+                <Logo size={20} path={images.icons.trash}></Logo>
             </Stack>
         </Box>
     );
