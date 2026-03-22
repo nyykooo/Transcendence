@@ -34,3 +34,16 @@ applicable;
     - Well defined relations;
 - Secrets:
     - Store credentials in an .env file
+
+## Backend (Auth + Recipes) containers
+
+Run only the backend services (without frontend/database):
+
+- Build + start: `make -C backend docker_build docker_up`
+- Stop + remove volumes: `make -C backend docker_down`
+- Logs: `make -C backend docker_logs`
+
+Ports:
+
+- Auth: http://localhost:3000
+- Recipes: http://localhost:3001

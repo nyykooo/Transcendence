@@ -14,7 +14,7 @@ services:
     env_file:
       - .env
     ports:
-      - 15432:80
+      - 5432:80
     volumes:
       - pgadmin:/var/lib/pgadmin
     depends_on:
