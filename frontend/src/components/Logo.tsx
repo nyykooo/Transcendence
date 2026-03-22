@@ -1,11 +1,6 @@
 import { Icon } from '@mui/material';
-import type { SxProps } from '@mui/system';
 
-interface LogoProps {
-    path: string;
-    size?: number;
-    sx?: SxProps;
-}
+import type { LogoProps } from '../props/logoProps';
 
 export default function Logo({ path, size, sx }: LogoProps) {
 

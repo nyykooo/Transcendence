@@ -6,3 +6,4 @@ export { default as NavigationMenu } from './NavigationMenu';
 export { default as Settings } from './Settings';
 export { default as MultipleSelect } from './MultipleSelect';
 export { default as SliderSelector } from './SliderSelector';
+export { default as MultipleAutoComplete } from './MultipleAutoComplete'

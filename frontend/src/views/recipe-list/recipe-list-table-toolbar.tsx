@@ -1,10 +1,17 @@
 import { useState } from 'react';
 
-import { Box, Stack, type SelectChangeEvent } from '@mui/material';
+import { Box, Stack, Button, type SelectChangeEvent } from '@mui/material';
 
-import { MultipleSelect, SliderSelector } from '../../components/components';
+import { MultipleSelect, SliderSelector, MultipleAutoComplete, Logo } from '../../components/components';
+
+import { images } from '../../configs/images';
+
+import { type RecipeListFiltersProps } from '../../props/recipe-list'
 
 export default function RecipeListTableToolbar() {
+
+    // SelectedFilters
+    const [selectedFilters, setSelectedFilters] = useState<RecipeListFiltersProps | null>();
 
     // ### Diets ###
     // mock data for testing, replace with actual data fetching logic
@@ -51,31 +58,84 @@ export default function RecipeListTableToolbar() {
 
 
     // ### Cost ###
-    const [cost, setCost] = useState<number[]>([0, 10.0]);
+    const [selectedCost, setSelectedCost] = useState<number[]>([0, 10.0]);
 
-    const handleChangeCost = (event: Event, newValue: number[], activeThumb: number) => {
+    const handleChangeselectedCost = (event: Event, newValue: number[], activeThumb: number) => {
         if (activeThumb === 0) {
-        setCost([Math.min(newValue[0], cost[1] - 1), cost[1]]);
+        setSelectedCost([Math.min(newValue[0], selectedCost[1] - 1), selectedCost[1]]);
         } else {
-        setCost([cost[0], Math.max(newValue[1], cost[0] + 1)]);
+        setSelectedCost([selectedCost[0], Math.max(newValue[1], selectedCost[0] + 1)]);
         }
     };
 
     
-    // ### Portion ###
-    const [portion, setPortion] = useState<number[]>([0, 10]);
+    // ### Serving ###
+    const [selectedServing, setSelectedServing] = useState<number[]>([0, 10]);
 
-    const handleChangePortion = (event: Event, newValue: number[], activeThumb: number) => {
+    const handleChangeSelectedServing = (event: Event, newValue: number[], activeThumb: number) => {
         if (activeThumb === 0) {
-        setPortion([Math.min(newValue[0], portion[1] - 1), portion[1]]);
+        setSelectedServing([Math.min(newValue[0], selectedServing[1] - 1), selectedServing[1]]);
         } else {
-        setPortion([portion[0], Math.max(newValue[1], portion[0] + 1)]);
+        setSelectedServing([selectedServing[0], Math.max(newValue[1], selectedServing[0] + 1)]);
         }
     };
+
+
+
+    // ### Recipes ###
+    // mock data for testing, replace with actual data fetching logic
+    const recipes = [
+        'Banana',
+        'Apple',
+        'Mango',
+        'Pear',
+        'Grape',
+    ];
+
+    const [selectedRecipes, setSelectedRecipes] = useState<string[]>([]);
+
+    const handleChangeRecipes = ( _event: React.SyntheticEvent, newValue: string[] ) => {
+        setSelectedRecipes(newValue); // newValue = array completo dos itens selecionados
+    };
+
+    // ### Buttons ###
+    const handleSearch = () =>
+    {
+        const _selectedFilters: RecipeListFiltersProps = {
+            recipes: selectedRecipes,
+            diets: selectedDiets,
+            ingredients: selectedIngredients,
+            cost: {
+                min: selectedCost[0],
+                max: selectedCost[1]
+            },
+            servings: {
+                min: selectedServing[0],
+                max: selectedServing[1]
+            }
+        }
+    }
+    const handleCleanFilters = () =>
+    {
+        setSelectedCost([0, 10]);
+        setSelectedServing([0, 10]);
+        setSelectedRecipes([]);
+        setSelectedDiets([]);
+        setSelectedIngredients([]);
+        setSelectedFilters(null);
+    }
 
     return (
         <Box sx={{width: '100%', height: '20%'}}>
             <Stack direction="row" spacing={2}>
+                {/*Name == MultipleAutoComplete*/}
+                <MultipleAutoComplete<string>
+                    id="customized-hook-demo"
+                    options={recipes}
+                    getOptionLabel={(option) => option}
+                    onChange={handleChangeRecipes}
+                    value={selectedRecipes ?? []}
+                />
                 {/* Diet == Multiple Select */}
                 <MultipleSelect 
                     name="Diets"
@@ -91,25 +151,31 @@ export default function RecipeListTableToolbar() {
                     onChange={handleChangeIngredients}
                 />
                 <Stack direction="column" spacing={1} sx={{width: '30%'}}>
-                    {/* Cost == Slider Selector */}
+                    {/* selectedCost == Slider Selector */}
                     <SliderSelector
-                        value={cost}
+                        value={selectedCost}
                         valueText="€"
-                        onChange={handleChangeCost}
+                        onChange={handleChangeselectedCost}
                         min={0}
                         max={10}
-                        name='Cost'
+                        name='selectedCost'
                     />
-                    {/* Portion == Slider Selector */}
+                    {/* selectedServing == Slider Selector */}
                     <SliderSelector
-                        value={portion}
+                        value={selectedServing}
                         valueText="units"
-                        onChange={handleChangePortion}
+                        onChange={handleChangeSelectedServing}
                         min={0}
                         max={10}
-                        name='Portion'
+                        name='selectedServing'
                     />
                 </Stack>
+                <Button onClick={() => handleSearch()}>
+                    <Logo size={20} path={images.icons.search}></Logo>
+                </Button>
+                <Button onClick={() => handleCleanFilters()}>
+                    <Logo size={20} path={images.icons.trash}></Logo>
+                </Button>
             </Stack>
         </Box>
     );
