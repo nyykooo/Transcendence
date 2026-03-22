@@ -39,7 +39,7 @@ app.post('/register', async (req, res) => {
 })
 
 
-app.post('/login', async (req, res) => {
+app.post('/Login', async (req, res) => {
     const {email, password} = req.body;
     const user = users.find(r => r.email === email);
     if (!email || !password)
@@ -93,12 +93,11 @@ app.get('/auth/github', (req, res) => {
     });
   }
 
-  // FIX 1: Math.random() must be called
   githubOAuthState = Math.random().toString(36).slice(2);
 
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: redirectUri, // GitHub expects redirect_uri (underscore)
+    redirect_uri: redirectUri,
     scope: "user:email",
     state: githubOAuthState,
   });
@@ -140,7 +139,7 @@ app.get('/auth/github/callback', async (req, res) => {
       });
     }
 
-    // Exchange code for access token
+    
     const tokenResp = await axios.post(
       "https://github.com/login/oauth/access_token",
       new URLSearchParams({
@@ -221,7 +220,6 @@ app.get('/auth/github/callback', async (req, res) => {
       token: jwtToken,
     });
   } catch (error) {
-    // FIX 2: use the catch variable name consistently
     return res.status(500).json({
       error: "GitHub OAuth failed",
       details: error?.response?.data || error.message,
