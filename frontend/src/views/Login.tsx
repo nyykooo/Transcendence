@@ -1,13 +1,21 @@
 import { useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import { Box, Stack, TextField, Button } from '@mui/material'
 
 import { Logo } from '../components/components'
 
+import { useAuth } from '../components/AuthProvider';
+
 import { images } from '../configs/images'
+
 
 export default function Login()
 {
+    const { signIn } = useAuth();
+    const navigate = useNavigate();
+
     const [pass, setPass] = useState<string>('');
 
     const handleUpdatePass = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,14 +28,20 @@ export default function Login()
         setUser(event.target.value);
     };
 
-    const handleSubmitLogin = () => {
-        const sendData = {
-            user: user,
-            pass: pass
+    const handleSubmitLogin = async () => {
+        try {
+            const login = {
+                username: user,
+                password: pass
+            };
+            console.log(login);
+            await signIn(login);
+            navigate('/'); // redireciona após login
+        } catch (err) {
+            console.error('Falha no login:', err);
+            // exibe mensagem de erro pro usuário
         }
-
-        console.log(sendData);
-    }
+};
 
     return (
         <Box sx={{height: '100%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>

@@ -8,17 +8,18 @@ import {
   NotFound, 
   Login
  }  from "../views/index";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function Router() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/RecipeView/:name" element={<RecipeView />} />
-      <Route path="/RecipeListView" element={<RecipeListView />} />
+      <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+      <Route path="/RecipeView/:name" element={<ProtectedRoute><RecipeView /></ProtectedRoute>} />
+      <Route path="/RecipeListView" element={<ProtectedRoute><RecipeListView /></ProtectedRoute>} />
       <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
       <Route path="/TermsOfService" element={<TermsOfService />} />
       <Route path="/Login" element={<Login />} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
     </Routes>
   );
 }
