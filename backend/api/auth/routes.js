@@ -1,18 +1,14 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const dotenv = require('dotenv');
-const axios = require('axios')
+const axios = require('axios');
+const { requireAuth } = require('./requireAuth');
+const router = express.Router();
 
-dotenv.config();
-
-const app = express();
 let currentId = 1;
-app.use(express.json());
-
 const users = [];
 
-app.post('/register', async (req, res) => {
+router.post('/register', async (req, res) => {
     const {email, password, name} = req.body;
     const user = users.find(r => r.email === email);
 
@@ -39,7 +35,7 @@ app.post('/register', async (req, res) => {
 })
 
 
-app.post('/Login', async (req, res) => {
+async function loginHandler(req,res) {
     const {email, password} = req.body;
     const user = users.find(r => r.email === email);
     if (!email || !password)
@@ -50,40 +46,27 @@ app.post('/Login', async (req, res) => {
     if (!ok)
         return res.status(401).json({error: "Incorrect password"});
     const token = jwt.sign(
-        {sub: user.id, email: user.email},
+        {id: user.id, email: user.email},
         process.env.JWT_SECRET,
         {expiresIn: "1h"}
     );
-    return res.status(200).json({"message": "Sucessful login", user, token});
-})
-
-function requireAuth(req, res, next) {
-    const auth = req.headers.authorization;
-    const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
-    if (!token)
-        return res.status(401).json({error: "Missing token"});
-    try {
-        req.user = jwt.verify(token, process.env.JWT_SECRET);
-        next();
-    }
-    catch(e) {
-        return res.status(401).json({error: "invalid or expired token"});
-    }
-
+    return res.status(200).json({message: "Sucessful login", user, token});
 }
 
-app.get('/profile', requireAuth, (req, res) => {
-  res.json({ message: "ok", user: req.user });
+router.post(['/Login', '/login'], loginHandler);
+
+
+router.get(['/profile' ,'/auth'], requireAuth, (req, res) => {
+    res.json({message: 'ok', user: req.user})
 })
 
-const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, () => console.log(`Auth listening on ${PORT}`));
+
 
 // Simple (training-only) global state store.
 // NOTE: This is not safe for multi-user/concurrent logins in real apps.
 let githubOAuthState = null;
 
-app.get('/auth/github', (req, res) => {
+router.get('/auth/github', (req, res) => {
   const clientId = process.env.GITHUB_CLIENT_ID;
   const redirectUri = process.env.GITHUB_CALLBACK_URL;
 
@@ -106,7 +89,7 @@ app.get('/auth/github', (req, res) => {
   return res.redirect(githubAuthorizeUrl);
 });
 
-app.get('/auth/github/callback', async (req, res) => {
+router.get('/auth/github/callback', async (req, res) => {
   try {
     // If GitHub sends an error instead of a code, surface it
     if (req.query.error) {
@@ -226,3 +209,5 @@ app.get('/auth/github/callback', async (req, res) => {
     });
   }
 });
+
+module.exports = {authRouter: router, users};
