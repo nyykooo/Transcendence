@@ -51,6 +51,18 @@ export default function Login()
         }
     };
 
+    const handleGithubLogin = async () => {
+        try {
+            const login: LoginProps = {
+                email: email,
+                password: pass
+            };
+            await signIn(login, 'github');
+            navigate('/'); // navigates to home page after successful login
+        } catch (err) {
+            alert('Login failed: ' + err);
+        }
+    };
 
     const handleRegister = async () => {
             navigate('/register');
@@ -75,6 +87,11 @@ export default function Login()
                     onClick={handleSubmitLogin}
                 >
                     Submit
+                </Button>
+                <Button
+                    onClick={handleGithubLogin}
+                >
+                    Login using Github
                 </Button>
                 <Button
                     onClick={handleRegister}

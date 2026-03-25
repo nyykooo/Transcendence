@@ -33,7 +33,7 @@ export default function Register()
         }
     }
 
-    const handleSubmitLogin = async () => {
+    const handleSubmitRegister = async () => {
         try {
             validateEmailProps(email, pass);
 
@@ -64,7 +64,7 @@ export default function Register()
                     onChange={handleUpdatePass}
                 />
                 <Button
-                    onClick={handleSubmitLogin}
+                    onClick={handleSubmitRegister}
                 >
                     Submit
                 </Button>

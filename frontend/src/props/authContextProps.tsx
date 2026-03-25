@@ -3,5 +3,5 @@ import { type LoginProps } from './loginProps';
 
 export type AuthContextType = {
   user: User | null;
-  signIn: (login: LoginProps) => Promise<void>;
+  signIn: (login?: LoginProps, option?: string) => Promise<void>;
 };
