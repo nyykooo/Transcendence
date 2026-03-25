@@ -4,6 +4,8 @@ INSERT INTO dev_dba.ingredients (name, price_per_kg) VALUES
 ('Acai', 15.60),
 ('Sugar', 1.22),
 ('Brown Sugar', 1.22),
+('Cumin' ,  27.20 ),
+('Sweet Paprika' ,  19.86),
 ('Powdered Sugar', 2.68),
 ('Agave Syrup', 12.22),
 ('Rosemary', 22.34),

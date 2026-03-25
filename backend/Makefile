@@ -1,8 +1,10 @@
 
-all: api docker_build docker_up
-
-api:
+all: build
 	npm install --prefix ./api
+
+build:
+	./check_install.sh
+
 clean:
 	rm -rf ./api/node_modules
 
