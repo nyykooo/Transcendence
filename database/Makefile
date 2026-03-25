@@ -3,6 +3,9 @@ all: init
 
 build: up init
 
+up:
+	docker compose -f ../docker-compose.yml up -d postgres
+
 init: up
 	./tools/sql_run.sh ./tools/SQL/DB_creation.sql
 	./tools/sql_run.sh ./tools/SQL/Create_tables.sql
