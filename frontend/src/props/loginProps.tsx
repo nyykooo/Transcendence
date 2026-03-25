@@ -5,10 +5,6 @@ export type LoginProps = {
 
 export type LoginResponse = {
     message: string;
-    user: {
-        id: number;
-        email: string;
-        password: string;
-    };
+    id: number;
     token: string;
 }
