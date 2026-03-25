@@ -6,7 +6,8 @@ import {
   PrivacyPolicy, 
   TermsOfService, 
   NotFound, 
-  Login
+  Login,
+  Register
  }  from "../views/index";
 import ProtectedRoute from "../components/ProtectedRoute";
 
@@ -14,11 +15,12 @@ export default function Router() {
   return (
     <Routes>
       <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-      <Route path="/RecipeView/:name" element={<ProtectedRoute><RecipeView /></ProtectedRoute>} />
-      <Route path="/RecipeListView" element={<ProtectedRoute><RecipeListView /></ProtectedRoute>} />
-      <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-      <Route path="/TermsOfService" element={<TermsOfService />} />
-      <Route path="/Login" element={<Login />} />
+      <Route path="/recipe-view/:name" element={<ProtectedRoute><RecipeView /></ProtectedRoute>} />
+      <Route path="/recipe-list-view" element={<ProtectedRoute><RecipeListView /></ProtectedRoute>} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-of-service" element={<TermsOfService />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
     </Routes>
   );

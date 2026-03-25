@@ -1,28 +1,30 @@
 export const paths = {
-    home: 
-    {
+    home: {
       path:  '/',
       name: 'Home',
     },
     recipesList: {
-      path: '/RecipeListView',
+      path: '/recipe-list-view',
       name: 'Recipes List',
     },
     recipe: {
-      path: '/RecipeView',
+      path: '/recipe-view',
       name: 'Recipe',
     },
     privacyPolicy: {
-      path: '/PrivacyPolicy',
+      path: '/privacy-policy',
       name: 'Privacy Policy',
     },
     termsOfService: {
-      path: '/TermsOfService',
+      path: '/terms-of-service',
       name: 'Terms of Service',
     },
-    login: 
-    {
-      path:  '/Login',
+    login: {
+      path:  '/login',
       name: 'Login',
     },
+    register: {
+      path: '/register',
+      name: 'Register'
+    }
 }
