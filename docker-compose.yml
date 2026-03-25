@@ -33,6 +33,7 @@ services:
     ports:
       - "5432:443"
     volumes:
+      # - postgres_data:/var/lib/postgresql/data
       - ./database/tools/certs/postgres-ssl-certs:/var/lib/postgresql/ssl:ro
     restart: always
     command: |
@@ -53,9 +54,13 @@ services:
       - "5050:443"
     restart: always 
     volumes:
-      - ./tools/server.json:/pgadmin4/servers.json
-      - ./tools/certs/pgadmin:/certs
+      - ./database/tools/server.json:/pgadmin4/servers.json
+      - ./database/tools/certs/pgadmin:/certs
     env_file:
       - .env
     depends_on:
       - postgres
+
+volumes:
+    postgres_data:
+    pgadmin_data:
