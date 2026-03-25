@@ -1,14 +1,10 @@
 
-all: recipes auth
+all: api docker_build docker_up
 
-recipes:
-	npm --prefix ./Recipes ci
-
-auth:
-	npm --prefix ./Auth ci
-
+api:
+	npm install --prefix ./api
 clean:
-	rm -rf ./Recipes/node_modules ./Auth/node_modules
+	rm -rf ./api/node_modules
 
 docker_build:
 	docker compose -f docker-compose.yml build
