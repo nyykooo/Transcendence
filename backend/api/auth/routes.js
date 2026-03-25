@@ -2,7 +2,9 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const axios = require('axios');
+const path = require('path')
 const { requireAuth } = require('./requireAuth');
+const { upload } = require('./upload');
 const router = express.Router();
 
 let currentId = 1;
@@ -61,6 +63,25 @@ router.get(['/profile' ,'/auth'], requireAuth, (req, res) => {
     res.json({message: 'ok', user: req.user})
 })
 
+
+router.post('/profile/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
+    // This route will:
+    const file = req.file;
+    const userId = Number(req.userId);
+    const user = users.find(r => r.id === userId);
+    // 1. Check if a file was uploaded
+    if (!file)
+      return res.status(400).json({error: 'No file uploaded'});
+    // 2. Find the user by req.userId (from the token)
+  if (!user)
+      return res.status(404).json({error: 'User not found'});
+    // 3. Save the avatar URL to the user object
+  const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${file.filename}`;
+  user.avatar = avatarUrl;
+  // 4. Return the avatar URL
+  return res.status(200).json({ avatar: avatarUrl });
+})
+;
 
 
 // Simple (training-only) global state store.
@@ -201,7 +222,7 @@ router.get('/auth/github/callback', async (req, res) => {
 
     return res.status(200).json({
       message: "GitHub login successful",
-      user,
+      id : user.id,
       token: jwtToken,
     });
   } catch (error) {
