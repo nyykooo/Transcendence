@@ -1,6 +1,19 @@
+# BRUNCHIO=$(shell pwd)
+DATABASE=./database
+FRONTEND=./frontend
+BACKEND=./backend
+
+
 .PHONY: all build up start down stop restart 
 
-all: build up
+all: build up submakes
+
+submakes:
+
+	$(MAKE) -C $(BACKEND)
+	$(MAKE) -C $(DATABASE) init
+	$(MAKE) -C $(DATABASE) 
+
 build:
 	docker-compose -p inception -f ./docker-compose.yml build
 up:
