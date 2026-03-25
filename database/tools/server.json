@@ -1,0 +1,22 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "Brunchio Server",
+            "Group": "Servers",
+            "Port": 5432,
+            "Username": "yourUser",
+            "Host": "postgres",
+            "MaintenanceDB": "brunchio_db",
+            "ConnectionParameters": {
+                "sslmode": "require",
+                "connect_timeout": 10
+            },
+            "Tags" :[
+                {
+                    "color": "#3EB05A",
+                    "text": "Brunchio Connection"
+                }
+            ]
+        }
+    }
+}

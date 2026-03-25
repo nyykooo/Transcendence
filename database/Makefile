@@ -1,10 +1,7 @@
-all: up
+all: init
 	./tools/sql_run.sh ./tools/SQL/Is_up.sql
 
 build: up init
-
-up:
-	docker-compose up -d
 
 init: up
 	./tools/sql_run.sh ./tools/SQL/DB_creation.sql
@@ -27,6 +24,6 @@ fclean: clean
 	docker system prune -af --volumes
 	-docker volume ls -q | xargs -r docker volume rm -f 2>/dev/null || true
 
-re: fclean build
+re: fclean all
 
 .PHONY: all build up init clean fclean re
