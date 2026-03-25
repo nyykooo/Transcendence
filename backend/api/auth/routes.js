@@ -21,12 +21,13 @@ router.post('/register', async (req, res) => {
         id: currentId,
         email: email,
         password: passwordHash,
+        avatar: null,
         ...(name  ? { name } : {})
     }
     currentId++;
     users.push(newuser);
     const token = jwt.sign(
-        {id: newuser.id, email: newuser.email},
+        {id: newuser.id, email: newuser.email, avatar: newuser.avatar},
         process.env.JWT_SECRET,
         {expiresIn: "1h"}
     );
@@ -46,7 +47,7 @@ async function loginHandler(req,res) {
     if (!ok)
         return res.status(401).json({error: "Incorrect password"});
     const token = jwt.sign(
-        {id: user.id, email: user.email},
+        {id: user.id, email: user.email, avatar: user.avatar},
         process.env.JWT_SECRET,
         {expiresIn: "1h"}
     );
@@ -186,13 +187,14 @@ router.get('/auth/github/callback', async (req, res) => {
         email,
         name: ghUser.name || ghUser.login,
         password: null,
+        avatar: null,
       };
       users.push(user);
     }
 
     // Generate JWT
     const jwtToken = jwt.sign(
-      { sub: user.id, email: user.email, githubId: user.githubId },
+      { id: user.id, email: user.email, githubId: user.githubId , avatar: user.avatar},
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
