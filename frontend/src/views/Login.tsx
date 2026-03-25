@@ -9,6 +9,7 @@ import { Logo } from '../components/components'
 import { useAuth } from '../components/AuthProvider';
 
 import { images } from '../configs/images'
+import type { LoginProps } from '../props/loginProps';
 
 
 export default function Login()
@@ -22,24 +23,32 @@ export default function Login()
         setPass(event.target.value);
     };
 
-    const  [user, setUser] = useState<string>('');
+    const  [email, setEmail] = useState<string>('');
 
-    const handleUpdateUser = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setUser(event.target.value);
+    const handleUpdateEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(event.target.value);
     };
+
+    function validateEmailProps(email: string, password: string) {
+        if (!email || !password) {
+            throw new Error('Email and password are required');
+        }
+    }
 
     const handleSubmitLogin = async () => {
         try {
-            const login = {
-                username: user,
+
+            validateEmailProps(email, pass);
+
+            const login: LoginProps = {
+                email: email,
                 password: pass
             };
-            console.log(login);
-            await signIn(login);
-            navigate('/'); // redireciona após login
+            console.log("login: ", login);
+            signIn(login);
+            navigate('/'); // navigates to home page after successful login
         } catch (err) {
-            console.error('Falha no login:', err);
-            // exibe mensagem de erro pro usuário
+            alert('Login failed: ' + err);
         }
 };
 
@@ -48,8 +57,8 @@ export default function Login()
             <Logo size={300} path={images.icons.logo}/>
             <Stack sx={{border: "black", borderRadius: "12px", display: "flex", flexDirection: "column"}}>
                 <TextField 
-                    label="user"
-                    onChange={handleUpdateUser}
+                    label="Email"
+                    onChange={handleUpdateEmail}
                 />
                 <TextField 
                     id="outlined-password-input"
