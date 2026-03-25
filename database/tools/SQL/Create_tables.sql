@@ -20,28 +20,28 @@ CREATE TABLE dev_dba.users
 ALTER TABLE IF EXISTS dev_dba.users
     OWNER to dev_dba;
 
-CREATE OR REPLACE FUNCTION dev_dba.hash_password_trigger()
-RETURNS trigger
-LANGUAGE plpgsql
-AS $BODY$
-BEGIN
-    -- Hash the password before inserting or updating
-    NEW.password := dev_dba.hash_pass(NEW.password);
-    RETURN NEW;
-END;
-$BODY$;
+-- CREATE OR REPLACE FUNCTION dev_dba.hash_password_trigger()
+-- RETURNS trigger
+-- LANGUAGE plpgsql
+-- AS $BODY$
+-- BEGIN
+--     -- Hash the password before inserting or updating
+--     NEW.password := dev_dba.hash_pass(NEW.password);
+--     RETURN NEW;
+-- END;
+-- $BODY$;
 
-ALTER FUNCTION dev_dba.hash_password_trigger() OWNER TO dev_dba;
+-- ALTER FUNCTION dev_dba.hash_password_trigger() OWNER TO dev_dba;
 
 
-ALTER TABLE dev_dba.users
-ADD CONSTRAINT password_format_check
-CHECK (password ~ '^SCRAM-SHA-256\$[0-9]+:[A-Za-z0-9+/=]+\$[A-Za-z0-9+/=]+:[A-Za-z0-9+/=]+$');
+-- ALTER TABLE dev_dba.users
+-- ADD CONSTRAINT password_format_check
+-- CHECK (password ~ '^SCRAM-SHA-256\$[0-9]+:[A-Za-z0-9+/=]+\$[A-Za-z0-9+/=]+:[A-Za-z0-9+/=]+$');
 
-CREATE TRIGGER hash_user_password
-    BEFORE INSERT OR UPDATE OF password ON dev_dba.users
-    FOR EACH ROW
-    EXECUTE FUNCTION dev_dba.hash_password_trigger();
+-- CREATE TRIGGER hash_user_password
+--     BEFORE INSERT OR UPDATE OF password ON dev_dba.users
+--     FOR EACH ROW
+--     EXECUTE FUNCTION dev_dba.hash_password_trigger();
 
 
 CREATE TABLE dev_dba.ingredients
@@ -111,9 +111,9 @@ CREATE TABLE dev_dba.recipe_ingredients
 );
 
 
-ALTER TABLE IF EXISTS dev_dba.pending_recipes
-    OWNER to dev_dba;
+-- ALTER TABLE IF EXISTS dev_dba.pending_recipes
+--     OWNER to dev_dba;
 
-CREATE INDEX idx_pending_recipes_user_id ON dev_dba.pending_recipes(user_id);
-CREATE INDEX idx_pending_recipes_status ON dev_dba.pending_recipes(status);
-CREATE INDEX idx_pending_recipes_submitted_at ON dev_dba.pending_recipes(submitted_at);
+-- CREATE INDEX idx_pending_recipes_user_id ON dev_dba.pending_recipes(user_id);
+-- CREATE INDEX idx_pending_recipes_status ON dev_dba.pending_recipes(status);
+-- CREATE INDEX idx_pending_recipes_submitted_at ON dev_dba.pending_recipes(submitted_at);

@@ -4,6 +4,7 @@ const path = require('path');
 
 const app = express();
 require('dotenv').config();
+const { pool } = require('./db');
 
 app.use(cors());
 app.use(express.json());
@@ -17,4 +18,26 @@ app.use(authRouter);
 app.use(recipesRouter);
 
 const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, () => console.log(`Recipes listening on ${PORT}`));
+
+async function startServer() {
+	try {
+		await pool.query('SELECT 1');
+		console.log('Connected to PostgreSQL');
+		app.listen(PORT, () => console.log(`Recipes listening on ${PORT}`));
+	} catch (error) {
+		console.error('Failed to connect to PostgreSQL:', error.message);
+		process.exit(1);
+	}
+}
+
+process.on('SIGTERM', async () => {
+	await pool.end();
+	process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+	await pool.end();
+	process.exit(0);
+});
+
+startServer();

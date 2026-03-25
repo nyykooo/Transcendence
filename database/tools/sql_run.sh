@@ -8,7 +8,7 @@ NC='\033[0m'
 DB_CONTAINER=${POSTGRES_CONTAINER:-brunchio_db}
 DB_NAME=${POSTGRES_DB:-brunchio_db}
 DB_USER=${POSTGRES_USER:-yourUser}
-DB_PASSWORD=${POSTGRES_PASSWORD:-}
+DB_PASSWORD=${POSTGRES_PW:-}
 
 PSQL_CMD="docker exec -i $DB_CONTAINER psql -h localhost -U $DB_USER -d $DB_NAME"
 
