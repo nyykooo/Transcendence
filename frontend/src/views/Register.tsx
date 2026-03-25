@@ -6,15 +6,13 @@ import { Box, Stack, TextField, Button } from '@mui/material'
 
 import { Logo } from '../components/components'
 
-import { useAuth } from '../components/AuthProvider';
-
 import { images } from '../configs/images'
-import type { LoginProps } from '../props/loginProps';
+import type { RegisterProps } from '../props/registerProps';
+import { register } from '../api/register';
 
 
-export default function Login()
+export default function Register()
 {
-    const { signIn } = useAuth();
     const navigate = useNavigate();
 
     const [pass, setPass] = useState<string>('');
@@ -37,23 +35,17 @@ export default function Login()
 
     const handleSubmitLogin = async () => {
         try {
-
             validateEmailProps(email, pass);
 
-            const login: LoginProps = {
+            const login: RegisterProps = {
                 email: email,
                 password: pass
             };
-            await signIn(login);
+            await register(login);
             navigate('/'); // navigates to home page after successful login
         } catch (err) {
             alert('Login failed: ' + err);
         }
-    };
-
-
-    const handleRegister = async () => {
-            navigate('/register');
     };
 
     return (
@@ -75,11 +67,6 @@ export default function Login()
                     onClick={handleSubmitLogin}
                 >
                     Submit
-                </Button>
-                <Button
-                    onClick={handleRegister}
-                >
-                    Register
                 </Button>
             </Stack>
         </Box>

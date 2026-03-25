@@ -12,10 +12,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export default function AuthProvider ({ children, isSignedIn } : AuthProviderProps) {
     const [user, setUser] = useState<User | null>(isSignedIn ? {id: 1, token: 'abc'} : null)
 
-
     const signIn = async (login: LoginProps) => {
         const response = await submitLogin(login);
-        console.log("response: ", response);
 
         if (response.user.email && response.user.password) {
             setUser({ id: response.user.id, token: response.token });
