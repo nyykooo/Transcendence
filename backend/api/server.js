@@ -23,7 +23,7 @@ async function startServer() {
 	try {
 		await pool.query('SELECT 1');
 		console.log('Connected to PostgreSQL');
-		app.listen(PORT, () => console.log(`Recipes listening on ${PORT}`));
+		app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
 	} catch (error) {
 		console.error('Failed to connect to PostgreSQL:', error.message);
 		process.exit(1);
