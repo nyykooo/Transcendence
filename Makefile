@@ -39,7 +39,8 @@ re: fclean all
 logs:
 	cd srcs && docker-compose logs
 
-dev_frontend: build dev submakes
+dev_frontend: dev submakes
 
 dev:
+	docker-compose -f ./docker-compose.yml build api postgres pgadmin
 	docker-compose -f ./docker-compose.yml up -d api postgres pgadmin

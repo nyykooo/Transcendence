@@ -1,6 +1,7 @@
 export type RegisterProps = {
     email: string;
     password: string;
+    name: string;
 };
 
 export type RegisterResponse = {
