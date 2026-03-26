@@ -5,11 +5,7 @@ import { type AuthProviderProps } from '../props/authProviderProps';
 import { type AuthContextType } from '../props/authContextProps';
 import type { LoginProps } from '../props/loginProps';
 
-<<<<<<< HEAD
 import { submitLogin, startGithubLogin } from '../api/login';
-=======
-import { submitLogin, submitGithubLogin } from '../api/login';
->>>>>>> 0f4e313 (BIO_FE: Gihthub auth)
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
