@@ -53,12 +53,7 @@ export default function Login()
 
     const handleGithubLogin = async () => {
         try {
-            const login: LoginProps = {
-                email: email,
-                password: pass
-            };
-            await signIn(login, 'github');
-            navigate('/'); // navigates to home page after successful login
+            await signIn(undefined, 'github');
         } catch (err) {
             alert('Login failed: ' + err);
         }
