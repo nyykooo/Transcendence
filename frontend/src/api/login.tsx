@@ -19,17 +19,16 @@ export async function submitLogin(login: LoginProps): Promise<LoginResponse>
 
 export async function submitGithubLogin(): Promise<LoginResponse>
 {
-    return await fetch('http://localhost:3000/auth/github', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Github login failed');
-        }
-        return response.json();
-    });
+    // IMPORTANT:
+    // GitHub OAuth authorize endpoint does not support CORS.
+    // If we use fetch() against an endpoint that redirects to GitHub,
+    // the browser will follow the redirect as XHR and trigger a CORS preflight.
+    // Therefore, GitHub login must be initiated via a top-level navigation.
+    window.location.assign('http://localhost:3000/auth/github');
+    // This promise never resolves because we leave the page.
+    return new Promise(() => {});
+}
+
+export function startGithubLogin(): void {
+    window.location.assign('http://localhost:3000/auth/github');
 }
