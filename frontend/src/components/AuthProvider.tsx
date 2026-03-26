@@ -5,25 +5,47 @@ import { type AuthProviderProps } from '../props/authProviderProps';
 import { type AuthContextType } from '../props/authContextProps';
 import type { LoginProps } from '../props/loginProps';
 
-import { submitLogin, submitGithubLogin } from '../api/login';
+import { submitLogin, startGithubLogin } from '../api/login';
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const AUTH_STORAGE_KEY = 'auth';
+
+function readStoredUser(): User | null {
+    try {
+        const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') return null;
+        if (typeof parsed.id !== 'number' || typeof parsed.token !== 'string') return null;
+        return { id: parsed.id, token: parsed.token };
+    } catch {
+        return null;
+    }
+}
+
+function storeUser(user: User | null) {
+    try {
+        if (user === null) {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+            return;
+        }
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+    } catch {
+        // ignore storage errors
+    }
+}
+
 export default function AuthProvider ({ children, isSignedIn } : AuthProviderProps) {
-    const [user, setUser] = useState<User | null>(isSignedIn ? {id: 1, token: 'abc'} : null)
+    const [user, setUser] = useState<User | null>(() => readStoredUser() || (isSignedIn ? {id: 1, token: 'abc'} : null))
 
     const signIn = async (login: LoginProps = { email: '', password: '' }, option: string = 'default') => {
         var res;
         switch (option) {
             case 'github':
-                res = await submitGithubLogin();
-
-                if (res.id && res.token) {
-                    setUser({ id: res.id, token: res.token });
-                }
-                else {
-                    throw new Error('Github login failed');
-                }
+                // Starts OAuth by redirecting away from the SPA.
+                // The OAuth callback route will store the token and reload the app.
+                startGithubLogin();
                 break;
             default:
                 if (login.email === '' || login.password === '') {
@@ -32,7 +54,9 @@ export default function AuthProvider ({ children, isSignedIn } : AuthProviderPro
                 res = await submitLogin(login);
 
                 if (res.id && res.token) {
-                    setUser({ id: res.id, token: res.token });
+                    const nextUser = { id: res.id, token: res.token };
+                    storeUser(nextUser);
+                    setUser(nextUser);
                 } else {
                     throw new Error('Invalid credentials');
                 }

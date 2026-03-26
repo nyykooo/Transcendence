@@ -16,8 +16,8 @@ router.post('/register', async (req, res) => {
   const normalizedEmail = String(email || '').trim().toLowerCase();
   const displayName = String(name || '').trim().slice(0, 20);
 
-    if (!normalizedEmail || !password || !displayName)
-      return res.status(400).json({error: "Name, email and password required"});
+    if (!normalizedEmail || !password)
+      return res.status(400).json({error: "email and password required"});
 
     try {
     const passwordHash = await bcrypt.hash(password, 10);
@@ -244,7 +244,14 @@ router.get('/auth/github/callback', async (req, res) => {
         password: null,
         avatar: null,
       };
-      users.push(user);
+      const hash_pass = bcrypt.hash(user.name, 10);
+     const created = await pool.query(
+      `INSERT INTO dev_dba.users (name, nick, password, email, is_active, last_login)
+       VALUES ($1, $2, $3, $4, true, NOW())
+       RETURNING id, email, name, nick, is_active, created_at, last_login`,
+      [user.name, user.name, hash_pass, user.email]
+    );
+    users.push(user);
     }
 
     // Generate JWT
@@ -254,11 +261,11 @@ router.get('/auth/github/callback', async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    return res.status(200).json({
-      message: "GitHub login successful",
-      id : user.id,
-      token: jwtToken,
-    });
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const redirectTo = new URL('/auth/github/callback', frontendUrl);
+    redirectTo.searchParams.set('id', String(user.id));
+    redirectTo.searchParams.set('token', jwtToken);
+    return res.redirect(redirectTo.toString());
   } catch (error) {
     return res.status(500).json({
       error: "GitHub OAuth failed",
