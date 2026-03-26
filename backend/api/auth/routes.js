@@ -14,28 +14,45 @@ const users = [];
 router.post('/register', async (req, res) => {
   const {email, password, name} = req.body;
   const normalizedEmail = String(email || '').trim().toLowerCase();
-  const displayName = String(name || '').trim().slice(0, 20);
+
 
     if (!normalizedEmail || !password)
       return res.status(400).json({error: "email and password required"});
 
     try {
     const passwordHash = await bcrypt.hash(password, 10);
+    if (name)
+    {
+      
+      const created = await pool.query(
+        `INSERT INTO dev_dba.users (name, nick, password, email, is_active, last_login)
+        VALUES ($1, $2, $3, $4, true, NOW())
+        RETURNING id, email, name, nick, is_active, created_at, last_login`,
+        [displayName, displayName, passwordHash, normalizedEmail]
+      );
+      const newuser = { ...created.rows[0], avatar: null };
+      const token = jwt.sign(
+        {id: newuser.id, email: newuser.email, avatar: newuser.avatar},
+        process.env.JWT_SECRET,
+        {expiresIn: "1h"}
+      );
+      return res.status(200).json({message: "created user", newuser, token});
+    } else {
+
     const created = await pool.query(
-      `INSERT INTO dev_dba.users (name, nick, password, email, is_active, last_login)
-       VALUES ($1, $2, $3, $4, true, NOW())
-       RETURNING id, email, name, nick, is_active, created_at, last_login`,
-      [displayName, displayName, passwordHash, normalizedEmail]
-    );
-
-    const newuser = { ...created.rows[0], avatar: null };
-    const token = jwt.sign(
-      {id: newuser.id, email: newuser.email, avatar: newuser.avatar},
-      process.env.JWT_SECRET,
-      {expiresIn: "1h"}
-    );
-
-    return res.status(200).json({message: "created user", newuser, token});
+        `INSERT INTO dev_dba.users (password, email, is_active, last_login)
+        VALUES ($1, $2, true, NOW())
+        RETURNING  name, nick, is_active, created_at, last_login`,
+        [ passwordHash, normalizedEmail]
+      );
+      const newuser = { ...created.rows[0], avatar: null };
+      const token = jwt.sign(
+        {id: newuser.id, email: newuser.email, avatar: newuser.avatar},
+        process.env.JWT_SECRET,
+        {expiresIn: "1h"}
+      );
+      return res.status(200).json({message: "created user", newuser, token});
+    }
   } catch (error) {
     if (error?.code === '23505')
       return res.status(409).json({error: "User already exists"});
@@ -77,20 +94,12 @@ async function loginHandler(req,res) {
 
     await pool.query('UPDATE dev_dba.users SET last_login = NOW(), is_active = true WHERE id = $1', [user.id]);
 
-    const safeUser = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      nick: user.nick,
-      avatar: null,
-    };
-
     const token = jwt.sign(
-      {id: safeUser.id, email: safeUser.email, avatar: safeUser.avatar},
+      {id: user.id, email: user.email, avatar: user.avatar},
       process.env.JWT_SECRET,
       {expiresIn: "1h"}
     );
-    return res.status(200).json({message: "Sucessful login", user: safeUser, token});
+    return res.status(200).json({message: "Sucessful login", id: user.id, token});
   } catch (error) {
     return res.status(500).json({error: "Failed to login", details: error.message});
   }
