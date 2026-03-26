@@ -4,7 +4,10 @@ all: init
 build:
 	./tools/gen_certs.sh
 
-init: build
+up:
+	docker compose -f ../docker-compose.yml up -d postgres
+
+init: up
 	./tools/sql_run.sh ./tools/SQL/DB_creation.sql
 	./tools/sql_run.sh ./tools/SQL/Create_tables.sql
 	./tools/sql_run.sh ./tools/SQL/Ingredients_import.sql

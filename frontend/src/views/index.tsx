@@ -6,3 +6,4 @@ export { default as TermsOfService } from './terms-of-service/Terms-of-Service';
 export { default as Login } from './Login';
 export { default as Register } from './Register';
 export { default as NotFound } from './error/404';
+export { default as GithubCallback } from './GithubCallback';

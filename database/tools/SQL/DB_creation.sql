@@ -1,22 +1,17 @@
+CREATE USER dev_dba WITH PASSWORD 'your_secure_password' LOGIN;
+
 CREATE DATABASE "brunchio_db"
 	WITH
-	OWNER = postgres
+	OWNER = dev_dba
 	ENCODING = 'UTF8'
 	LC_CTYPE = 'en_US.utf8'
 	CONNECTION LIMIT = -1
 	IS_TEMPLATE = False;
 
-GRANT ALL ON DATABASE "brunchio_db" TO postgres WITH GRANT OPTION;
-
-CREATE USER dev_dba WITH PASSWORD 'your_secure_password' LOGIN;
-
 CREATE SCHEMA dev_dba
 	AUTHORIZATION dev_dba;
 
 GRANT ALL ON SCHEMA dev_dba TO dev_dba WITH GRANT OPTION;
-
-
-GRANT ALL ON SCHEMA dev_dba TO postgres WITH GRANT OPTION;
 
 GRANT CONNECT ON DATABASE "brunchio_db" TO dev_dba;
 GRANT ALL PRIVILEGES ON DATABASE "brunchio_db" TO dev_dba;

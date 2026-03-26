@@ -15,12 +15,16 @@ services:
   api:
     image: transcendence-api:1.0
     container_name: transcendence_api
+    depends_on:
+      - postgres
     build:
       context: ./backend/api
       dockerfile: Dockerfile
     restart: always
     env_file:
       - .env
+    environment:
+      - POSTGRES_HOST=postgres
     ports:
       - "3000:3000"
   postgres:
@@ -31,7 +35,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PW:-changeit}
       - POSTGRES_DB=${POSTGRES_DB:-brunchio_db}
     ports:
-      - "5432:443"
+      - "5432:5432"
     volumes:
       # - postgres_data:/var/lib/postgresql/data
       - ./database/tools/certs/postgres-ssl-certs:/var/lib/postgresql/ssl:ro
