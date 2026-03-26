@@ -4,7 +4,7 @@ FRONTEND=./frontend
 BACKEND=./backend
 
 
-.PHONY: all build up start down stop restart 
+.PHONY: all build up start down stop restart dev_frontend
 
 all: build up submakes
 
@@ -34,7 +34,12 @@ prune_net:
 
 fclean: down prune prune_net
 
-re: fclean build up
+re: fclean all
 
 logs:
 	cd srcs && docker-compose logs
+
+dev_frontend: build dev submakes
+
+dev:
+	docker-compose -f ./docker-compose.yml up -d api postgres pgadmin
