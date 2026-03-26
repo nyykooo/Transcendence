@@ -27,6 +27,12 @@ export default function Register()
         setEmail(event.target.value);
     };
 
+    const [name, setName] = useState<string>('');
+
+    const handleUpdateName = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setName(event.target.value);
+    };
+
     function validateEmailProps(email: string, password: string) {
         if (!email || !password) {
             throw new Error('Email and password are required');
@@ -39,7 +45,8 @@ export default function Register()
 
             const login: RegisterProps = {
                 email: email,
-                password: pass
+                password: pass,
+                name: name
             };
             await register(login);
             navigate('/'); // navigates to home page after successful login
@@ -55,6 +62,9 @@ export default function Register()
                 <TextField 
                     label="Email"
                     onChange={handleUpdateEmail}
+                />                <TextField 
+                    label="Name"
+                    onChange={handleUpdateName}
                 />
                 <TextField 
                     id="outlined-password-input"

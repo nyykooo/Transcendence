@@ -15,9 +15,8 @@ router.post('/register', async (req, res) => {
   const {email, password, name} = req.body;
   const normalizedEmail = String(email || '').trim().toLowerCase();
 
-
-    if (!normalizedEmail || !password)
-      return res.status(400).json({error: "email and password required"});
+    if (!normalizedEmail || !password || !name)
+      return res.status(400).json({error: "email, password, and name are required"});
 
     try {
     const passwordHash = await bcrypt.hash(password, 10);
@@ -28,7 +27,7 @@ router.post('/register', async (req, res) => {
         `INSERT INTO dev_dba.users (name, nick, password, email, is_active, last_login)
         VALUES ($1, $2, $3, $4, true, NOW())
         RETURNING id, email, name, nick, is_active, created_at, last_login`,
-        [displayName, displayName, passwordHash, normalizedEmail]
+        [name, name, passwordHash, normalizedEmail]
       );
       const newuser = { ...created.rows[0], avatar: null };
       const token = jwt.sign(
