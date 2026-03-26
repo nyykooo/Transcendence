@@ -1,7 +1,8 @@
 all: init
 	./tools/sql_run.sh ./tools/SQL/Is_up.sql
 
-build: up init
+build:
+	./tools/gen_certs.sh
 
 up:
 	docker compose -f ../docker-compose.yml up -d postgres
