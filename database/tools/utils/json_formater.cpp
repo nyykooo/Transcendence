@@ -43,7 +43,7 @@ int main(int ac, char **av) {
 		std::string name = std::string(av[i]);
 		size_t dotPos = name.find_first_of(".");
 		name = name.substr(0, dotPos);
-		name += "::ingredients.json";
+		name += "_ingredients.json";
 		name = "./JSONB/" + name;
 		std::ofstream outfile(name.c_str());
 		outfile << "[\n";

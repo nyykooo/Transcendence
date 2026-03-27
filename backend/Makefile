@@ -19,4 +19,7 @@ docker_down:
 
 docker_logs:
 	docker compose -f docker-compose.yml logs -f
-.PHONY: all recipes auth clean docker_build docker_up docker_down docker_logs
+
+re: docker_down clean all
+
+.PHONY: all recipes auth clean docker_build docker_up docker_down docker_logs re
