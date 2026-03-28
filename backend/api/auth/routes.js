@@ -264,7 +264,7 @@ router.get('/auth/github/callback', async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:80';
     const redirectTo = new URL('/auth/github/callback', frontendUrl);
     redirectTo.searchParams.set('id', String(user.id));
     redirectTo.searchParams.set('token', jwtToken);

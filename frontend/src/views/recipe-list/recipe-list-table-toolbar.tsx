@@ -62,10 +62,11 @@ export default function RecipeListTableToolbar() {
 
     const handleChangeselectedCost = (event: Event, newValue: number[], activeThumb: number) => {
         if (activeThumb === 0) {
-        setSelectedCost([Math.min(newValue[0], selectedCost[1] - 1), selectedCost[1]]);
+            setSelectedCost([Math.min(newValue[0], selectedCost[1] - 1), selectedCost[1]]);
         } else {
-        setSelectedCost([selectedCost[0], Math.max(newValue[1], selectedCost[0] + 1)]);
+            setSelectedCost([selectedCost[0], Math.max(newValue[1], selectedCost[0] + 1)]);
         }
+        event.preventDefault();
     };
 
     
@@ -74,10 +75,11 @@ export default function RecipeListTableToolbar() {
 
     const handleChangeSelectedServing = (event: Event, newValue: number[], activeThumb: number) => {
         if (activeThumb === 0) {
-        setSelectedServing([Math.min(newValue[0], selectedServing[1] - 1), selectedServing[1]]);
+            setSelectedServing([Math.min(newValue[0], selectedServing[1] - 1), selectedServing[1]]);
         } else {
-        setSelectedServing([selectedServing[0], Math.max(newValue[1], selectedServing[0] + 1)]);
+            setSelectedServing([selectedServing[0], Math.max(newValue[1], selectedServing[0] + 1)]);
         }
+        event.preventDefault();
     };
 
 
@@ -114,6 +116,9 @@ export default function RecipeListTableToolbar() {
                 max: selectedServing[1]
             }
         }
+        console.log(_selectedFilters);
+        setSelectedFilters(_selectedFilters);
+        console.log("Search button clicked with filters: ", selectedFilters);
     }
     const handleCleanFilters = () =>
     {
