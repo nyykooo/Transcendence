@@ -15,8 +15,8 @@ router.post('/register', async (req, res) => {
   const {email, password, name} = req.body;
   const normalizedEmail = String(email || '').trim().toLowerCase();
 
-    if (!normalizedEmail || !password || !name)
-      return res.status(400).json({error: "email, password, and name are required"});
+    if (!normalizedEmail || !password )
+      return res.status(400).json({error: "email, password are required"});
 
     try {
     const passwordHash = await bcrypt.hash(password, 10);
@@ -40,8 +40,13 @@ router.post('/register', async (req, res) => {
 
     const created = await pool.query(
         `INSERT INTO dev_dba.users (password, email, is_active, last_login)
+<<<<<<< Updated upstream
         VALUES ($1, false, NOW())
         RETURNING  name, is_active, created_at, last_login`,
+=======
+        VALUES ($1, $2, , NOW())
+        RETURNING  nick, is_active, created_at, last_login`,
+>>>>>>> Stashed changes
         [ passwordHash, normalizedEmail]
       );
       const newuser = { ...created.rows[0], avatar: null };
@@ -110,13 +115,15 @@ router.get(['/profile' ,'/auth'], requireAuth, (req, res) => {
 router.post('/profile/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
     // This route will:
     const file = req.file;
+    const id = body.id;
+    const token = body.token;
     // 1. Check if a file was uploaded
     if (!file)
       return res.status(400).json({error: 'No file uploaded'});
     // 3. Save the avatar URL to the user object
   const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${file.filename}`;
   // 4. Return the avatar URL
-  return res.status(200).json({ avatar: avatarUrl });
+  return res.status(200).json({ message: 'User found', avatar: avatarUrl });
 })
 ;
 
