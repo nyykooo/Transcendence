@@ -110,17 +110,41 @@ router.get(['/profile' ,'/auth'], requireAuth, (req, res) => {
 router.post('/profile/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
     // This route will:
     const file = req.file;
-    const id = body.id;
-    const token = body.token;
-    // 1. Check if a file was uploaded
+    
     if (!file)
       return res.status(400).json({error: 'No file uploaded'});
-    // 3. Save the avatar URL to the user object
-  const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${file.filename}`;
-  // 4. Return the avatar URL
-  return res.status(200).json({ message: 'User found', avatar: avatarUrl });
-})
-;
+    
+    const userId = req.user?.id;
+    if (!userId)
+      return res.status(401).json({error: 'Unauthorized'});
+    
+    const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${file.filename}`;
+
+    try {
+      const updated = await pool.query(
+        `UPDATE dev_dba.users
+        SET avatar = $1
+        WHERE id = $2
+        RETURNING id, email, name, avatar, is_active`,
+       [avatarUrl, userId]
+      );
+      if (updated.rowCount === 0)
+           return res.status(404).json({error: "User does not exist"});
+      return res.status(200).json({
+        message: 'Avatar updated',
+        user: updated.rows[0],
+        avatar: avatarUrl,
+      });
+    }
+
+    catch (error)
+    {
+      return res.status(500).json({
+        error: 'Failed to update avatar',
+        details: error.message,
+    });
+  }
+});
 
 
 // Simple (training-only) global state store.
