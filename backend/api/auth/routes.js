@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
 
     const created = await pool.query(
         `INSERT INTO dev_dba.users (password, email, is_active, last_login)
-        VALUES ($1, false, NOW())
+        VALUES ($1, $2, false, NOW())
         RETURNING  name, is_active, created_at, last_login`,
         [ passwordHash, normalizedEmail]
       );
@@ -249,12 +249,12 @@ router.get('/auth/github/callback', async (req, res) => {
         password: null,
         avatar: null,
       };
-      const hash_pass = bcrypt.hash(user.name, 10);
+      const hash_pass = await bcrypt.hash(user.name, 10);
      const created = await pool.query(
       `INSERT INTO dev_dba.users (name, password, email, is_active, last_login)
        VALUES ($1, $2, $3, true, NOW())
        RETURNING id, email, name, is_active, created_at, last_login`,
-      [user.name, user.name, hash_pass, user.email]
+      [user.name, hash_pass, user.email]
     );
     users.push(user);
     }
