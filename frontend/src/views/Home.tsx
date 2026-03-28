@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import DomeGallery from '../components/DomeGallery';
 import { Box } from '@mui/material';
 
