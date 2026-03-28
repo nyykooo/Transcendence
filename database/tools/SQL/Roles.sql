@@ -59,7 +59,7 @@ BEGIN
         
         -- Insert the user
         INSERT INTO dev_dba.users (
-            id, role, name, nick, password, email,
+            id, role, name, password, email,
             liked, viewed, created_at, updated_at, last_login, is_active
         ) VALUES (
             next_id, 'admin', target_user, target_user,
@@ -108,7 +108,7 @@ BEGIN
             -- Insert the user
             BEGIN
                 INSERT INTO dev_dba.users (
-                    id, role, name, nick, password, email,
+                    id, role, name, password, email,
                     liked, viewed, created_at, updated_at, last_login, is_active
                 ) VALUES (
                     next_id, 'admin', member.member_name, member.member_name,

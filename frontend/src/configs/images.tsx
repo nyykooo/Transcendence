@@ -1,7 +1,7 @@
 // base URL for public assets; in a Vite/React app files placed under `public`
 // are served from the root of the site, so we can reference them with
 // an absolute path starting at `/assets`.
-const assetsPath = "/public/assets";
+const assetsPath = "/assets";
 
 export const images = {
     icons: {
