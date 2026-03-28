@@ -1,5 +1,10 @@
 #!/bin/bash
+DB_DIR=./database
 
+cd $DB_DIR
+mkdir -p ./tools/certs
+
+sudo chown $USER:$USER ./tools/certs 2>/dev/null || true
 
 if [ -f ./tools/certs/postgres-ssl-certs/server.crt ] && [ -f ./tools/certs/postgres-ssl-certs/server.key ]; then
   echo "Postgre SSL certs found"
