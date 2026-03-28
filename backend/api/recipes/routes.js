@@ -24,7 +24,7 @@ router.get(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
 router.post(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
     const body = req.body || {};
     if (!body.name)
-        return res.status(400).json({error: 'name is require'});
+        return res.status(400).json({error: 'name is required'});
     const recipe = {
         id: nextRecipeId(),
         createdBy: req.userId,

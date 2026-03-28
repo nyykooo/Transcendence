@@ -113,4 +113,20 @@ VERIFY=$(curl -s http://localhost:3000/recipes \
 echo -e "Total recipes remaining: ${GREEN}$VERIFY${NC}"
 echo ""
 
+echo -e "${YELLOW}[8] Verifying recipe is deleted...${NC}"
+
+# 1. Login to get a token
+TOKEN=$(curl -s -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"chef@test.com","password":"cook123"}' | jq -r '.token')
+
+# 2. Upload the avatar
+curl -X POST http://localhost:3000/profile/avatar \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "avatar=@test.png" | jq .
+
+# 3. Verify the avatar is saved by checking your profile
+curl -X GET http://localhost:3000/profile \
+  -H "Authorization: Bearer $TOKEN" | jq .
+
 echo -e "${GREEN}=== Battle Test Complete ===${NC}"

@@ -15,8 +15,8 @@ router.post('/register', async (req, res) => {
   const {email, password, name} = req.body;
   const normalizedEmail = String(email || '').trim().toLowerCase();
 
-    if (!normalizedEmail || !password || !name)
-      return res.status(400).json({error: "email, password, and name are required"});
+    if (!normalizedEmail || !password )
+      return res.status(400).json({error: "email, password are required"});
 
     try {
     const passwordHash = await bcrypt.hash(password, 10);
