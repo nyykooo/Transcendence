@@ -8,13 +8,16 @@ BACKEND=./backend
 
 all: build up submakes
 
+certs:
+	sh $(DATABASE)/tools/gen_certs.sh
+
 submakes:
 
 	$(MAKE) -C $(BACKEND)
 	$(MAKE) -C $(DATABASE) init
 	$(MAKE) -C $(DATABASE) 
 
-build:
+build: certs
 	docker-compose -p inception -f ./docker-compose.yml build
 up:
 	docker-compose -f ./docker-compose.yml up -d
