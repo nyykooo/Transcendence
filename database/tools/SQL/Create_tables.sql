@@ -5,7 +5,6 @@ CREATE TABLE dev_dba.users
 	id bigserial NOT NULL,
 	role TEXT DEFAULT 'user' CHECK (role IN('user', 'admin', 'moderator')),
     name TEXT NOT NULL,
-    nick TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     liked integer[] DEFAULT '{}',
