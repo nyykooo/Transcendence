@@ -40,8 +40,13 @@ router.post('/register', async (req, res) => {
 
     const created = await pool.query(
         `INSERT INTO dev_dba.users (password, email, is_active, last_login)
-        VALUES ($1, $2, false, NOW())
+<<<<<<< Updated upstream
+        VALUES ($1, false, NOW())
         RETURNING  name, is_active, created_at, last_login`,
+=======
+        VALUES ($1, $2, , NOW())
+        RETURNING  nick, is_active, created_at, last_login`,
+>>>>>>> Stashed changes
         [ passwordHash, normalizedEmail]
       );
       const newuser = { ...created.rows[0], avatar: null };
