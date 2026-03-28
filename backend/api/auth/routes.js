@@ -24,10 +24,10 @@ router.post('/register', async (req, res) => {
     {
       
       const created = await pool.query(
-        `INSERT INTO dev_dba.users (name, nick, password, email, is_active, last_login)
-        VALUES ($1, $2, $3, $4, true, NOW())
-        RETURNING id, email, name, nick, is_active, created_at, last_login`,
-        [name, name, passwordHash, normalizedEmail]
+        `INSERT INTO dev_dba.users (name, password, email, is_active, last_login)
+        VALUES ($1, $2, $3, false, NOW())
+        RETURNING id, email, name, is_active, created_at, last_login`,
+        [name, passwordHash, normalizedEmail]
       );
       const newuser = { ...created.rows[0], avatar: null };
       const token = jwt.sign(
@@ -40,8 +40,8 @@ router.post('/register', async (req, res) => {
 
     const created = await pool.query(
         `INSERT INTO dev_dba.users (password, email, is_active, last_login)
-        VALUES ($1, $2, true, NOW())
-        RETURNING  name, nick, is_active, created_at, last_login`,
+        VALUES ($1, false, NOW())
+        RETURNING  name, is_active, created_at, last_login`,
         [ passwordHash, normalizedEmail]
       );
       const newuser = { ...created.rows[0], avatar: null };
@@ -68,7 +68,7 @@ async function loginHandler(req,res) {
 
   try {
     const result = await pool.query(
-      `SELECT id, email, name, nick, password, is_active
+      `SELECT id, email, name, password, is_active
        FROM dev_dba.users
        WHERE lower(email) = $1
        LIMIT 1`,
@@ -79,15 +79,8 @@ async function loginHandler(req,res) {
       return res.status(404).json({error: "Email is not registered"});
 
     const user = result.rows[0];
-    let ok = false;
 
-    try {
-      const check = await pool.query('SELECT dev_dba.hash_pass($1) = $2 AS ok', [password, user.password]);
-      ok = Boolean(check.rows[0]?.ok);
-    } catch {
-      ok = await bcrypt.compare(password, user.password);
-    }
-
+    const ok = await bcrypt.compare(password, user.password);
     if (!ok)
       return res.status(401).json({error: "Incorrect password"});
 
@@ -99,7 +92,9 @@ async function loginHandler(req,res) {
       {expiresIn: "1h"}
     );
     return res.status(200).json({message: "Sucessful login", id: user.id, token});
+
   } catch (error) {
+    
     return res.status(500).json({error: "Failed to login", details: error.message});
   }
 }
@@ -254,9 +249,9 @@ router.get('/auth/github/callback', async (req, res) => {
       };
       const hash_pass = bcrypt.hash(user.name, 10);
      const created = await pool.query(
-      `INSERT INTO dev_dba.users (name, nick, password, email, is_active, last_login)
-       VALUES ($1, $2, $3, $4, true, NOW())
-       RETURNING id, email, name, nick, is_active, created_at, last_login`,
+      `INSERT INTO dev_dba.users (name, password, email, is_active, last_login)
+       VALUES ($1, $2, $3, true, NOW())
+       RETURNING id, email, name, is_active, created_at, last_login`,
       [user.name, user.name, hash_pass, user.email]
     );
     users.push(user);
