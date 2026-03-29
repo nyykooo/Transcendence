@@ -4,23 +4,36 @@ import { Box, List, Divider, ListItem, ListItemButton, ListItemText, Button, Dra
 import { images } from '../configs/images';
 
 import Logo from './Logo';
+import { useNavigate } from 'react-router';
+
+import { useAuth } from '../components/AuthProvider';
 
 export default function Settings() 
 {
-    const [open, setOpen] = useState(false);
+  const { signOut } = useAuth();
 
-    const toggleDrawer = (open: boolean) => () => {
-        setOpen(open);
-    }
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
+  const toggleDrawer = (open: boolean) => () => {
+      setOpen(open);
+  }
+
+  const execLogout = () => {
+    // remover token do localStorage e do context do user
+    signOut();
+    navigate('/login');
+  }
+
+  const pages = [{name: 'Profile', function: () => navigate('/profile')}, {name: 'Settings', function: () => navigate('/settings')}, {name: 'Logout', function: execLogout}];
     
   const DrawerList = (
     <Box sx={{ width: '25%', minWidth: 250 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
-        {['Home', 'Recipes List', 'Recipe'].map((text) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemText primary={text} />
+        {pages.map((page) => (
+          <ListItem key={page.name} disablePadding>
+            <ListItemButton onClick={page.function}>
+              <ListItemText primary={page.name} />
             </ListItemButton>
           </ListItem>
         ))}
