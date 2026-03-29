@@ -16,8 +16,7 @@
 }
 
 .sphere,
-.item,
-.item__image {
+.item {
   transform-style: preserve-3d;
 }
 
@@ -38,14 +37,14 @@ main.sphere-main {
   height: 100%;
   display: grid;
   place-items: center;
-  perspective: calc(var(--radius) * 2);
+  perspective: calc(var(--radius) * 10);
   perspective-origin: 50% 50%;
-  contain: layout paint size;
 }
 
 .sphere {
   transform: translateZ(calc(var(--radius) * -1));
   will-change: transform;
+  isolation: auto;
 }
 
 .overlay,
@@ -64,7 +63,7 @@ main.sphere-main {
 .overlay--blur {
   -webkit-mask-image: radial-gradient(rgba(235, 235, 235, 0) 70%, var(--overlay-blur-color, #060010) 90%);
   mask-image: radial-gradient(rgba(235, 235, 235, 0) 70%, var(--overlay-blur-color, #060010) 90%);
-  backdrop-filter: blur(3px);
+  /* backdrop-filter: blur(3px); */
 }
 
 .item {
@@ -77,8 +76,9 @@ main.sphere-main {
   right: -999px;
   margin: auto;
   transform-origin: 50% 50%;
+  contain: layout style;
   backface-visibility: hidden;
-  transition: transform 300ms;
+  transition: none;
   transform: rotateY(calc(var(--rot-y) * (var(--offset-x) + ((var(--item-size-x) - 1) / 2)) + var(--rot-y-delta, 0deg)))
     rotateX(calc(var(--rot-x) * (var(--offset-y) - ((var(--item-size-y) - 1) / 2)) + var(--rot-x-delta, 0deg)))
     translateZ(var(--radius));
@@ -92,13 +92,13 @@ main.sphere-main {
   background: transparent;
   overflow: hidden;
   backface-visibility: hidden;
-  transition: transform 300ms;
+  transition: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   pointer-events: auto;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  transform: translateZ(0);  
+  isolation: isolate;
 }
 
 .item__image:focus {
@@ -110,7 +110,6 @@ main.sphere-main {
   height: 100%;
   object-fit: cover;
   pointer-events: none;
-  backface-visibility: hidden;
   filter: var(--image-filter, none);
 }
 
@@ -153,6 +152,10 @@ main.sphere-main {
 .sphere-root[data-enlarging='true'] .viewer .scrim {
   opacity: 1;
   pointer-events: all;
+}
+
+.sphere-root[data-enlarging='true'] .item {
+  transition: transform 300ms;
 }
 
 .viewer .enlarge {

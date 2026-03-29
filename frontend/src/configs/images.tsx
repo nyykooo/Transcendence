@@ -16,31 +16,31 @@ export const images = {
     carousel: 
         [
             {
-                src: `${assetsPath}/image/carousel/carousel_1.jpg`,
+                src: `${assetsPath}/image/carousel/carousel_1.webp`,
                 alt: 'Carousel Picture 1'
             },
             {
-                src: `${assetsPath}/image/carousel/carousel_2.jpg`,
+                src: `${assetsPath}/image/carousel/carousel_2.webp`,
                 alt: 'Carousel Picture 2'
             },
             {
-                src: `${assetsPath}/image/carousel/carousel_3.jpg`,
+                src: `${assetsPath}/image/carousel/carousel_3.webp`,
                 alt: 'Carousel Picture 3'
             },
             {
-                src: `${assetsPath}/image/carousel/carousel_4.jpg`,
+                src: `${assetsPath}/image/carousel/carousel_4.webp`,
                 alt: 'Carousel Picture 4'
             },
             {
-                src: `${assetsPath}/image/carousel/carousel_5.jpg`,
+                src: `${assetsPath}/image/carousel/carousel_5.webp`,
                 alt: 'Carousel Picture 5'
             },
             {
-                src: `${assetsPath}/image/carousel/carousel_6.jpg`,
+                src: `${assetsPath}/image/carousel/carousel_6.webp`,
                 alt: 'Carousel Picture 6'
             },
             {
-                src: `${assetsPath}/image/carousel/carousel_7.jpg`,
+                src: `${assetsPath}/image/carousel/carousel_7.webp`,
                 alt: 'Carousel Picture 7'
             },
         ]
