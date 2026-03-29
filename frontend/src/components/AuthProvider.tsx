@@ -63,7 +63,13 @@ export default function AuthProvider ({ children, isSignedIn } : AuthProviderPro
         }
     };
 
-    return <AuthContext.Provider value={{ user, signIn }}>{children}</AuthContext.Provider>;
+    const signOut = () => {
+        localStorage.removeItem('auth');
+        storeUser(null);
+        setUser(null);
+    };
+
+    return <AuthContext.Provider value={{ user, signIn, signOut }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
