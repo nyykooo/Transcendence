@@ -22,4 +22,4 @@ docker_logs:
 
 re: docker_down clean all
 
-.PHONY: all recipes auth clean docker_build docker_up docker_down docker_logs re
+.PHONY: all clean docker_build docker_up docker_down docker_logs re
