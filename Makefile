@@ -1,7 +1,11 @@
-# BRUNCHIO=$(shell pwd)
-DATABASE=./database
-FRONTEND=./frontend
-BACKEND=./backend
+CURRENT_DIR := $(shell pwd)
+
+-include .env
+
+ROOT_DIR := $(CURRENT_DIR)
+DB_DIR := $(ROOT_DIR)/database
+BACKEND_DIR := $(ROOT_DIR)/backend
+FRONTEND_DIR := $(ROOT_DIR)/frontend
 
 
 .PHONY: all build up start down stop restart dev_frontend
@@ -9,13 +13,16 @@ BACKEND=./backend
 all: build up submakes
 
 certs:
-	sh $(DATABASE)/tools/gen_certs.sh
+	./gen_certs.sh
+	@echo ""
+	@echo "Certificates generated"
+	@echo ""
 
 submakes:
 
-	$(MAKE) -C $(BACKEND)
-	$(MAKE) -C $(DATABASE) init
-	$(MAKE) -C $(DATABASE) 
+	$(MAKE) -C $(BACKEND_DIR)  || true
+	$(MAKE) -C $(DB_DIR) init || true
+	$(MAKE) -C $(DB_DIR)  || true
 
 build: certs
 	docker-compose -p inception -f ./docker-compose.yml build
