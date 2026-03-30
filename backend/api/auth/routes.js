@@ -37,14 +37,6 @@ router.post('/register', async (req, res) => {
       );
       return res.status(200).json({message: "created user", newuser, token});
     } else {
-
-    const created = await pool.query(
-        `INSERT INTO dev_dba.users (password, email, is_active, last_login)
-        VALUES ($1, $2, false, NOW())
-        RETURNING  name, is_active, created_at, last_login`,
-        [ passwordHash, normalizedEmail]
-      );
-      const newuser = { ...created.rows[0], avatar: null };
       const token = jwt.sign(
         {id: newuser.id, email: newuser.email, avatar: newuser.avatar},
         process.env.JWT_SECRET,
