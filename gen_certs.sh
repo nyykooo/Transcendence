@@ -8,8 +8,7 @@ echo "Root directory: $ROOT_DIR"
 echo "Database directory: $DB_DIR"
 echo ""
 
-mkdir -p "${DB_DIR}/tools/certs"
-# mkdir -p "${FRONTEND_DIR}/tools/certs"
+mkdir -p "${FRONTEND_DIR}/tools/certs/"
 mkdir -p "${DB_DIR}/tools/certs/postgres-ssl-certs"
 mkdir -p "${DB_DIR}/tools/certs/pgadmin"
 
@@ -21,8 +20,11 @@ if [ -f ${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt ] && [ -f ${DB_DIR}/
   if [ -f ${DB_DIR}/tools/certs/pgadmin/server.cert ] && [ -f ${DB_DIR}/tools/certs/pgadmin/server.key ]; then
     echo "PGAdmin SSL certs also found"
     echo ""
-    echo "EXITING..."
-    exit 0
+    if [ -f ${FRONTEND_DIR}/tools/certs/server.key ] && [ -f ${FRONTEND_DIR}/tools/certs/server.crt ]; then
+      echo "All certs already found"
+      echo "EXITING..."
+      exit 0
+    fi
   fi
 else
   echo "Creating Postgre SSL certificates"
@@ -60,6 +62,23 @@ else
   sudo chown -R 5050:5050 ${DB_DIR}/tools/certs/pgadmin 2>/dev/null || true
 fi
 
+if [ -f ${FRONTEND_DIR}/tools/certs/server.key ] && [ -f ${FRONTEND_DIR}/tools/certs/server.crt ]; then
+  echo "Frontend certificates created"
+else
+  echo "Creating Frontend SSL certificates"
+  echo ""
+  mkdir -p ${FRONTEND_DIR}/tools/certs/
+  openssl req -x509 -newkey rsa:4096 \
+  -keyout ${FRONTEND_DIR}/tools/certs/server.key \
+  -out ${FRONTEND_DIR}/tools/certs/server.crt \
+  -days 365 \
+  -nodes \
+  -subj "/CN=frontend" \
+  -addext "subjectAltName = DNS:frontend, DNS:localhost, IP:127.0.0.1"
+  chmod 600 ${FRONTEND_DIR}/tools/certs/server.key
+  chmod 644 ${FRONTEND_DIR}/tools/certs/server.crt
+  sudo chown -R ping:ping ${FRONTEND_DIR}/tools/certs/ 2>/dev/null || true
+fi
 
 
 
