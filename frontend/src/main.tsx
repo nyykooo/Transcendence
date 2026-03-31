@@ -7,7 +7,7 @@ import AuthProvider from './components/AuthProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider isSignedIn={false}>
+    <AuthProvider>
       <BrowserRouter basename={import.meta.env.APP_NAME}>
         <App />
       </BrowserRouter>
