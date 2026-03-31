@@ -6,6 +6,7 @@ init:
 	./tools/sql_run.sh ./tools/SQL/Create_tables.sql
 	./tools/sql_run.sh ./tools/SQL/imported_recipes.sql
 	./tools/sql_run.sh ./tools/SQL/Ingredients_import.sql
+	./tools/sql_import_recipes.sh
 
 clean:
 	-docker-compose down --volumes --remove-orphans 2>/dev/null || true

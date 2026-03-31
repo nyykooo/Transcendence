@@ -1,0 +1,372 @@
+﻿recipe_name,ingredient_name,quantity,unit
+Brunch,Latte,1,unit
+Brunch,Suco,0.6,unit
+Brunch,Iogurte,0.75,unit
+Brunch,Bolo Banana,1,unit
+Brunch,Abacate Feta,1,unit
+Vegan Brunch,Café,1,unit
+Vegan Brunch,Suco,0.6,unit
+Vegan Brunch,Bowl Abacate,0.75,unit
+Vegan Brunch,Bono Banana,1,unit
+Vegan Brunch,Cogumelos Paris,50,g
+Vegan Brunch,Espinafre,20,g
+Vegan Brunch,Pão Saloia,100,g
+Vegan Brunch,Hummus,50,g
+Vegan Brunch,Salada Ibérica,20,g
+Vegan Brunch,Vinagrete Laranja,5,g
+Vegan Brunch,Tomate Cereja,10,g
+SHAKSHUKA,Ovos,2,unit
+SHAKSHUKA,Cebola,70,g
+SHAKSHUKA,Pimentão Vermelho,80,g
+SHAKSHUKA,Tomate,385,g
+SHAKSHUKA,Alho,13,g
+SHAKSHUKA,Alecrim,2,g
+SHAKSHUKA,Tomilho,3,g
+SHAKSHUKA,Manjericão,5,g
+SHAKSHUKA,Pimenta Malagueta,10,g
+SHAKSHUKA,Paprica Doce,10,g
+SHAKSHUKA,Cominho,4,g
+SHAKSHUKA,Concentrado de Tomate,50,g
+SHAKSHUKA,Pão Saloia,100,g
+Ovo Benedict,Ovos,2,unit
+Ovo Benedict,Pão Brioche,60,g
+Ovo Benedict,Molho Hollandaise,50,g
+Ovo Benedict,Bacon,20,g
+Ovo Benedict,Cebolinha,3,g
+Ovos Florentine,Ovos,2,unit
+Ovos Florentine,Cogumelos Paris,50,g
+Ovos Florentine,Espinafre,20,g
+Ovos Florentine,Molho Mornay,50,g
+Ovos Florentine,Cebolinha,3,g
+Ovos Florentine,Pão Saloia,90,g
+Abacate e Feta,Ovos,2,unit
+Abacate e Feta,Guacamole,100,g
+Abacate e Feta,Tomate Cereja,15,g
+Abacate e Feta,Salada Ibérica,20,g
+Abacate e Feta,Bacon,20,g
+Abacate e Feta,Queijo Feta,20,g
+Abacate e Feta,Pão Saloia,100,g
+Brasileira,Açaí,150,g
+Brasileira,Granola,30,g
+Brasileira,Morango,20,g
+Brasileira,Banana,70,g
+Brasileira,Manjericão,3,g
+Abacate,Abacate,90,g
+Abacate,Leite de Côco,150,ml
+Abacate,Creme de Coco,20,g
+Abacate,Manjericão,2,g
+Abacate,Açúcar Amarelo,40,g
+Abacate,Uva,40,g
+Abacate,Chia,7,g
+Abacate,Aveia,15,g
+Frutaria,Iogurte Grego,200,g
+Frutaria,Hortelã,3,g
+Frutaria,Banana,70,g
+Frutaria,Kiwi,45,g
+Frutaria,Mel,10,g
+Frutaria,Granola,50,g
+Salada de Frango,Peito de Frango,120,g
+Salada de Frango,Tomilho,1,g
+Salada de Frango,Alecrim,2,g
+Salada de Frango,Sal,480,g
+Salada de Frango,Pimenta Preta,14,g
+Salada de Frango,Salada Ibérica,40,g
+Salada de Frango,Abacate,40,g
+Salada de Frango,Rabanete,12,g
+Salada de Frango,Mix Nuts Caramelizadas,10,g
+Salada de Frango,Sementes de Sésamo,5,g
+Salada de Frango,Vinagrete Laranja,12,g
+Salada de Frango,Azeite de Ervas,10,g
+Salada de Salmão Fumado,Salmão Fumado,65,g
+Salada de Salmão Fumado,Salada Ibérica,40,g
+Salada de Salmão Fumado,Abacate,40,g
+Salada de Salmão Fumado,Rabanete,12,g
+Salada de Salmão Fumado,Mix Nuts Caramelizadas,10,g
+Salada de Salmão Fumado,Sementes de Sésamo,5,g
+Salada de Salmão Fumado,Vinagrete Laranja,12,g
+Salada de Salmão Fumado,Azeite de Ervas,10,g
+Go Green,Quinoa,100,g
+Go Green,Grão de Bico,45,g
+Go Green,Pepino,25,g
+Go Green,Manga,60,g
+Go Green,Espinafre,35,g
+Go Green,Salada Ibérica,40,g
+Go Green,Tomate Cereja,50,g
+Go Green,Molho Tzatzik,20,g
+Go Green,Mix Nuts Caramelizadas,10,g
+Go Green,Sementes de Sésamo,5,g
+Go Green,Vinagrete Laranja,10,g
+Go Green,Azeite de Ervas,10,g
+Sopa Beterraba Gengibre,Azeite,500,g
+Sopa Beterraba Gengibre,Alho,100,g
+Sopa Beterraba Gengibre,Cebola,1500,g
+Sopa Beterraba Gengibre,Vinho Branco,250,ml
+Sopa Beterraba Gengibre,Gengibre,300,g
+Sopa Beterraba Gengibre,Beterraba,3000,g
+Sopa Beterraba Gengibre,Açúcar Amarelo,75,g
+Sopa Beterraba Gengibre,Sal,150,g
+Sopa Beterraba Gengibre,Creme Fraiche,100,g
+Veggie Burger,Courgette,20,g
+Veggie Burger,Alho,2,g
+Veggie Burger,Quinoa,100,g
+Veggie Burger,Hummus de Beterraba,100,g
+Veggie Burger,Molho Tzatzik,20,g
+Veggie Burger,Salada Ibérica,15,g
+Veggie Burger,Azeite de Ervas,5,g
+Veggie Burger,Chips Batata Doce,30,g
+Veggie Burger,Pão de Tomate,80,g
+Burger Frango,Pão de Caril,80,g
+Burger Frango,Peito de Frango,100,g
+Burger Frango,Cebola Caramelizada,40,g
+Burger Frango,Abacate,40,g
+Burger Frango,Maionese Limão,40,g
+Burger Frango,Salada Ibérica,15,g
+Burger Frango,Azeite de Ervas,5,g
+Burger Frango,Tomilho,1,g
+Burger Frango,Alecrim,2,g
+Burger Frango,Chips Batata Doce,30,g
+BART,Pão Bolo do Caco,100,g
+BART,Abacate,30,g
+BART,Tomate,40,g
+BART,Tomate Cereja,15,g
+BART,Maionese Limão,40,g
+BART,Manteiga,5,g
+BART,Rúcula,15,g
+BART,Bacon,40,g
+Sandes Vegana,Pão Saloia,0.2,g
+Sandes Vegana,Courgette,0.38,g
+Sandes Vegana,Pera,0.06,g
+Sandes Vegana,Hummus,0.11,g
+Sandes Vegana,Cebola Caramelizada,0.04,g
+Sandes Vegana,Sementes de Sésamo,0.04,g
+Sandes Vegana,Cebolinha,0.1,g
+Sandes Vegana,Espinafre,0.08,g
+Sandes Salmão,Pão Bagel Choco,0.7,g
+Sandes Salmão,Molho Tzatzik,0.06,g
+Sandes Salmão,Cebolinha,0.06,g
+Sandes Salmão,Maçã Verde,0.04,g
+Sandes Salmão,Limão,0.01,g
+Sandes Salmão,Sal,0,g
+Sandes Salmão,Azeite,0.03,g
+Sandes Salmão,Salada Ibérica,0.16,g
+Frutas Sazonais,Abacaxi,0.07,g
+Frutas Sazonais,Kiwi,0.08,g
+Frutas Sazonais,Amora,0.39,g
+Frutas Sazonais,Meloa Cantaloupe,0.15,g
+Frutas Sazonais,Uva,0.09,g
+Frutas Sazonais,Banana,0.07,g
+Frutas Sazonais,Framboesa,0.29,g
+Frutas Sazonais,Aveia,0.01,g
+Frutas Sazonais,Mix Nuts Caramelizado,0.06,g
+Frutas Sazonais,Coco Laminado,0.05,g
+Frutas Sazonais,Espuma de Coco,0.15,g
+Clafoutis,Ovos,0.48,unit
+Clafoutis,Açúcar Amarelo,0.1,g
+Clafoutis,Leite Gordo,0.05,g
+Clafoutis,Farinha,0.04,g
+Clafoutis,Essência de Baunilha,0.12,g
+Clafoutis,Sal,0,g
+Clafoutis,Manteiga,0.02,g
+Clafoutis,Compota de Morango,0.65,g
+Clafoutis,Açúcar em Pó,0.04,g
+Clafoutis,Morango,1.22,g
+Bolo Banana,Banana,0.57,g
+Bolo Banana,Açúcar Amarelo,0.18,g
+Bolo Banana,Farinha,0.09,g
+Bolo Banana,Nozes,0.62,g
+Bolo Banana,Leite de Côco,0.28,g
+Bolo Banana,Gengibre,0.03,g
+Bolo Banana,Fermento,0.04,g
+Bolo Banana,Canela,0.03,g
+Bolo Banana,Noz Moscada,0.07,g
+Bolo Banana,Óleo,0.26,g
+Bolo Banana,Mix Nuts Caramelizadas,0.04,g
+Bolo Banana,Caramelo Salgado,0.08,g
+Bolo Banana,Banana Brulée,0,g
+French Toast Brigadeiro,Brigadeiro,0.13,g
+French Toast Brigadeiro,Coco Laminado,0.08,g
+French Toast Brigadeiro,Morango,0.12,g
+French Toast Brigadeiro,Óleo,0.09,g
+French Toast Brigadeiro,Leite French Toast,0.03,g
+French Toast Brigadeiro,Manteiga,0.18,g
+French Toast Brigadeiro,Pão Brioche,0.18,g
+French Toast Mascarpone Doce de Leite,Doce de Leite,0.17,g
+French Toast Mascarpone Doce de Leite,Mascarpone,0.4,g
+French Toast Mascarpone Doce de Leite,Óleo,0.09,g
+French Toast Mascarpone Doce de Leite,Leite French Toast,0.03,g
+French Toast Mascarpone Doce de Leite,Pão Brioche,0.18,g
+French Toast Mascarpone Doce de Leite,Manteiga,0.18,g
+Panqueca Banana Nutella,Massa,0.27,g
+Panqueca Banana Nutella,Banana,0.14,g
+Panqueca Banana Nutella,Nutella,0.48,g
+Panqueca Banana Nutella,Mix Nuts Caramelizadas,0.15,g
+Panqueca Banana Nutella,Banana Brulée,0.08,g
+Panqueca Tropical Curd,Massa Sucrée,0.47,g
+Panqueca Tropical Curd,Tropical Curd,0.1,g
+Panqueca Tropical Curd,Chantilly de Coco,0.1,g
+Panqueca Tropical Curd,Suspiros,0,g
+Panqueca Tropical Curd,Kiwi,0.05,g
+Panqueca Tropical Curd,Abacaxi,0.07,g
+Panqueca Vegan Beetroot,Massa Panqueca Beterrraba,1.38,g
+Panqueca Vegan Beetroot,Manga,0.53,g
+Panqueca Vegan Beetroot,Pure de Manga,0.65,g
+Panqueca Vegan Beetroot,Espuma de Coco,0.2,g
+Panqueca Vegan Beetroot,Coco Laminado,0.14,g
+Panqueca Vegan Beetroot,Morango,0.12,g
+Panqueca Vegan Beetroot,Framboesa,0.38,g
+Panqueca Vegan Beetroot,Mirtillo,0.36,g
+Azeite Ervas,Azeite,0.51,g
+Azeite Ervas,Alho,0.04,g
+Azeite Ervas,Cebolinha,0.3,g
+Azeite Ervas,Salsa,0.1,g
+Azeite Ervas,Coentro,0.08,g
+Azeite Ervas,Tomilho,0.17,g
+Azeite Ervas,Manjericão,0.21,g
+Azeite Ervas,Limão,0.04,g
+Guacamole,Abacate,1.63,g
+Guacamole,Cebola Roxa,0.07,g
+Guacamole,Tomate,0.14,g
+Guacamole,Pimenta Malagueta,0.06,g
+Guacamole,Coentro,0.04,g
+Guacamole,Lima,0.08,g
+Guacamole,Azeite,0.05,g
+Guacamole,Sal,0,g
+Vinagrete de Laranja,Laranja,0.25,g
+Vinagrete de Laranja,Azeite,0.2,g
+Vinagrete de Laranja,Pimenta Preta,0.06,g
+Vinagrete de Laranja,Sal,0,g
+Cebola Caramelizada,Cebola,1.48,g
+Cebola Caramelizada,Azeite,0.38,g
+Cebola Caramelizada,Vinho Branco,0.21,g
+Cebola Caramelizada,Vinagre,0.14,g
+Cebola Caramelizada,Açúcar Amarelo,0.3,g
+Cebola Caramelizada,Molho Inglês,0.19,g
+Hummus,Grão de Bico,0.24,g
+Hummus,Azeite,0.13,g
+Hummus,Limão,0.03,g
+Hummus,Tahine,0.15,g
+Hummus,Sal,0,g
+Hummus,Pimenta Preta,0.06,g
+Hummus,Beterraba,0.14,g
+Hummus,Azeite,0.04,g
+Maionese Limão,Maionese,0.31,g
+Maionese Limão,Sal,0,g
+Maionese Limão,Pimenta preta,0.08,g
+Maionese Limão,Limão,0.06,g
+Molho Tzatzik,Iogurte Grego,0.3,g
+Molho Tzatzik,Pepino,0.31,g
+Molho Tzatzik,Sal,0,g
+Molho Tzatzik,Pimenta Preta,0.06,g
+Molho Tzatzik,Azeite,0.03,g
+Molho Tzatzik,Hortelã,0.04,g
+Molho Hollandaise,Ovos,0.4,unit
+Molho Hollandaise,Limão,0.21,g
+Molho Hollandaise,Manteiga,1.41,g
+Molho Hollandaise,Sal,0,g
+Molho Hollandaise,Pimenta Preta,0.06,g
+Molho Mornay,Leite Gordo,0.3,g
+Molho Mornay,Farinha,0.01,g
+Molho Mornay,Manteiga,0.18,g
+Molho Mornay,Queijo Emmental,2.02,g
+Molho Mornay,Queijo Parmesão,3.82,g
+Molho Mornay,Sal,0.01,g
+Molho Mornay,Pimenta Preta,0.47,g
+Compota de Morango,Morango,3.65,g
+Compota de Morango,Açúcar Amarelo,0.03,g
+Compota de Morango,Limão,0.08,g
+Tropical Curd,Ovos,0.36,unit
+Tropical Curd,Água,0,g
+Tropical Curd,Açúcar Amarelo,0.24,g
+Tropical Curd,Limão,0.26,g
+Tropical Curd,Amido,0.04,g
+Tropical Curd,Manteiga,0.11,g
+Pure de Manga,Manga,1.32,g
+Pure de Manga,Açúcar Amarelo,0.02,g
+Mix Nuts Caramelizadas,Mix Nuts,10.85,g
+Mix Nuts Caramelizadas,Açúcar Amarelo,1.22,g
+Mix Nuts Caramelizadas,Sal,0.01,g
+Massa Panqueca Tradicional,Farinha,0.23,g
+Massa Panqueca Tradicional,Açúcar Amarelo,0.11,g
+Massa Panqueca Tradicional,Ovos,0.24,unit
+Massa Panqueca Tradicional,Fermento,0.04,g
+Massa Panqueca Tradicional,Sal,0,g
+Massa Panqueca Tradicional,Leite Gordo,0.12,g
+Massa Panqueca Tradicional,Manteiga,0.28,g
+Massa Panqueca Tradicional,Essência de Baunilha,0.39,g
+Leite French Toast,Leite,0.09,g
+Leite French Toast,Açúcar Amarelo,0.02,g
+Leite French Toast,Canela,0.02,g
+Leite French Toast,Ovos,0.12,unit
+Caramelo Salgado,Açúcar Amarelo,0.29,g
+Caramelo Salgado,Água,0,g
+Caramelo Salgado,Natas,0.36,g
+Caramelo Salgado,Manteiga,0.56,g
+Caramelo Salgado,Sal,0,g
+Caramelo Salgado,Essência de Baunilha,0.39,g
+Brigadeiro,Leite Condensado,1.1,g
+Brigadeiro,Chocolate em Pó,0.34,g
+Brigadeiro,Manteiga,0.14,g
+Granola,Mel,1.08,g
+Granola,Aveia,0.34,g
+Granola,Arroz Tufado,1.59,g
+Granola,Mix Nuts,1.08,g
+Granola,Bagas de Goji,0.34,g
+Granola,Cranberry,0.25,g
+Granola,Canela,0.05,g
+Granola,Coco Laminado,0.48,g
+Granola,Sementes de Abóbora,0.3,g
+Granola,Sementes de Girassol,0.12,g
+Massa Sucrée,Farinha,0.05,g
+Massa Sucrée,Manteiga,0.42,g
+Massa Sucrée,Açúcar Amarelo,0.05,g
+Massa Sucrée,Ovos,0,g
+Massa Sucrée,Sal,0,g
+Suspiros,Claras,0,g
+Suspiros,Açúcar Amarelo,0.26,g
+Panqueca Vegan Beetroot,Banana,0.27,g
+Panqueca Vegan Beetroot,Beterraba,0.29,g
+Panqueca Vegan Beetroot,Aveia,0.19,g
+Panqueca Vegan Beetroot,Leite de Soja,0.21,g
+Panqueca Vegan Beetroot,Essência de Baunilha,0.35,g
+Panqueca Vegan Beetroot,Agave Syrup,0.49,g
+Panqueca Vegan Beetroot,Farinha,0.02,g
+Gin Clássico,Pepino,0.05,g
+Gin Clássico,Gin,0.65,g
+Gin Clássico,Tônica,0.39,g
+Gin Hortelã Alecrim Lima,Hortelã,0.02,g
+Gin Hortelã Alecrim Lima,Alecrim,0.03,g
+Gin Hortelã Alecrim Lima,Lima,0.16,g
+Gin Hortelã Alecrim Lima,Gin,0.65,g
+Gin Hortelã Alecrim Lima,Tônica,0.39,g
+Gin Uva Canela,Uva,0.14,g
+Gin Uva Canela,Canela,0.05,g
+Gin Uva Canela,Gin,0.65,g
+Gin Uva Canela,Tônica,0.39,g
+Gin Manga Manjericão,Manga,0.2,g
+Gin Manga Manjericão,Manjericão,0.06,g
+Gin Manga Manjericão,Gin,0.65,g
+Gin Manga Manjericão,Tônica,0.39,g
+Gin Bee Tonic,Limão,0.05,g
+Gin Bee Tonic,Suco de Limão,0,ml
+Gin Bee Tonic,Gin,0.65,g
+Gin Bee Tonic,Tônica,0.39,g
+Gin Bee Tonic,Canela,0.05,g
+Gin Bee Tonic,Mel,0.03,g
+Gin Chá,Chá,0.08,unit
+Gin Chá,laranja,0.04,g
+Gin Chá,canela,0.05,g
+Mimosa,Laranja,0.09,g
+Mimosa,Espumante,0.28,g
+Sangria Espumante,Espumante,0.94,g
+Sangria Espumante,Frutos Vermelhos Congelados,0.33,g
+Sangria Espumante,Açúcar,0.12,g
+Sangria Espumante,Água,0,g
+Sangria Espumante,Canela,0.14,g
+Sangria Espumante,Tônica,0.52,g
+Sangria Espumante,Limão,0.06,g
+Sangria Espumante,Laranja,0.23,g
+Sangria Espumante,Hortelã,0.02,g
+Batido Limão Côco,Limão,0.42,g
+Batido Limão Côco,Leite de Côco,0.74,g
+Batido Limão Côco,Cachaça,2.55,g
+Batido Limão Côco,Leite Condensado,1.1,g
