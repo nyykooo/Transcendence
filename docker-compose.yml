@@ -7,6 +7,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      network: host
     restart: always
     ports:
       - "443:443"
