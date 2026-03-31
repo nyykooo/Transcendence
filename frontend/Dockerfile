@@ -2,10 +2,10 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 COPY package.json ./
-COPY yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package-lock.json ./
+RUN npm ci
 COPY . .
-RUN yarn build          # gera /app/dist
+RUN npm run build # generates the dist folder
 
 FROM nginx:alpine
 
