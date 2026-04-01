@@ -8,8 +8,9 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     const navigate = useNavigate();
 
     useEffect(() => {
-    if (user === null)
-        navigate('/login', { replace: true });
+        // console.log('ProtectedRoute: checking auth status', { user });
+        if (user === null)
+            navigate('/login', { replace: true });
     }, [navigate, user]);
 
     return children;

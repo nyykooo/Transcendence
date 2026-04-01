@@ -71,6 +71,8 @@ CREATE TABLE dev_dba.all_recipes
 	is_public boolean DEFAULT false,
 	prep_time integer,
 	cooking_time integer,
+	liked integer,
+	viewed integer,
 	PRIMARY KEY (id)
 );
 

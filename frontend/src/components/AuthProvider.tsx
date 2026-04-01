@@ -14,12 +14,17 @@ const AUTH_STORAGE_KEY = 'auth';
 function readStoredUser(): User | null {
     try {
         const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-        if (!raw) return null;
+        if (!raw)
+            return null;
         const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== 'object') return null;
-        if (typeof parsed.id !== 'number' || typeof parsed.token !== 'string') return null;
+        if (!parsed || typeof parsed !== 'object')
+            return null;
+        // TODO: confirm later why is was sent by backend as string and not number
+        if (typeof parsed.id !== 'string' || typeof parsed.token !== 'string')
+            return null;
         return { id: parsed.id, token: parsed.token };
     } catch {
+        console.error('AuthProvider: error reading stored user');
         return null;
     }
 }
@@ -36,8 +41,8 @@ function storeUser(user: User | null) {
     }
 }
 
-export default function AuthProvider ({ children, isSignedIn } : AuthProviderProps) {
-    const [user, setUser] = useState<User | null>(() => readStoredUser() || (isSignedIn ? {id: 1, token: 'abc'} : null))
+export default function AuthProvider ({ children } : AuthProviderProps) {
+    const [user, setUser] = useState<User | null>(() => readStoredUser());
 
     const signIn = async (login: LoginProps = { email: '', password: '' }, option: string = 'default') => {
         var res;

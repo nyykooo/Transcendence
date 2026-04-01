@@ -7,13 +7,16 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      network: host
     restart: always
     ports:
-      - "80:80"
+      - "443:443"
     env_file:
       - .env
     depends_on:
       - postgres
+    volumes:
+      - ./frontend/tools/certs:/etc/ssl/certs
   api:
     image: transcendence-api:1.0
     container_name: transcendence_api

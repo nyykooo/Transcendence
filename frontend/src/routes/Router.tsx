@@ -8,7 +8,8 @@ import {
   NotFound, 
   Login,
   Register,
-  GithubCallback
+  GithubCallback,
+  Profile
  }  from "../views/index";
 import ProtectedRoute from "../components/ProtectedRoute";
 
@@ -22,6 +23,7 @@ export default function Router() {
       <Route path="/terms-of-service" element={<TermsOfService />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/auth/github/callback" element={<GithubCallback />} />
       <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
     </Routes>
