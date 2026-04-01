@@ -19,10 +19,14 @@ function readStoredUser(): User | null {
         const parsed = JSON.parse(raw);
         if (!parsed || typeof parsed !== 'object')
             return null;
-        // TODO: confirm later why is was sent by backend as string and not number
-        if (typeof parsed.id !== 'string' || typeof parsed.token !== 'string')
+        if (typeof parsed.token !== 'string')
             return null;
-        return { id: parsed.id, token: parsed.token };
+
+        const id = typeof parsed.id === 'number' ? parsed.id : Number(parsed.id);
+        if (!Number.isFinite(id))
+            return null;
+
+        return { id, token: parsed.token };
     } catch {
         console.error('AuthProvider: error reading stored user');
         return null;
