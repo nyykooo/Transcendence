@@ -32,6 +32,8 @@ services:
       - POSTGRES_HOST=postgres
     ports:
       - "3000:3000"
+    networks:
+      - transcendence
 
   postgres:
     container_name: brunchio_db
