@@ -14,8 +14,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const { authRouter } = require('./auth/routes');
 const { recipesRouter } = require('./recipes/routes');
 
-app.use(authRouter);
-app.use(recipesRouter);
+app.use('/api', authRouter);
+app.use('/api', recipesRouter);
 
 const PORT = Number(process.env.PORT) || 3001;
 
