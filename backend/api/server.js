@@ -6,6 +6,7 @@ const app = express();
 require('dotenv').config();
 const { pool } = require('./db');
 
+app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json());
 
@@ -17,7 +18,7 @@ const { recipesRouter } = require('./recipes/routes');
 app.use('/api', authRouter);
 app.use('/api', recipesRouter);
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 3001;
 
 async function startServer() {
 	try {

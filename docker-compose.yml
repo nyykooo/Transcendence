@@ -2,8 +2,6 @@ services:
   frontend:
     image: frontend:1.0
     container_name: react_app
-    # networks:
-    #   - transcendence
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -14,9 +12,11 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres
+      - api
     volumes:
       - ./frontend/tools/certs:/etc/ssl/certs
+    networks:
+      - transcendence
   api:
     image: transcendence-api:1.0
     container_name: transcendence_api
@@ -31,7 +31,7 @@ services:
     environment:
       - POSTGRES_HOST=postgres
     ports:
-      - "3000:3000"
+      - "3001:3001"
     networks:
       - transcendence
 
