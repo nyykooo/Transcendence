@@ -31,7 +31,7 @@ services:
     environment:
       - POSTGRES_HOST=postgres
     ports:
-      - "3000:3000"
+      - "3001:3001"
 
   postgres:
     container_name: brunchio_db
@@ -69,7 +69,7 @@ services:
       - PGADMIN_ENABLE_TLS=true
     ports:
       - "5050:443"
-    restart: always 
+    restart: always
     volumes:
       - ./database/tools/server.json:/pgadmin4/servers.json
       - ./database/tools/certs/pgadmin:/certs
@@ -87,6 +87,10 @@ services:
       - .env
     ports:
       - "9187:9187"
+    volumes:
+      - ./monitoring/postgres-exporter-web.yml:/etc/postgres_exporter/web.yml:ro
+      - ./monitoring/tools/certs/postgres_exporter/postgres_exporter.crt:/etc/postgres_exporter/certs/postgres_exporter.crt:ro
+      - ./monitoring/tools/certs/postgres_exporter/postgres_exporter.key:/etc/postgres_exporter/certs/postgres_exporter.key:ro
     depends_on:
       - postgres
     restart: always
@@ -96,12 +100,18 @@ services:
   prometheus:
     container_name: brunchio_prometheus
     image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.config.file=/etc/prometheus/web.yml
     env_file:
       - .env
     ports:
       - "9090:9090"
     volumes:
-      - ./database/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus-web.yml:/etc/prometheus/web.yml:ro
+      - ./monitoring/tools/certs/prometheus/prometheus.crt:/etc/prometheus/certs/prometheus.crt:ro
+      - ./monitoring/tools/certs/prometheus/prometheus.key:/etc/prometheus/certs/prometheus.key:ro
     depends_on:
       - postgres_exporter
     restart: always
@@ -114,10 +124,12 @@ services:
     env_file:
       - .env
     ports:
-      - "3030:3030"
+      - "3000:3000"
     volumes:
-      - grafana_data:/var/lib/grafana
-      - ./
+    - grafana_data:/var/lib/grafana
+    - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    - ./monitoring/tools/certs/grafana/grafana.crt:/etc/grafana/certs/grafana.crt:ro
+    - ./monitoring/tools/certs/grafana/grafana.key:/etc/grafana/certs/grafana.key:ro
     depends_on:
       - prometheus
     restart: always

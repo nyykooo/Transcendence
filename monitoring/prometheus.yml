@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scheme: https
+    static_configs:
+      - targets: ['prometheus:9090']
+    tls_config:
+      insecure_skip_verify: true
+      server_name: prometheus
+  
+  - job_name: 'postgres_exporter'
+    scheme: https
+    static_configs:
+      - targets: ['postgres_exporter:9187']
+    tls_config:
+      insecure_skip_verify: true
+      server_name: postgres_exporter
