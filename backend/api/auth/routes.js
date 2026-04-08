@@ -94,8 +94,29 @@ async function loginHandler(req,res) {
 router.post(['/Login', '/login'], loginHandler);
 
 
-router.get(['/profile' ,'/auth'], requireAuth, (req, res) => {
-    res.json({message: 'ok', user: req.user})
+router.get(['/profile' ,'/auth'], requireAuth, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const result = await pool.query(
+        `SELECT id, email, name, avatar, is_active
+         FROM dev_dba.users
+         WHERE id = $1
+         LIMIT 1`,
+        [userId]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      return res.json({ message: 'ok', user: result.rows[0] });
+    } catch (error) {
+      return res.status(500).json({ error: 'Failed to load profile', details: error.message });
+    }
 })
 
 router.post('/profile/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
