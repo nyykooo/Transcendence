@@ -1,5 +1,6 @@
 import { api } from '../configs/api';
 import { type LoginProps, type LoginResponse } from '../props/loginProps';
+import type { User } from '../props/userProps';
 
 export async function submitLogin(login: LoginProps): Promise<LoginResponse>
 {
@@ -32,4 +33,27 @@ export async function submitGithubLogin(): Promise<LoginResponse>
 
 export function startGithubLogin(): void {
     window.location.assign(api.githubAuth);
+}
+
+export async function checkToken(): Promise<boolean> {
+    const auth: User | null = JSON.parse(localStorage.getItem('auth') || 'null');
+    if (!auth) {
+        return false;
+    }
+    return await fetch(api.checkToken, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${auth.token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('invalid token...');
+        }
+        return response.json();
+    })
+    .then(data => {
+        return data.isValid;
+    });
 }
