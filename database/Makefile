@@ -17,6 +17,11 @@ clean:
 	-docker rm -f database-postgres-1 2>/dev/null || true
 	-docker rm -f database-pgadmin-1 2>/dev/null || true
 
+clean_db:
+	-docker-compose -f ../docker-compose.yml rm -sf postgres 2>/dev/null || true
+	-docker rm -f brunchio_db 2>/dev/null || true
+	-docker rm -f database-postgres-1 2>/dev/null || true
+
 fclean: clean
 	docker container prune -f
 	docker image prune -af
@@ -27,4 +32,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all build up init clean fclean re
+.PHONY: all build up init clean clean_db fclean re
