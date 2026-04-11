@@ -48,3 +48,45 @@ BEGIN
     RAISE NOTICE 'Import and aggregation completed successfully!';
 END;
 $$;
+
+CALL dev_dba.import_and_aggregate_recipes();
+
+
+CREATE OR REPLACE FUNCTION dev_dba.pricing_list()
+RETURNS VOID
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_ingredient_id BIGINT;
+    v_recipe_id BIGINT;
+    v_ppkg NUMERIC(7,2);
+    v_unit TEXT;
+    v_quantity NUMERIC(6,2);
+    v_total_cost NUMERIC(10,2);
+    v_cost NUMERIC(10,2);
+BEGIN
+    FOR v_recipe_id IN 
+        SELECT DISTINCT recipe_id FROM dev_dba.recipe_ingredients
+    LOOP
+        v_total_cost := 0;
+        
+        FOR v_ingredient_id, v_quantity, v_ppkg IN
+            SELECT ri.ingredient_id, ri.quantity, i.price_per_kg
+            FROM dev_dba.recipe_ingredients ri
+            INNER JOIN dev_dba.ingredients i ON ri.ingredient_id = i.id
+            WHERE ri.recipe_id = v_recipe_id
+        LOOP
+            v_total_cost := v_total_cost + (v_ppkg * (v_quantity / 1000));
+        END LOOP;
+        
+        UPDATE dev_dba.all_recipes 
+        SET cost = v_total_cost
+        WHERE id = v_recipe_id;
+        
+    END LOOP;
+    
+    RETURN;
+END;
+$$;
+
+SELECT dev_dba.pricing_list();
