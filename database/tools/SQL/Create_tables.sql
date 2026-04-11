@@ -79,6 +79,10 @@ CREATE TABLE dev_dba.all_recipes
 ALTER TABLE IF EXISTS dev_dba.all_recipes
     OWNER to dev_dba;
 
+
+ALTER TABLE dev_dba.all_recipes
+	ADD CONSTRAINT "unique_name" UNIQUE(name);
+
 CREATE TABLE dev_dba.recipe_ingredients
 (
 	recipe_id bigint REFERENCES dev_dba.all_recipes(id),
@@ -88,6 +92,30 @@ CREATE TABLE dev_dba.recipe_ingredients
 	PRIMARY KEY (recipe_id, ingredient_id)
 
 );
+
+CREATE TABLE public.all_recipes
+(
+	id bigserial NOT NULL,
+	name TEXT NOT NULL,
+	diet integer NOT NULL,
+	instructions TEXT DEFAULT NULL,
+	url TEXT DEFAULT NULL,
+	cost numeric(5, 2) DEFAULT 0,
+	portions integer DEFAULT 1,
+	created_at timestamp with time zone,
+	updated timestamp with time zone,
+	is_public boolean DEFAULT false,
+	prep_time integer,
+	cooking_time integer,
+	liked integer,
+	viewed integer,
+	PRIMARY KEY (id)
+);
+
+
+
+ALTER TABLE public.all_recipes
+	ADD CONSTRAINT "unique_name" UNIQUE(name);
 
 
 -- ALTER TABLE IF EXISTS dev_dba.pending_recipes
