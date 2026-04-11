@@ -31,7 +31,7 @@ router.get(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
             r.recipe_name,
             r.ingredient_name AS ingridient_name,
             r.quantity
-        FROM dev_dba.imported_recipes r
+        FROM public.all_recipes r
         ORDER BY r.recipe_name ASC, r.ingredient_name ASC
     `;
     // depois mudar para all_recipes
@@ -73,7 +73,7 @@ router.get(['/recipes/:id', '/RecipeView/:id'], requireAuth, (req, res) => {
             r.recipe_name,
             r.ingredient_name AS ingridient_name,
             r.quantity
-        FROM dev_dba.imported_recipes r
+        FROM public.all_recipes r
         WHERE r.id = $1
     `;
 
