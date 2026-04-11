@@ -1,14 +1,7 @@
 ﻿recipe_name,ingredient_name,quantity,unit
-Brunch,Latte,1,unit
-Brunch,Juice,0.6,unit
 Brunch,Yogurt,0.75,unit
-Brunch,Banana Cake,1,unit
-Brunch,Avocado and Feta,1,unit
 Vegan Brunch,Coffee,1,unit
-Vegan Brunch,Juice,0.6,unit
-Vegan Brunch,Avocado Bowl,0.75,unit
-Vegan Brunch,Banana Cake,1,unit
-Vegan Brunch,Button Mushrooms,50,g
+Vegan Brunch,White Mushrooms,50,g
 Vegan Brunch,Spinach,20,g
 Vegan Brunch,Saloia Bread,100,g
 Vegan Brunch,Hummus,50,g
@@ -34,7 +27,7 @@ Eggs Benedict,Hollandaise Sauce,50,g
 Eggs Benedict,Bacon,20,g
 Eggs Benedict,Chives,3,g
 Eggs Florentine,Eggs,2,unit
-Eggs Florentine,Button Mushrooms,50,g
+Eggs Florentine,White Mushrooms,50,g
 Eggs Florentine,Spinach,20,g
 Eggs Florentine,Mornay Sauce,50,g
 Eggs Florentine,Chives,3,g
@@ -76,7 +69,6 @@ Chicken Salad,Radish,12,g
 Chicken Salad,Caramelized Mixed Nuts,10,g
 Chicken Salad,Sesame Seeds,5,g
 Chicken Salad,Orange Vinaigrette,12,g
-Chicken Salad,Herb Oil,10,g
 Smoked Salmon Salad,Smoked Salmon,65,g
 Smoked Salmon Salad,Iberian Salad,40,g
 Smoked Salmon Salad,Avocado,40,g
@@ -84,7 +76,6 @@ Smoked Salmon Salad,Radish,12,g
 Smoked Salmon Salad,Caramelized Mixed Nuts,10,g
 Smoked Salmon Salad,Sesame Seeds,5,g
 Smoked Salmon Salad,Orange Vinaigrette,12,g
-Smoked Salmon Salad,Herb Oil,10,g
 Go Green,Quinoa,100,g
 Go Green,Chickpeas,45,g
 Go Green,Cucumber,25,g
@@ -96,7 +87,6 @@ Go Green,Tzatziki Sauce,20,g
 Go Green,Caramelized Mixed Nuts,10,g
 Go Green,Sesame Seeds,5,g
 Go Green,Orange Vinaigrette,10,g
-Go Green,Herb Oil,10,g
 Beetroot Ginger Soup,Olive Oil,500,g
 Beetroot Ginger Soup,Garlic,100,g
 Beetroot Ginger Soup,Onion,1500,g
@@ -112,7 +102,6 @@ Veggie Burger,Quinoa,100,g
 Veggie Burger,Beetroot Hummus,100,g
 Veggie Burger,Tzatziki Sauce,20,g
 Veggie Burger,Iberian Salad,15,g
-Veggie Burger,Herb Oil,5,g
 Veggie Burger,Sweet Potato Chips,30,g
 Veggie Burger,Tomato Bread,80,g
 Chicken Burger,Curry Bread,80,g
@@ -121,7 +110,6 @@ Chicken Burger,Caramelized Onion,40,g
 Chicken Burger,Avocado,40,g
 Chicken Burger,Lemon Mayonnaise,40,g
 Chicken Burger,Iberian Salad,15,g
-Chicken Burger,Herb Oil,5,g
 Chicken Burger,Thyme,1,g
 Chicken Burger,Rosemary,2,g
 Chicken Burger,Sweet Potato Chips,30,g
@@ -141,7 +129,6 @@ Vegan Sandwich,Caramelized Onion,0.04,g
 Vegan Sandwich,Sesame Seeds,0.04,g
 Vegan Sandwich,Chives,0.1,g
 Vegan Sandwich,Spinach,0.08,g
-Salmon Sandwich,Choco Bagel Bread,0.7,g
 Salmon Sandwich,Tzatziki Sauce,0.06,g
 Salmon Sandwich,Chives,0.06,g
 Salmon Sandwich,Green Apple,0.04,g
@@ -182,7 +169,6 @@ Banana Cake,Nutmeg,0.07,g
 Banana Cake,Oil,0.26,g
 Banana Cake,Caramelized Mixed Nuts,0.04,g
 Banana Cake,Salted Caramel,0.08,g
-Banana Cake,Bruleed Banana,0,g
 Brigadeiro French Toast,Brigadeiro,0.13,g
 Brigadeiro French Toast,Coconut Flakes,0.08,g
 Brigadeiro French Toast,Strawberry,0.12,g
@@ -196,18 +182,11 @@ Mascarpone Dulce de Leche French Toast,Oil,0.09,g
 Mascarpone Dulce de Leche French Toast,French Toast Milk,0.03,g
 Mascarpone Dulce de Leche French Toast,Brioche Bread,0.18,g
 Mascarpone Dulce de Leche French Toast,Butter,0.18,g
-Banana Nutella Pancake,Batter,0.27,g
 Banana Nutella Pancake,Banana,0.14,g
 Banana Nutella Pancake,Nutella,0.48,g
 Banana Nutella Pancake,Caramelized Mixed Nuts,0.15,g
-Banana Nutella Pancake,Bruleed Banana,0.08,g
-Tropical Curd Pancake,Pate Sucree,0.47,g
-Tropical Curd Pancake,Tropical Curd,0.1,g
-Tropical Curd Pancake,Coconut Chantilly,0.1,g
-Tropical Curd Pancake,Meringues,0,g
 Tropical Curd Pancake,Kiwi,0.05,g
 Tropical Curd Pancake,Pineapple,0.07,g
-Vegan Beetroot Pancake,Beetroot Pancake Batter,1.38,g
 Vegan Beetroot Pancake,Mango,0.53,g
 Vegan Beetroot Pancake,Mango Puree,0.65,g
 Vegan Beetroot Pancake,Coconut Foam,0.2,g

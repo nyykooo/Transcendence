@@ -1,0 +1,56 @@
+SELECT * FROM dev_dba.all_recipes
+WHERE name = 'SHAKSHUKA';
+
+CREATE OR REPLACE FUNCTION dev_dba.export_to_public()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO public.all_recipes (id, name, diet, cost, created_at, updated ,is_public)
+    VALUES (NEW.id, NEW.name,NEW.diet , NEW.cost, OLD.created_at, NEW.updated,NEW.is_public)
+    ON CONFLICT (id) DO UPDATE 
+    SET name = EXCLUDED.name,
+        cost = EXCLUDED.cost,
+        is_public = EXCLUDED.is_public;
+    
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER on_approval
+AFTER UPDATE ON dev_dba.all_recipes
+FOR EACH ROW
+WHEN (OLD.is_public = 'false' AND NEW.is_public = 'true')
+EXECUTE FUNCTION dev_dba.export_to_public();
+
+
+UPDATE dev_dba.all_recipes
+SET is_public = 'true'
+WHERE name = 'SHAKSHUKA';
+
+
+CREATE TABLE public.all_recipes
+(
+	id bigserial NOT NULL,
+	name TEXT NOT NULL,
+	diet integer NOT NULL DEFAULT 0,
+	instructions TEXT DEFAULT NULL,
+	url TEXT DEFAULT NULL,
+	cost numeric(5, 2) DEFAULT 0,
+	portions integer DEFAULT 1,
+	created_at timestamp with time zone,
+	updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+	is_public boolean DEFAULT false,
+	prep_time integer,
+	cooking_time integer,
+	liked integer,
+	viewed integer,
+	PRIMARY KEY (id)
+);
+
+
+
+ALTER TABLE public.all_recipes
+	ADD CONSTRAINT "unique_name" UNIQUE(name);
+
+SELECT * FROM public.all_recipes;
