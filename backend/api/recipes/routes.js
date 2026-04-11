@@ -19,39 +19,22 @@ function assertOwner(req, res, recipe) {
 
 function serializeRecipeRow(row) {
     return {
-        id: row.id,
-        name: row.name,
-        diet: row.diet,
-        instructions: row.instructions,
-        url: row.url,
-        cost: row.cost !== null ? Number(row.cost) : null,
-        portions: row.portions,
-        is_public: row.is_public,
-        prep_time: row.prep_time,
-        cooking_time: row.cooking_time,
-        created_at: row.created_at,
-        updated: row.updated,
+        recipe_name: row.recipe_name,
+        ingridient_name: row.ingridient_name ?? row.ingredient_name,
+        quantity: row.quantity,
     };
 }
 
 router.get(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
     const query = `
         SELECT
-            r.id,
-            r.name,
-            r.diet,
-            r.instructions,
-            r.url,
-            r.cost,
-            r.portions,
-            r.is_public,
-            r.prep_time,
-            r.cooking_time,
-            r.created_at,
-            r.updated
-        FROM dev_dba.all_recipes r
-        ORDER BY r.id ASC
+            r.recipe_name,
+            r.ingredient_name AS ingridient_name,
+            r.quantity
+        FROM dev_dba.imported_recipes r
+        ORDER BY r.recipe_name ASC, r.ingredient_name ASC
     `;
+    // depois mudar para all_recipes
 
     pool.query(query)
         .then(({ rows }) => {
@@ -87,21 +70,14 @@ router.get(['/recipes/:id', '/RecipeView/:id'], requireAuth, (req, res) => {
 
     const query = `
         SELECT
-            r.id,
-            r.name,
-            r.diet,
-            r.instructions,
-            r.url,
-            r.cost,
-            r.portions,
-            r.is_public,
-            r.prep_time,
-            r.cooking_time,
-            r.created_at,
-            r.updated
-        FROM dev_dba.all_recipes r
+            r.recipe_name,
+            r.ingredient_name AS ingridient_name,
+            r.quantity
+        FROM dev_dba.imported_recipes r
         WHERE r.id = $1
     `;
+
+    // depois mudar para all_recipes
 
     pool.query(query, [id])
         .then(({ rows }) => {
