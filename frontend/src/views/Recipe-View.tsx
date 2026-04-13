@@ -19,7 +19,7 @@ export default function RecipeView() {
         const fetchRecipe = async () => {
             const res = await getRecipe(name || '');
             setRecipe(res);
-            setTitle(res?.name || 'Recipe not found');
+            setTitle(res?.name || 'Empty Recipe name!');
         };
         fetchRecipe();
     }, [name]);
