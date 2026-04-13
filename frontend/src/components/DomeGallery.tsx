@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
 import './styles/DomeGallery.css';
 
@@ -171,16 +171,7 @@ export default function DomeGallery({
 
   const items = useMemo(() => buildItems(images, segments), [images, segments]);
 
-  // Dentro do componente, antes do return:
-  const [allLoaded, setAllLoaded] = useState(false);
-  const loadedCountRef = useRef(0);
-
-  const onImageLoad = useCallback(() => {
-    loadedCountRef.current += 1;
-    if (loadedCountRef.current >= items.length) {
-      setAllLoaded(true);
-    }
-  }, [items.length]);
+  const onImageLoad = useCallback(() => {}, []);
 
   const applyTransform = (xDeg: number, yDeg: number) => {
     const el = sphereRef.current;
@@ -689,8 +680,7 @@ export default function DomeGallery({
           ['--tile-radius' as any]: imageBorderRadius,
           ['--enlarge-radius' as any]: openedImageBorderRadius,
           ['--image-filter' as any]: grayscale ? 'grayscale(1)' : 'none',
-          opacity: allLoaded ? 1 : 0,
-          transition: 'opacity 400ms ease'
+          opacity: 1
         } as React.CSSProperties
       }
     >
