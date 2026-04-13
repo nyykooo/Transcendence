@@ -17,7 +17,7 @@ export default function Router() {
   return (
     <Routes>
       <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-      <Route path="/recipe-view/:name" element={<ProtectedRoute><RecipeView /></ProtectedRoute>} />
+      <Route path="/recipe/:name" element={<ProtectedRoute><RecipeView /></ProtectedRoute>} />
       <Route path="/recipe-list-view" element={<ProtectedRoute><RecipeListView /></ProtectedRoute>} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms-of-service" element={<TermsOfService />} />
