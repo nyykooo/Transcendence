@@ -36,9 +36,11 @@ router.post(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
     return res.status(201).json(recipe);
 });
 
-router.get(['/recipes/:id', '/RecipeView/:id'], requireAuth, (req, res) => {
-    const id = Number(req.params.id);
-    const recipe = findRecipe(id);
+router.get(['/recipes/:name', '/RecipeView/:name'], requireAuth, (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    console.log('Fetching recipe with name:', name);
+    const recipe = recipes.find(
+            r => r.name.toLowerCase() === name.toLowerCase());
     if (!recipe)
         return res.status(404).json({error: 'Recipe not found'});
     return res.json(recipe);
