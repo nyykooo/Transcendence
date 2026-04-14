@@ -37,13 +37,14 @@ export async function getRecipe(name: string): Promise<Recipe | null>
         }
 
         const data = await response.json();
-        console.log('Received data:', data);
+        // console.log('Received data:', data);
 
         // Map the backend response to Recipe type
         const recipe: Recipe = {
             name: data.name,
-            ingridients: [],
-            instructions: data.instructions
+            ingridients: data.ingridients ? data.ingridients : [],
+            instructions: data.instructions ? data.instructions : '',
+            image: data.image ? data.image : ''
         };
 
         return recipe;

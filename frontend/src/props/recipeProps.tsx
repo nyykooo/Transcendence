@@ -6,6 +6,7 @@ type Ingridient = {
 
 export type Recipe = {
     name: string;
-    ingridients: Ingridient[];
-    instructions: string;
+    ingridients: Ingridient[] | null;
+    instructions: string | null;
+    image: string | null;
 }
