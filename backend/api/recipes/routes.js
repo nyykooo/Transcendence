@@ -19,20 +19,20 @@ function assertOwner(req, res, recipe) {
 
 function serializeRecipeRow(row) {
     return {
-        recipe_name: row.recipe_name,
-        ingridient_name: row.ingridient_name ?? row.ingredient_name,
-        quantity: row.quantity,
+        recipe_name: row.name,
+        ingridient_name: row.ingredient_name ?? null,
+        quantity: row.quantity ?? null,
     };
 }
 
 router.get(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
     const query = `
         SELECT
-            r.recipe_name,
-            r.ingredient_name AS ingridient_name,
+            r.name,
+            r.ingredient_name AS ingredient_name,
             r.quantity
         FROM public.all_recipes r
-        ORDER BY r.recipe_name ASC, r.ingredient_name ASC
+        ORDER BY r.name ASC, r.ingredient_name ASC
     `;
     // depois mudar para all_recipes
 

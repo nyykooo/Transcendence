@@ -12,7 +12,7 @@ type RecipesResponse = {
 };
 
 export async function getRecipes(token: string): Promise<Recipe[]> {
-    const response = await fetch(api.recipes, {
+    const response = await fetch(api.recipe, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
