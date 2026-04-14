@@ -48,7 +48,8 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     if (error?.code === '23505')
       return res.status(409).json({error: "User already exists"});
-    return res.status(500).json({error: "Failed to create user", details: error.message});
+    console.error('[register] unexpected error:', error);
+    return res.status(500).json({error: "Failed to create user"});
   }
 })
 
@@ -87,8 +88,8 @@ async function loginHandler(req,res) {
     return res.status(200).json({message: "Sucessful login", id: user.id, token});
 
   } catch (error) {
-    
-    return res.status(500).json({error: "Failed to login", details: error.message});
+    console.error('[login] unexpected error:', error);
+    return res.status(500).json({error: "Failed to login"});
   }
 }
 
@@ -127,10 +128,8 @@ router.put(['/profile'], requireAuth, async (req, res) => {
     if (error?.code === '23505') {
       return res.status(409).json({error: 'Email already in use'});
     }
-    return res.status(500).json({
-      error: 'Failed to update profile',
-      details: error.message,
-    });
+    console.error('[PUT /profile] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to update profile'});
   }
 });
 
@@ -175,10 +174,8 @@ router.put(['/profile/password'], requireAuth, async (req, res) => {
       user: updated.rows[0],
     });
   } catch (error) {
-    return res.status(500).json({
-      error: 'Failed to update password',
-      details: error.message,
-    });
+    console.error('[PUT /profile/password] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to update password'});
   }
 });
 
@@ -203,7 +200,8 @@ router.get(['/profile' ,'/auth'], requireAuth, async (req, res) => {
 
       return res.json({ message: 'ok', user: result.rows[0] });
     } catch (error) {
-      return res.status(500).json({ error: 'Failed to load profile', details: error.message });
+      console.error('[GET /profile] unexpected error:', error);
+      return res.status(500).json({ error: 'Failed to load profile' });
     }
 })
 
@@ -239,11 +237,9 @@ router.post('/profile/avatar', requireAuth, upload.single('avatar'), async (req,
 
     catch (error)
     {
-      return res.status(500).json({
-        error: 'Failed to update avatar',
-        details: error.message,
-    });
-  }
+      console.error('[POST /profile/avatar] unexpected error:', error);
+      return res.status(500).json({error: 'Failed to update avatar'});
+    }
 });
 
 
@@ -397,10 +393,8 @@ router.get('/auth/github/callback', async (req, res) => {
     redirectTo.searchParams.set('token', jwtToken);
     return res.redirect(redirectTo.toString());
   } catch (error) {
-    return res.status(500).json({
-      error: "GitHub OAuth failed",
-      details: error?.response?.data || error.message,
-    });
+    console.error('[GET /auth/github/callback] unexpected error:', error?.response?.data || error);
+    return res.status(500).json({error: "GitHub OAuth failed"});
   }
 });
 
