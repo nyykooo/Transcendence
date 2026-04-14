@@ -7,6 +7,7 @@ const { pool } = require('../db');
 const { requireAuth } = require('./requireAuth');
 const { upload } = require('./upload');
 const router = express.Router();
+const DEFAULT_AVATAR = '/uploads/avatars/test.webp';
 
 let currentId = 1;
 const users = [];
@@ -24,12 +25,12 @@ router.post('/register', async (req, res) => {
     {
       
       const created = await pool.query(
-        `INSERT INTO dev_dba.users (name, password, email, is_active, last_login)
-        VALUES ($1, $2, $3, false, NOW())
-        RETURNING id, email, name, is_active, created_at, last_login`,
-        [name, passwordHash, normalizedEmail]
+        `INSERT INTO dev_dba.users (name, password, email, avatar, is_active, last_login)
+        VALUES ($1, $2, $3, $4, false, NOW())
+        RETURNING id, email, name, avatar, is_active, created_at, last_login`,
+        [name, passwordHash, normalizedEmail, DEFAULT_AVATAR]
       );
-      const newuser = { ...created.rows[0], avatar: null };
+      const newuser = { ...created.rows[0] };
       const token = jwt.sign(
         {id: newuser.id, email: newuser.email, avatar: newuser.avatar},
         process.env.JWT_SECRET,
@@ -47,7 +48,8 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     if (error?.code === '23505')
       return res.status(409).json({error: "User already exists"});
-    return res.status(500).json({error: "Failed to create user", details: error.message});
+    console.error('[register] unexpected error:', error);
+    return res.status(500).json({error: "Failed to create user"});
   }
 })
 
@@ -60,7 +62,7 @@ async function loginHandler(req,res) {
 
   try {
     const result = await pool.query(
-      `SELECT id, email, name, password, is_active
+      `SELECT id, email, name, password, avatar, is_active
        FROM dev_dba.users
        WHERE lower(email) = $1
        LIMIT 1`,
@@ -86,13 +88,96 @@ async function loginHandler(req,res) {
     return res.status(200).json({message: "Sucessful login", id: user.id, token});
 
   } catch (error) {
-    
-    return res.status(500).json({error: "Failed to login", details: error.message});
+    console.error('[login] unexpected error:', error);
+    return res.status(500).json({error: "Failed to login"});
   }
 }
 
 router.post(['/Login', '/login'], loginHandler);
 
+router.put(['/profile'], requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
+    
+    const name = String(req.body?.name || '').trim();
+    const normalizedEmail = String(req.body?.email || '').trim().toLowerCase();
+    
+    if (!name || !normalizedEmail) {
+      return res.status(400).json({error: 'name and email required'});
+    }
+
+    const updated = await pool.query(
+      ` UPDATE dev_dba.users
+        SET name = $1, email = $2
+        WHERE id = $3
+        RETURNING id, email, name, avatar, is_active`,
+        [name ,normalizedEmail, userId]
+    );
+    if (updated.rowCount === 0) {
+      return res.status(404).json({error: 'User not found'});
+    }
+    return res.status(200).json({
+      message: 'Profile updated',
+      user: updated.rows[0],
+    });
+  }
+  catch(error) {
+    if (error?.code === '23505') {
+      return res.status(409).json({error: 'Email already in use'});
+    }
+    console.error('[PUT /profile] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to update profile'});
+  }
+});
+
+router.put(['/profile/password'], requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
+    const result = await pool.query(
+        `SELECT id, email, password , name, avatar, is_active
+         FROM dev_dba.users
+         WHERE id = $1
+         LIMIT 1`,
+        [userId]
+      );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const user = result.rows[0];
+    const currentPassword = String(req.body?.currentPassword || '');
+    const newPassword = String(req.body?.newPassword || '');
+    if (!newPassword || !currentPassword)
+        return res.status(400).json({error: 'Password required'});
+    const ok = await bcrypt.compare(currentPassword, user.password);
+    if (!ok)
+        return res.status(401).json({error: 'Current password is incorrect'});
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const updated = await pool.query(
+      ` UPDATE dev_dba.users
+        SET password = $1
+        WHERE id = $2
+        RETURNING id, email, name, avatar, is_active`,
+        [passwordHash, userId]
+    );
+    if (updated.rowCount === 0) {
+      return res.status(404).json({error: 'User not found'});
+    }
+    return res.status(200).json({
+      message: 'Password updated',
+      user: updated.rows[0],
+    });
+  } catch (error) {
+    console.error('[PUT /profile/password] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to update password'});
+  }
+});
 
 router.get(['/profile' ,'/auth'], requireAuth, async (req, res) => {
     try {
@@ -115,7 +200,8 @@ router.get(['/profile' ,'/auth'], requireAuth, async (req, res) => {
 
       return res.json({ message: 'ok', user: result.rows[0] });
     } catch (error) {
-      return res.status(500).json({ error: 'Failed to load profile', details: error.message });
+      console.error('[GET /profile] unexpected error:', error);
+      return res.status(500).json({ error: 'Failed to load profile' });
     }
 })
 
@@ -151,11 +237,9 @@ router.post('/profile/avatar', requireAuth, upload.single('avatar'), async (req,
 
     catch (error)
     {
-      return res.status(500).json({
-        error: 'Failed to update avatar',
-        details: error.message,
-    });
-  }
+      console.error('[POST /profile/avatar] unexpected error:', error);
+      return res.status(500).json({error: 'Failed to update avatar'});
+    }
 });
 
 
@@ -274,44 +358,43 @@ router.get('/auth/github/callback', async (req, res) => {
       return res.status(400).json({ error: "No verified email available from GitHub" });
     }
 
-    // Find or create local user using GitHub ID
-    let user = users.find(u => u.githubId === ghUser.id);
-    if (!user) {
-      user = {
-        id: currentId++,
-        githubId: ghUser.id,
-        email,
-        name: ghUser.name || ghUser.login,
-        password: null,
-        avatar: null,
-      };
-      const hash_pass = await bcrypt.hash(user.name, 10);
-     const created = await pool.query(
-      `INSERT INTO dev_dba.users (name, password, email, is_active, last_login)
-       VALUES ($1, $2, $3, true, NOW())
-       RETURNING id, email, name, is_active, created_at, last_login`,
-      [user.name, hash_pass, user.email]
-    );
-    users.push(user);
-    }
+    const normalizedEmail = String(email || '').trim().toLowerCase();
 
-    // Generate JWT
+    let user;
+    const existing = await pool.query(
+      `SELECT id, email, name, avatar, is_active
+       FROM dev_dba.users
+       WHERE lower(email) = $1
+       LIMIT 1`,
+      [normalizedEmail]
+    );
+
+    if (existing.rowCount > 0) {
+      user = existing.rows[0];
+    } else {
+      const hashPass = await bcrypt.hash(ghUser.name || ghUser.login, 10);
+      const created = await pool.query(
+        `INSERT INTO dev_dba.users (name, password, email, avatar, is_active, last_login)
+         VALUES ($1, $2, $3, $4, true, NOW())
+         RETURNING id, email, name, avatar, is_active`,
+        [ghUser.name || ghUser.login, hashPass, normalizedEmail, DEFAULT_AVATAR]
+      );
+      user = created.rows[0];
+    }
     const jwtToken = jwt.sign(
       { id: user.id, email: user.email, githubId: user.githubId , avatar: user.avatar},
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-
+  
     const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:443';
     const redirectTo = new URL('/auth/github/callback', frontendUrl);
     redirectTo.searchParams.set('id', String(user.id));
     redirectTo.searchParams.set('token', jwtToken);
     return res.redirect(redirectTo.toString());
   } catch (error) {
-    return res.status(500).json({
-      error: "GitHub OAuth failed",
-      details: error?.response?.data || error.message,
-    });
+    console.error('[GET /auth/github/callback] unexpected error:', error?.response?.data || error);
+    return res.status(500).json({error: "GitHub OAuth failed"});
   }
 });
 
