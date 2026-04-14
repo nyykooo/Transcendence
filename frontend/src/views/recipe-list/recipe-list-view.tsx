@@ -6,12 +6,16 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
 import RecipeListTableToolbar from './recipe-list-table-toolbar';
 import { useAuth } from '../../components/AuthProvider';
-import { getRecipes, type Recipe } from '../../api/recipes';
+import { getRecipes, type Recipe } from '../../api/recipes_list';
 
 type RecipeRow = {
     recipe_name: string;
     ingridient_name: string;
-    quantity: string | number | null;
+    diet: string;
+    cost: number;
+    portions: number;
+    liked: number;
+    viewed: number;
 };
 
 export default function RecipeListView() {
@@ -37,7 +41,11 @@ export default function RecipeListView() {
                 const mappedRows: RecipeRow[] = recipes.map((recipe: Recipe) => ({
                     recipe_name: recipe.recipe_name,
                     ingridient_name: recipe.ingridient_name,
-                    quantity: recipe.quantity,
+                    diet: recipe.diet,
+                    cost: recipe.cost,
+                    portions: recipe.portions,
+                    liked: recipe.liked,
+                    viewed: recipe.viewed,
                 }));
 
                 setRows(mappedRows);
@@ -67,10 +75,21 @@ export default function RecipeListView() {
         flex: 2,
     },
     {
-        field: 'quantity',
-        headerName: 'Quantity',
+        field: 'diet',
+        headerName: 'Diet',
         flex: 1,
     },
+    {
+        field: 'cost',
+        headerName: 'Cost',
+        flex: 1,
+    },
+    {
+        field: 'portions',
+        headerName: 'Portions',
+        flex: 1,
+    },
+ 
     ];
 
     return (
@@ -85,7 +104,7 @@ export default function RecipeListView() {
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    getRowId={(row) => `${row.recipe_name}-${row.ingridient_name}`}
+                    getRowId={(row: RecipeRow) => `${row.recipe_name}-${row.ingridient_name}`}
                     loading={isLoading}
                     slots={{
                         loadingOverlay: () => (
