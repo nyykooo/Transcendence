@@ -63,33 +63,39 @@ router.post(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
     return res.status(201).json(recipe);
 });
 
-router.get(['/recipes/:id', '/RecipeView/:id'], requireAuth, (req, res) => {
-    const id = Number(req.params.id);
-    if (!Number.isFinite(id))
-        return res.status(400).json({ error: 'Invalid recipe id' });
+router.get(['/recipes/:name', '/RecipeView/:name'], requireAuth, async (req, res) => {
+    const name = decodeURIComponent(req.params.name); // search normalized values?
 
-    const query = `
-        SELECT
-            r.recipe_name,
-            r.ingredient_name AS ingridient_name,
-            r.quantity
-        FROM public.all_recipes r
-        WHERE r.id = $1
-    `;
+    try {
+        const result = await pool.query(`
+            SELECT * FROM public.all_recipes
+            WHERE name = $1
+            LIMIT 1
+        `, [name]);
 
-    // depois mudar para all_recipes
+        if (!result.rows || result.rows.length === 0) {
+            return res.status(404).json({error: `Recipe ${name} not found`});
+        }
 
-    pool.query(query, [id])
-        .then(({ rows }) => {
-            if (rows.length === 0)
-                return res.status(404).json({ error: 'Recipe not found' });
+        const raw_recipe = result.rows[0];
 
-            const recipe = serializeRecipeRow(rows[0]);
-            return res.json(recipe);
-        })
-        .catch((error) => {
-            return res.status(500).json({ error: 'Failed to fetch recipe', details: error.message });
-        });
+        const recipe = {
+            name: raw_recipe.name,
+            ingridients: raw_recipe.ingredients,
+            instructions: raw_recipe.instructions,
+            prep_time: raw_recipe.prep_time,
+            cook_time: raw_recipe.cooking_time,
+            portions: raw_recipe.portions,
+            diet: raw_recipe.diet,
+            cost: raw_recipe.cost,
+            liked: raw_recipe.liked,
+            viewed: raw_recipe.viewed,
+        };
+        return res.json(recipe);
+    } catch (error) {
+        console.error('Error fetching recipe:', error);
+        return res.status(500).json({error: 'Internal server error'});
+    }
 })
 
 // Still need to change this to use the DB
