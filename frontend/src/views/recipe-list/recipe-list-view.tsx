@@ -1,35 +1,78 @@
-import { Box } from '@mui/material';
+import { useEffect, useState } from 'react';
+
+import { Alert, Box, CircularProgress, Typography } from '@mui/material';
 
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
 import RecipeListTableToolbar from './recipe-list-table-toolbar';
+import { useAuth } from '../../components/AuthProvider';
+import { getRecipes, type Recipe } from '../../api/recipes_list';
+
+type RecipeRow = {
+    recipe_name: string;
+    ingridient_name: string;
+    diet: string;
+    cost: number;
+    portions: number;
+    liked: number;
+    viewed: number;
+};
 
 export default function RecipeListView() {
+    const { user } = useAuth();
+    const [rows, setRows] = useState<RecipeRow[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // mock data for testing, replace with actual data fetching logic
-    const rows = [
-    { id: 1, name: 'Recipe 1', ingridients: 'Ingredient 1, Ingredient 2, Ingredient 3', diet: 'Vegetarian', cost: 10.99, portions: 4 },
-    { id: 2, name: 'Recipe 2', ingridients: 'Ingredient 3, Ingredient 4', diet: 'Vegan', cost: 15.50, portions: 6 },
-    { id: 3, name: 'Recipe 3', ingridients: 'Ingredient 5, Ingredient 6', diet: 'Keto', cost: 12.75, portions: 5 },
-    { id: 4, name: 'Recipe 4', ingridients: 'Ingredient 7, Ingredient 8', diet: 'Paleo', cost: 18.25, portions: 8 },
-    { id: 5, name: 'Recipe 5', ingridients: 'Ingredient 9, Ingredient 10', diet: 'Gluten-Free', cost: 20.00, portions: 10 },
-    { id: 6, name: 'Recipe 6', ingridients: 'Ingredient 11, Ingredient 12', diet: 'Low-Carb', cost: 25.50, portions: 12 },
-    ];
+    useEffect(() => {
+        const loadRecipes = async () => {
+            if (!user?.token) {
+                setError('Missing authentication token. Please sign in again.');
+                setRows([]);
+                setIsLoading(false);
+                return;
+            }
+
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const recipes = await getRecipes(user.token);
+                const mappedRows: RecipeRow[] = recipes.map((recipe: Recipe) => ({
+                    recipe_name: recipe.recipe_name,
+                    ingridient_name: recipe.ingridient_name,
+                    diet: recipe.diet,
+                    cost: recipe.cost,
+                    portions: recipe.portions,
+                    liked: recipe.liked,
+                    viewed: recipe.viewed,
+                }));
+
+                setRows(mappedRows);
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to load recipes';
+                setError(message);
+                setRows([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadRecipes();
+    }, [user?.token]);
 
     // updateFilters
 
-    const columns: GridColDef<(typeof rows)[number]>[] = [
+    const columns: GridColDef<RecipeRow>[] = [
     {
-        field: 'name',
-        headerName: 'Name',
+        field: 'recipe_name',
+        headerName: 'Recipe Name',
         flex: 1,
-        editable: true,
     },
     {
-        field: 'ingridients',
-        headerName: 'Ingredients',
+        field: 'ingridient_name',
+        headerName: 'Ingredient Name',
         flex: 2,
-        editable: true,
     },
     {
         field: 'diet',
@@ -39,26 +82,42 @@ export default function RecipeListView() {
     {
         field: 'cost',
         headerName: 'Cost',
-        type: 'number',
         flex: 1,
-        editable: true,
     },
     {
         field: 'portions',
         headerName: 'Portions',
-        type: 'number',
         flex: 1,
-        editable: true,
     },
+ 
     ];
 
     return (
         <Box sx={{height: '100%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
             <RecipeListTableToolbar/> {/*passar a updateFilters como prop (callback)*/}
+            {error && (
+                <Alert severity='error' sx={{ width: '100%' }}>
+                    {error}
+                </Alert>
+            )}
             <Box sx={{ height: 400, width: '100%' }}>
                 <DataGrid
                     rows={rows}
                     columns={columns}
+                    getRowId={(row: RecipeRow) => `${row.recipe_name}-${row.ingridient_name}`}
+                    loading={isLoading}
+                    slots={{
+                        loadingOverlay: () => (
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                <CircularProgress size={28} />
+                            </Box>
+                        ),
+                        noRowsOverlay: () => (
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                <Typography variant='body2'>No recipes available.</Typography>
+                            </Box>
+                        ),
+                    }}
                     initialState={{
                     pagination: {
                         paginationModel: {

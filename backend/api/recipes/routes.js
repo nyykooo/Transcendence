@@ -1,7 +1,7 @@
 const express = require('express');
 const {requireAuth} = require('../auth/requireAuth');
+const {recipes, nextRecipeId} = require('./store');
 const { pool } = require('../db');
-// const {recipes, nextRecipeId} = require('./store');
 
 const router = express.Router();
 
@@ -17,10 +17,42 @@ function assertOwner(req, res, recipe) {
     return null;
 }
 
+function serializeRecipeRow(row) {
+    return {
+        recipe_name: row.name,
+        diet: row.diet,
+        cost: row.cost ?? null,
+        portions: row.portions ?? null,
+        liked: row.liked ?? null,
+        viewed: row.viewed ?? null,
+    };
+}
+
 router.get(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
-    res.json({ count: recipes.length, recipes});
+    const query = `
+        SELECT
+            r.name,
+            r.diet,
+            r.cost,
+            r.portions,
+            r.liked,
+            r.viewed
+        FROM public.all_recipes r
+        ORDER BY r.name ASC
+    `;
+    // depois mudar para all_recipes
+
+    pool.query(query)
+        .then(({ rows }) => { 
+            const serialized = rows.map(serializeRecipeRow);
+            return res.json({ count: serialized.length, recipes: serialized });
+        })
+        .catch((error) => {
+            return res.status(500).json({ error: 'Failed to fetch recipes', details: error.message });
+        });
 });
 
+// Still need to change this to use the DB
 
 router.post(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
     const body = req.body || {};
@@ -72,6 +104,8 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuth, async (req, res
     }
 })
 
+// Still need to change this to use the DB
+
 router.put(['/recipes/:id', '/RecipeView/:id'], requireAuth, (req, res) => {
     const id = Number(req.params.id);
     const recipe = findRecipe(id);
@@ -85,6 +119,8 @@ router.put(['/recipes/:id', '/RecipeView/:id'], requireAuth, (req, res) => {
     Object.assign(recipe, body, { updated: new Date().toISOString()});
     return res.json(recipe);
 });
+
+// Still need to change this to use the DB
 
 router.delete(['/recipes/:id', '/RecipeView/:id'], requireAuth, (req, res) => {
     const id = Number(req.params.id);
