@@ -31,7 +31,9 @@ services:
     environment:
       - POSTGRES_HOST=postgres
     ports:
-      - "3001:3001"
+      - "3443:3443"
+    volumes:
+      - ./frontend/tools/certs:/etc/ssl/certs:ro
     networks:
       - transcendence
 

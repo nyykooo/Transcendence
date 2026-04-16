@@ -1,20 +1,6 @@
 import { api } from '../configs/api';
+import { type Recipe, type RecipesResponse } from '../props/recipe-list.tsx';
 
-export type Recipe = {
-    recipe_name: string;
-    ingridient_name: string;
-    diet: string;
-    cost: number;
-    portions: number;
-    liked: number;
-    viewed: number;
-
-};
-
-type RecipesResponse = {
-    count: number;
-    recipes: Recipe[];
-};
 
 export async function getRecipes(token: string): Promise<Recipe[]> {
     const response = await fetch(api.recipe, {

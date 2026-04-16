@@ -11,3 +11,30 @@ export type RecipeListFiltersProps = {
         max?: number;
     }
 }
+
+export type Recipe = {
+    recipe_name: string;
+    ingridient_name: string;
+    diet: string;
+    cost: number;
+    portions: number;
+    liked: number;
+    viewed: number;
+
+};
+
+
+export type RecipesResponse = {
+    count: number;
+    recipes: Recipe[];
+};
+
+export type RecipeRow = {
+    recipe_name: string;
+    ingridient_name: string;
+    diet: string;
+    cost: number;
+    portions: number;
+    liked: number;
+    viewed: number;
+};
