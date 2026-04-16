@@ -5,5 +5,8 @@ export const api = {
     login: `${API_BASE_URL}/login`,
     githubAuth: `${API_BASE_URL}/auth/github`,
     register: `${API_BASE_URL}/register`,
-    recipe: `${API_BASE_URL}/recipes/`
+    recipe: `${API_BASE_URL}/recipes/`,
+    profile: `${API_BASE_URL}/profile`,
+    profileAvatar: `${API_BASE_URL}/profile/avatar`,
+    profilePassword: `${API_BASE_URL}/profile/password`
 };

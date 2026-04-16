@@ -48,6 +48,14 @@ function storeUser(user: User | null) {
 export default function AuthProvider ({ children } : AuthProviderProps) {
     const [user, setUser] = useState<User | null>(() => readStoredUser());
 
+    const getAuthToken = (): string | null => {
+        if (user?.token) {
+            return user.token;
+        }
+
+        return readStoredUser()?.token ?? null;
+    };
+
     const signIn = async (login: LoginProps = { email: '', password: '' }, option: string = 'default') => {
         var res;
         switch (option) {
@@ -78,7 +86,7 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
         setUser(null);
     };
 
-    return <AuthContext.Provider value={{ user, signIn, signOut }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ user, signIn, signOut, getAuthToken }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
