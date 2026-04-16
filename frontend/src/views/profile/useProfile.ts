@@ -1,0 +1,252 @@
+import { useEffect, useState, type ChangeEvent } from 'react';
+
+import { useAuth } from '../../components/AuthProvider';
+import {
+    fetchProfile,
+    updatePassword,
+    updateProfile,
+    uploadProfileAvatar,
+} from '../../api/profile';
+import type { ApiMessage, PasswordForm, ProfileForm, ProfileUser } from '../../props/profile/sharedProps';
+
+const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const;
+
+export function useProfile() {
+    const { user: authUser, getAuthToken } = useAuth();
+
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [avatarLoading, setAvatarLoading] = useState(false);
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [passwordLoading, setPasswordLoading] = useState(false);
+    const [profileError, setProfileError] = useState<string | null>(null);
+    const [message, setMessage] = useState<ApiMessage | null>(null);
+
+    const [user, setUser] = useState<ProfileUser>({
+        name: 'Test User',
+        email: '',
+        avatar: null,
+    });
+    const [profileForm, setProfileForm] = useState<ProfileForm>({ name: '', email: '' });
+    const [passwordForm, setPasswordForm] = useState<PasswordForm>({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+    });
+
+    const handleProfileFieldChange =
+        (field: keyof ProfileForm) => (event: ChangeEvent<HTMLInputElement>) => {
+            const value = event.target.value;
+            setProfileForm((prev: ProfileForm) => ({ ...prev, [field]: value }));
+        };
+
+    const handlePasswordFieldChange =
+        (field: keyof PasswordForm) => (event: ChangeEvent<HTMLInputElement>) => {
+            const value = event.target.value;
+            setPasswordForm((prev: PasswordForm) => ({ ...prev, [field]: value }));
+        };
+
+    useEffect(() => {
+        if (!preview) {
+            return;
+        }
+
+        return () => URL.revokeObjectURL(preview);
+    }, [preview]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadProfile = async () => {
+            const token = getAuthToken();
+            if (!token) {
+                return;
+            }
+
+            setProfileError(null);
+
+            try {
+                const hydratedUser = await fetchProfile(token);
+                if (cancelled) {
+                    return;
+                }
+
+                setUser(hydratedUser);
+                setProfileForm({
+                    name: hydratedUser.name,
+                    email: hydratedUser.email,
+                });
+            } catch (error) {
+                if (cancelled) {
+                    return;
+                }
+
+                setProfileError(error instanceof Error ? error.message : 'Could not load your profile right now.');
+            }
+        };
+
+        loadProfile();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [authUser?.token]);
+
+    const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        if (file.size > MAX_AVATAR_SIZE_BYTES) {
+            setMessage({ type: 'error', text: 'File size must be less than 5MB.' });
+            return;
+        }
+
+        const isAllowedType = ALLOWED_AVATAR_TYPES.includes(file.type as (typeof ALLOWED_AVATAR_TYPES)[number]);
+        if (!isAllowedType) {
+            setMessage({ type: 'error', text: 'Only JPEG, PNG, GIF, or WEBP images are allowed.' });
+            return;
+        }
+
+        if (preview) {
+            URL.revokeObjectURL(preview);
+        }
+
+        setSelectedFile(file);
+        setPreview(URL.createObjectURL(file));
+        setMessage(null);
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) {
+            setMessage({ type: 'error', text: 'Please select a file first.' });
+            return;
+        }
+
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to upload an avatar.' });
+            return;
+        }
+
+        setAvatarLoading(true);
+        setMessage(null);
+
+        try {
+            const nextUser = await uploadProfileAvatar(token, selectedFile, user);
+            setUser(nextUser);
+            setSelectedFile(null);
+
+            if (preview) {
+                URL.revokeObjectURL(preview);
+            }
+
+            setPreview(null);
+            setMessage({ type: 'success', text: 'Image uploaded successfully!' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Error uploading image. Please try again.',
+            });
+        } finally {
+            setAvatarLoading(false);
+        }
+    };
+
+    const handleProfileUpdate = async () => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to update your profile.' });
+            return;
+        }
+
+        const trimmedName = profileForm.name.trim();
+        const trimmedEmail = profileForm.email.trim().toLowerCase();
+
+        if (!trimmedName || !trimmedEmail) {
+            setMessage({ type: 'error', text: 'Name and email are required.' });
+            return;
+        }
+
+        setProfileLoading(true);
+        setMessage(null);
+
+        try {
+            const nextUser = await updateProfile(token, { name: trimmedName, email: trimmedEmail }, user);
+            setUser(nextUser);
+            setProfileForm({ name: nextUser.name, email: nextUser.email });
+            setMessage({ type: 'success', text: 'Profile updated successfully.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Error updating profile. Please try again.',
+            });
+        } finally {
+            setProfileLoading(false);
+        }
+    };
+
+    const handlePasswordUpdate = async () => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to change password.' });
+            return;
+        }
+
+        if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+            setMessage({ type: 'error', text: 'Please fill all password fields.' });
+            return;
+        }
+
+        if (passwordForm.newPassword.length < 8) {
+            setMessage({ type: 'error', text: 'New password must be at least 8 characters.' });
+            return;
+        }
+
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+            setMessage({ type: 'error', text: 'New password and confirmation do not match.' });
+            return;
+        }
+
+        setPasswordLoading(true);
+        setMessage(null);
+
+        try {
+            await updatePassword(token, {
+                currentPassword: passwordForm.currentPassword,
+                newPassword: passwordForm.newPassword,
+            });
+
+            setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+            setMessage({ type: 'success', text: 'Password changed successfully.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Error changing password. Please try again.',
+            });
+        } finally {
+            setPasswordLoading(false);
+        }
+    };
+
+    return {
+        user,
+        selectedFile,
+        preview,
+        avatarLoading,
+        profileLoading,
+        passwordLoading,
+        profileError,
+        message,
+        profileForm,
+        passwordForm,
+        handleFileSelect,
+        handleUpload,
+        handleProfileUpdate,
+        handlePasswordUpdate,
+        handleProfileFieldChange,
+        handlePasswordFieldChange,
+    };
+}
