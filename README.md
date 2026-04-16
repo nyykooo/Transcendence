@@ -45,5 +45,5 @@ Run only the backend services (without frontend/database):
 
 Ports:
 
-- Auth: http://localhost:3001
-- Recipes: http://localhost:3001
+- Auth (HTTPS): https://localhost:3443
+- Recipes (HTTPS): https://localhost:3443

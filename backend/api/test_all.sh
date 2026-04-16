@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 # HTTPS-ready API endpoint.
 # Examples:
 #   BASE_URL=https://localhost/api ./test_all.sh
-#   BASE_URL=http://localhost:3001 ./test_all.sh
+#   BASE_URL=https://localhost:3443 ./test_all.sh
 BASE_URL="${BASE_URL:-https://localhost/api}"
 
 # For local self-signed certs over HTTPS, curl will use -k by default.

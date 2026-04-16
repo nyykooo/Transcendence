@@ -6,17 +6,9 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
 import RecipeListTableToolbar from './recipe-list-table-toolbar';
 import { useAuth } from '../../components/AuthProvider';
-import { getRecipes, type Recipe } from '../../api/recipes_list';
+import { getRecipes} from '../../api/recipes_list';
+import { type Recipe, type RecipeRow } from '../../props/recipe-list';
 
-type RecipeRow = {
-    recipe_name: string;
-    ingridient_name: string;
-    diet: string;
-    cost: number;
-    portions: number;
-    liked: number;
-    viewed: number;
-};
 
 export default function RecipeListView() {
     const { user } = useAuth();
