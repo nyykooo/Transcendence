@@ -87,6 +87,7 @@ CREATE TABLE dev_dba.recipe_ingredients
 (
 	recipe_id bigint REFERENCES dev_dba.all_recipes(id),
 	ingredient_id bigint REFERENCES dev_dba.ingredients(id),
+	name TEXT NOT NULL,
 	quantity numeric (6,2) NOT NULL,
 	unit TEXT,
 	PRIMARY KEY (recipe_id, ingredient_id)
