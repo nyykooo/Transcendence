@@ -3,17 +3,19 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    INSERT INTO public.all_recipes (id, name, diet, cost, is_public)
-    VALUES (NEW.id, NEW.name, COALESCE(NEW.diet, 0), NEW.cost, NEW.is_public)
+    INSERT INTO public.all_recipes (id, name, diet, ingredients, cost, is_public)
+    VALUES (NEW.id, NEW.name, COALESCE(NEW.diet, 'vegan'), NEW.ingredients,NEW.cost, NEW.is_public)
     ON CONFLICT (id) DO UPDATE 
     SET name = EXCLUDED.name,
         diet = EXCLUDED.diet,
         cost = EXCLUDED.cost,
+		ingredients = EXCLUDED.ingredients,
         is_public = EXCLUDED.is_public;
     
     RETURN NEW;
 END;
 $$;
+
 
 CREATE OR REPLACE TRIGGER on_approval
 AFTER UPDATE ON dev_dba.all_recipes

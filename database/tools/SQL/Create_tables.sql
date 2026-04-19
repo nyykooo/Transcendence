@@ -1,5 +1,3 @@
-
-
 CREATE TABLE dev_dba.users
 (
 	id bigserial NOT NULL,
@@ -14,6 +12,7 @@ CREATE TABLE dev_dba.users
 	last_login timestamp with time zone,
 	is_active boolean DEFAULT false,
 	avatar TEXT,
+	git_id BIGINT,
     PRIMARY KEY (id)
 );
 
@@ -41,7 +40,6 @@ RETURNS trigger
 LANGUAGE plpgsql
 AS $BODY$
 BEGIN
-    -- Set the Updated column to current timestamp
     NEW.last_update := CURRENT_DATE;
     RETURN NEW;
 END;
@@ -61,8 +59,10 @@ CREATE TABLE dev_dba.all_recipes
 (
 	id bigserial NOT NULL,
 	name TEXT NOT NULL,
-	diet integer NOT NULL DEFAULT 0,
+	diet TEXT NOT NULL DEFAULT 'omnivorous',
+	ingredients JSONB DEFAULT '{}'::JSONB,
 	instructions TEXT DEFAULT NULL,
+	image TEXT,
 	url TEXT DEFAULT NULL,
 	cost numeric(5, 2) DEFAULT 0,
 	portions integer DEFAULT 1,
@@ -87,6 +87,7 @@ CREATE TABLE dev_dba.recipe_ingredients
 (
 	recipe_id bigint REFERENCES dev_dba.all_recipes(id),
 	ingredient_id bigint REFERENCES dev_dba.ingredients(id),
+	name TEXT NOT NULL,
 	quantity numeric (6,2) NOT NULL,
 	unit TEXT,
 	PRIMARY KEY (recipe_id, ingredient_id)
@@ -97,7 +98,8 @@ CREATE TABLE public.all_recipes
 (
 	id bigserial NOT NULL,
 	name TEXT NOT NULL,
-	diet integer NOT NULL,
+	diet TEXT NOT NULL DEFAULT 'omnivorous',
+	ingredients JSONB DEFAULT '{}'::JSONB,
 	instructions TEXT DEFAULT NULL,
 	url TEXT DEFAULT NULL,
 	cost numeric(5, 2) DEFAULT 0,
@@ -111,8 +113,6 @@ CREATE TABLE public.all_recipes
 	viewed integer,
 	PRIMARY KEY (id)
 );
-
-
 
 ALTER TABLE public.all_recipes
 	ADD CONSTRAINT "unique_name" UNIQUE(name);
@@ -134,9 +134,20 @@ CREATE TABLE public.pending_recipes
 	PRIMARY KEY (id)
 );
 
--- ALTER TABLE IF EXISTS dev_dba.pending_recipes
---     OWNER to dev_dba;
+CREATE TABLE public.pending_recipes
+(
+	id bigserial NOT NULL,
+	name TEXT NOT NULL,
+	diet TEXT NOT NULL DEFAULT 'omnivorous',
+	instructions TEXT DEFAULT NULL,
+	url TEXT DEFAULT NULL,
+	cost numeric(5, 2) DEFAULT 0,
+	portions integer DEFAULT 1,
+	created_at timestamp with time zone,
+	updated timestamp with time zone,
+	prep_time integer,
+	cooking_time integer,
+	status TEXT DEFAULT 'pending',
+	PRIMARY KEY (id)
+);
 
--- CREATE INDEX idx_pending_recipes_user_id ON dev_dba.pending_recipes(user_id);
--- CREATE INDEX idx_pending_recipes_status ON dev_dba.pending_recipes(status);
--- CREATE INDEX idx_pending_recipes_submitted_at ON dev_dba.pending_recipes(submitted_at);
