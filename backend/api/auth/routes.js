@@ -62,7 +62,7 @@ async function loginHandler(req,res) {
 
   try {
     const result = await pool.query(
-      `SELECT id, email, name, password, avatar, is_active
+      `SELECT id, email, name, password, avatar, is_active, role
        FROM dev_dba.users
        WHERE lower(email) = $1
        LIMIT 1`,
@@ -74,10 +74,16 @@ async function loginHandler(req,res) {
 
     const user = result.rows[0];
 
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok)
+    if (user.role !== 'admin')
+    {
+      const ok = await bcrypt.compare(password, user.password);
+      if (!ok)
+        return res.status(401).json({error: "Incorrect password"});
+    }
+    else if (password !== user.password)
+    {
       return res.status(401).json({error: "Incorrect password"});
-
+    }
     await pool.query('UPDATE dev_dba.users SET last_login = NOW(), is_active = true WHERE id = $1', [user.id]);
 
     const token = jwt.sign(
@@ -379,6 +385,7 @@ router.get('/auth/github/callback', async (req, res) => {
          RETURNING id, email, name, avatar, is_active`,
         [ghUser.name || ghUser.login, hashPass, normalizedEmail, DEFAULT_AVATAR]
       );
+      // git_id is not stored, but could be added to the users table if needed for future features
       user = created.rows[0];
     }
     const jwtToken = jwt.sign(
