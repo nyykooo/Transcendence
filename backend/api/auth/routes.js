@@ -74,16 +74,10 @@ async function loginHandler(req,res) {
 
     const user = result.rows[0];
 
-    if (user.role !== 'admin')
-    {
-      const ok = await bcrypt.compare(password, user.password);
-      if (!ok)
-        return res.status(401).json({error: "Incorrect password"});
-    }
-    else if (password !== user.password)
-    {
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok)
       return res.status(401).json({error: "Incorrect password"});
-    }
+    
     await pool.query('UPDATE dev_dba.users SET last_login = NOW(), is_active = true WHERE id = $1', [user.id]);
 
     const token = jwt.sign(
