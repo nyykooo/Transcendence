@@ -37,7 +37,7 @@ INSERT INTO dev_dba.ingredients (name, price_per_kg) VALUES
 ('Coconut Cream', 4.78),
 ('Creme Fraiche', 5.44),
 ('Dulce de Leche', 2.77),
-('Asparagus', 8.32),
+('Aspargus', 8.32),
 ('Spinach', 4.45),
 ('Coconut Foam', 5.05),
 ('Vanilla Extract', 19.50),
