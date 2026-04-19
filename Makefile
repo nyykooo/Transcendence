@@ -25,7 +25,7 @@ submakes:
 	$(MAKE) -C $(DB_DIR)  || true
 
 build: certs
-	docker-compose -p inception -f ./docker-compose.yml build
+	docker-compose -p brunchio -f ./docker-compose.yml build
 up:
 	docker-compose -f ./docker-compose.yml up -d
 start:
