@@ -18,8 +18,22 @@ function assertOwner(req, res, recipe) {
 }
 
 function serializeRecipeRow(row) {
+    // Garante que ingredients seja uma lista; se vier inválido, usa lista vazia.
+    const ingredients = Array.isArray(row.ingredients)
+        ? row.ingredients
+        : [];
+
+    // Pega apenas o campo "name" de cada ingrediente e remove valores vazios.
+    const ingredientNames = ingredients
+        .map((ingredient) => ingredient?.name)
+        .filter((name) => typeof name === 'string' && name.trim() !== '');
+
     return {
         recipe_name: row.name,
+        // String para exibir na coluna "Ingredient Name" da tabela.
+        ingridient_name: ingredientNames.join(', '),
+        // Array útil para filtros/autocomplete no frontend.
+        ingredients_names: ingredientNames,
         diet: row.diet,
         cost: row.cost ?? null,
         portions: row.portions ?? null,
@@ -32,16 +46,17 @@ router.get(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
     const query = `
         SELECT
             r.name,
+            r.ingredients,
             r.diet,
             r.cost,
             r.portions,
             r.liked,
             r.viewed
-        FROM public.all_recipes r
-        ORDER BY r.name ASC
-    `;
-    // depois mudar para all_recipes
-
+            FROM public.all_recipes r
+            ORDER BY r.name ASC
+            `;
+            //r.ingredients e' o json com os ingredientes; usado para extrair apenas os nomes no backend.
+            
     pool.query(query)
         .then(({ rows }) => { 
             const serialized = rows.map(serializeRecipeRow);
