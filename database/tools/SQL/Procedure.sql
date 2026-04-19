@@ -37,8 +37,8 @@ BEGIN
             END IF;
             
             -- Insert into recipe_ingredients junction table
-            INSERT INTO dev_dba.recipe_ingredients (recipe_id, ingredient_id, quantity, unit)
-            VALUES (v_recipe_id, v_ingredient_id, v_quantity, v_unit)
+            INSERT INTO dev_dba.recipe_ingredients (recipe_id, ingredient_id, name ,  quantity, unit)
+            VALUES (v_recipe_id, v_ingredient_id, v_ingredient_name ,v_quantity, v_unit)
             ON CONFLICT (recipe_id, ingredient_id) DO UPDATE SET
                 quantity = EXCLUDED.quantity,
                 unit = EXCLUDED.unit;
@@ -90,3 +90,48 @@ END;
 $$;
 
 SELECT dev_dba.pricing_list();
+
+
+CREATE OR REPLACE PROCEDURE update_recipe_ingredients_as_jsonb()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    recipe_record RECORD;
+    ingredients_json JSONB;
+BEGIN
+    -- Loop through each recipe
+    FOR recipe_record IN 
+        SELECT DISTINCT 
+            ar.id as recipe_id,
+            ar.name as recipe_name
+        FROM dev_dba.recipe_ingredients ri
+        INNER JOIN dev_dba.all_recipes ar ON ri.recipe_id = ar.id
+        ORDER BY ar.id
+    LOOP
+        -- Build JSONB array of ingredients for the current recipe
+        SELECT JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'ingredient_id', ri.ingredient_id,
+                'quantity', ri.quantity,
+                'unit', ri.unit
+            ) ORDER BY ri.ingredient_id
+        )
+        INTO ingredients_json
+        FROM dev_dba.recipe_ingredients ri
+        WHERE ri.recipe_id = recipe_record.recipe_id;
+        
+        -- Update the recipe with the ingredients JSONB
+        UPDATE dev_dba.all_recipes
+        SET ingredients = ingredients_json
+        WHERE id = recipe_record.recipe_id;
+        
+        -- Optional: Raise notice for debugging
+        RAISE NOTICE 'Updated recipe % (%) with % ingredients',
+            recipe_record.recipe_id,
+            recipe_record.recipe_name,
+            JSONB_ARRAY_LENGTH(ingredients_json);
+    END LOOP;
+END;
+$$;
+
+CALL update_recipe_ingredients_as_jsonb();
