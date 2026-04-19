@@ -125,13 +125,14 @@ BEGIN
         SET ingredients = ingredients_json
         WHERE id = recipe_record.recipe_id;
         
-        -- Optional: Raise notice for debugging
-        RAISE NOTICE 'Updated recipe % (%) with % ingredients',
-            recipe_record.recipe_id,
-            recipe_record.recipe_name,
-            JSONB_ARRAY_LENGTH(ingredients_json);
+        -- RAISE NOTICE 'Updated recipe % (%) with % ingredients',
+        --     recipe_record.recipe_id,
+        --     recipe_record.recipe_name,
+        --     JSONB_ARRAY_LENGTH(ingredients_json);
     END LOOP;
 END;
 $$;
 
 CALL update_recipe_ingredients_as_jsonb();
+
+

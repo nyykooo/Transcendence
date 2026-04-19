@@ -12,6 +12,7 @@ init:
 	./tools/sql_run.sh ./tools/SQL/FixPrices.sql
 	./tools/sql_run.sh ./tools/SQL/Triggers.sql
 	./tools/create_admin.sh
+	./tools/sql_run.sh ./tools/SQL/UpdateDiets.sql
 
 clean:
 	-docker-compose down --volumes --remove-orphans 2>/dev/null || true
