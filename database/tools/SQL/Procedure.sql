@@ -111,10 +111,10 @@ BEGIN
         -- Build JSONB array of ingredients for the current recipe
         SELECT JSONB_AGG(
             JSONB_BUILD_OBJECT(
-                'ingredient_id', ri.ingredient_id,
+                'name', ri.name,
                 'quantity', ri.quantity,
                 'unit', ri.unit
-            ) ORDER BY ri.ingredient_id
+            ) ORDER BY ri.name
         )
         INTO ingredients_json
         FROM dev_dba.recipe_ingredients ri

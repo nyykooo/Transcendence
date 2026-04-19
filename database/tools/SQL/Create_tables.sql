@@ -99,6 +99,7 @@ CREATE TABLE public.all_recipes
 	id bigserial NOT NULL,
 	name TEXT NOT NULL,
 	diet TEXT NOT NULL DEFAULT 'omnivorous',
+	ingredients JSONB DEFAULT '{}'::JSONB,
 	instructions TEXT DEFAULT NULL,
 	url TEXT DEFAULT NULL,
 	cost numeric(5, 2) DEFAULT 0,
