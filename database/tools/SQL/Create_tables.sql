@@ -119,6 +119,22 @@ CREATE TABLE public.all_recipes
 ALTER TABLE public.all_recipes
 	ADD CONSTRAINT "unique_name" UNIQUE(name);
 
+CREATE TABLE public.pending_recipes
+(
+	id bigserial NOT NULL,
+	user_id bigint REFERENCES dev_dba.users(id) ON DELETE CASCADE,
+	name TEXT NOT NULL,
+	diet integer NOT NULL DEFAULT 0,
+	instructions TEXT DEFAULT NULL,
+	url TEXT DEFAULT NULL,
+	cost numeric(5, 2) DEFAULT 0,
+	portions integer DEFAULT 1,
+	submitted_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+	prep_time integer,
+	cooking_time integer,
+	status TEXT DEFAULT 'pending' CHECK (status IN('pending', 'approved', 'rejected')),
+	PRIMARY KEY (id)
+);
 
 CREATE TABLE public.pending_recipes
 (
