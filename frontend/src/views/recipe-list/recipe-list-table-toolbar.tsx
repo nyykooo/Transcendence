@@ -8,21 +8,16 @@ import { images } from '../../configs/images';
 
 import { type RecipeListFiltersProps } from '../../props/recipe-list'
 
-export default function RecipeListTableToolbar() {
+type RecipeListTableToolbarProps = {
+    name: string[];
+    diets: string[];
+    ingredients: string[];
+};
+
+export default function RecipeListTableToolbar({ name, diets, ingredients }: RecipeListTableToolbarProps) {
 
     // SelectedFilters
     const [selectedFilters, setSelectedFilters] = useState<RecipeListFiltersProps | null>();
-
-    // ### Diets ###
-    // mock data for testing, replace with actual data fetching logic
-    const diets = [
-        'Vegetarian',
-        'Vegan',
-        'Keto',
-        'Paleo',
-        'Gluten-Free',
-        'Low-Carb'
-    ];
 
     const [selectedDiets, setSelectedDiets] = useState<string[]>([]);
     
@@ -35,14 +30,6 @@ export default function RecipeListTableToolbar() {
             typeof value === 'string' ? value.split('.') : value,
         );
     };
-
-
-    // ### Ingredients ###
-    // mock data for testing, replace with actual data fetching logic
-    const ingredients = [
-        'Ingredient 1',
-        'Ingredient 2',
-    ];
 
     const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
 
@@ -82,17 +69,7 @@ export default function RecipeListTableToolbar() {
         event.preventDefault();
     };
 
-
-
-    // ### Recipes ###
-    // mock data for testing, replace with actual data fetching logic
-    const recipes = [
-        'Banana',
-        'Apple',
-        'Mango',
-        'Pear',
-        'Grape',
-    ];
+    const recipes = name;
 
     const [selectedRecipes, setSelectedRecipes] = useState<string[]>([]);
 

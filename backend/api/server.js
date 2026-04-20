@@ -20,9 +20,9 @@ const { recipesRouter } = require('./recipes/routes');
 app.use(authRouter);
 app.use(recipesRouter);
 
-const HTTPS_PORT = Number(process.env.HTTPS_PORT);
-const SSL_CERT_PATH = process.env.SSL_CERT_PATH;
-const SSL_KEY_PATH = process.env.SSL_KEY_PATH;
+const HTTPS_PORT = Number(process.env.PORT);
+const SSL_CERT_PATH = '/etc/ssl/certs/server.crt';
+const SSL_KEY_PATH = '/etc/ssl/certs/server.key';
 
 function startHttpsServer() {
 	if (!fs.existsSync(SSL_CERT_PATH) || !fs.existsSync(SSL_KEY_PATH)) {
