@@ -42,3 +42,43 @@ END;
 $$;
 
 SELECT dev_dba.set_all_recipes_public();
+
+
+
+CREATE OR REPLACE FUNCTION replicate_all_recipes_update()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM public.all_recipes WHERE id = NEW.id) THEN
+
+        UPDATE public.all_recipes
+        SET 
+            name = NEW.name,
+            diet = NEW.diet,
+            ingredients = NEW.ingredients,
+			instructions = NEW.instructions,
+			image = NEW.image,
+			url = NEW.url,
+            cost = NEW.cost,
+			portions = NEW.portions,
+            created_at = NEW.created_at,
+            updated = NEW.updated,
+            prep_time = NEW.prep_time,
+			cooking_time = NEW.cooking_time,
+			liked = NEW.liked,
+			viewed = NEW.viewed
+        WHERE id = NEW.id;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trigger_replicate_all_recipes_update
+    AFTER UPDATE ON dev_dba.all_recipes
+    FOR EACH ROW
+    EXECUTE FUNCTION replicate_all_recipes_update();
+
+SELECT 'Triggers created!' as message;
