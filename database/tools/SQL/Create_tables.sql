@@ -25,6 +25,7 @@ CREATE TABLE dev_dba.ingredients
     id bigserial NOT NULL,
     name TEXT NOT NULL,
     price_per_kg numeric(7, 2) NOT NULL CHECK (price_per_kg >= 0),
+	diet_type TEXT,
     last_update date DEFAULT NULL,
 	unit TEXT DEFAULT 'g',
     PRIMARY KEY (id),
@@ -59,7 +60,7 @@ CREATE TABLE dev_dba.all_recipes
 (
 	id bigserial NOT NULL,
 	name TEXT NOT NULL,
-	diet TEXT NOT NULL DEFAULT 'omnivorous',
+	diet TEXT NOT NULL DEFAULT 'Omnivorous',
 	ingredients JSONB DEFAULT '{}'::JSONB,
 	instructions TEXT DEFAULT NULL,
 	image TEXT,
@@ -71,8 +72,8 @@ CREATE TABLE dev_dba.all_recipes
 	is_public boolean DEFAULT false,
 	prep_time integer,
 	cooking_time integer,
-	liked integer,
-	viewed integer,
+	liked integer DEFAULT 0,
+	viewed integer DEFAULT 0,
 	PRIMARY KEY (id)
 );
 
@@ -98,9 +99,10 @@ CREATE TABLE public.all_recipes
 (
 	id bigserial NOT NULL,
 	name TEXT NOT NULL,
-	diet TEXT NOT NULL DEFAULT 'omnivorous',
+	diet TEXT NOT NULL DEFAULT 'Omnivorous',
 	ingredients JSONB DEFAULT '{}'::JSONB,
 	instructions TEXT DEFAULT NULL,
+	image TEXT,
 	url TEXT DEFAULT NULL,
 	cost numeric(5, 2) DEFAULT 0,
 	portions integer DEFAULT 1,
@@ -109,8 +111,8 @@ CREATE TABLE public.all_recipes
 	is_public boolean DEFAULT false,
 	prep_time integer,
 	cooking_time integer,
-	liked integer,
-	viewed integer,
+	liked integer DEFAULT 0,
+	viewed integer DEFAULT 0,
 	PRIMARY KEY (id)
 );
 
@@ -138,7 +140,7 @@ CREATE TABLE public.pending_recipes
 (
 	id bigserial NOT NULL,
 	name TEXT NOT NULL,
-	diet TEXT NOT NULL DEFAULT 'omnivorous',
+	diet TEXT NOT NULL DEFAULT 'Omnivorous',
 	instructions TEXT DEFAULT NULL,
 	url TEXT DEFAULT NULL,
 	cost numeric(5, 2) DEFAULT 0,
