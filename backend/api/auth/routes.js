@@ -27,19 +27,19 @@ router.post('/register', async (req, res) => {
       const created = await pool.query(
         `INSERT INTO dev_dba.users (name, password, email, avatar, is_active, last_login)
         VALUES ($1, $2, $3, $4, false, NOW())
-        RETURNING id, email, name, avatar, is_active, created_at, last_login`,
+        RETURNING id, email, name, avatar, is_active, created_at, last_login, role`,
         [name, passwordHash, normalizedEmail, DEFAULT_AVATAR]
       );
       const newuser = { ...created.rows[0] };
       const token = jwt.sign(
-        {id: newuser.id, email: newuser.email, avatar: newuser.avatar},
+        {id: newuser.id, email: newuser.email, avatar: newuser.avatar, role: newuser.role},
         process.env.JWT_SECRET,
         {expiresIn: "1h"}
       );
       return res.status(200).json({message: "created user", newuser, token});
     } else {
       const token = jwt.sign(
-        {id: newuser.id, email: newuser.email, avatar: newuser.avatar},
+        {id: newuser.id, email: newuser.email, avatar: newuser.avatar, role: newuser.role},
         process.env.JWT_SECRET,
         {expiresIn: "1h"}
       );
@@ -81,11 +81,11 @@ async function loginHandler(req,res) {
     await pool.query('UPDATE dev_dba.users SET last_login = NOW(), is_active = true WHERE id = $1', [user.id]);
 
     const token = jwt.sign(
-      {id: user.id, email: user.email, avatar: user.avatar},
+      {id: user.id, email: user.email, avatar: user.avatar, role: user.role},
       process.env.JWT_SECRET,
       {expiresIn: "1h"}
     );
-    return res.status(200).json({message: "Sucessful login", id: user.id, token});
+    return res.status(200).json({message: "Sucessful login", id: user.id, token, role: user.role});
 
   } catch (error) {
     console.error('[login] unexpected error:', error);
@@ -187,7 +187,7 @@ router.get(['/profile' ,'/auth'], requireAuth, async (req, res) => {
       }
 
       const result = await pool.query(
-        `SELECT id, email, name, avatar, is_active
+        `SELECT id, email, name, avatar, is_active, role
          FROM dev_dba.users
          WHERE id = $1
          LIMIT 1`,
@@ -376,14 +376,14 @@ router.get('/auth/github/callback', async (req, res) => {
       const created = await pool.query(
         `INSERT INTO dev_dba.users (name, password, email, avatar, is_active, last_login)
          VALUES ($1, $2, $3, $4, true, NOW())
-         RETURNING id, email, name, avatar, is_active`,
+         RETURNING id, email, name, avatar, is_active, role`,
         [ghUser.name || ghUser.login, hashPass, normalizedEmail, DEFAULT_AVATAR]
       );
       // git_id is not stored, but could be added to the users table if needed for future features
       user = created.rows[0];
     }
     const jwtToken = jwt.sign(
-      { id: user.id, email: user.email, githubId: user.githubId , avatar: user.avatar},
+      { id: user.id, email: user.email, githubId: user.githubId , avatar: user.avatar, role: user.role},
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
