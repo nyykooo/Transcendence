@@ -19,14 +19,15 @@ function readStoredUser(): User | null {
         const parsed = JSON.parse(raw);
         if (!parsed || typeof parsed !== 'object')
             return null;
-        if (typeof parsed.token !== 'string')
+        
+        if (typeof parsed.token !== 'string' || typeof parsed.role !== 'string')
             return null;
 
         const id = typeof parsed.id === 'number' ? parsed.id : Number(parsed.id);
         if (!Number.isFinite(id))
             return null;
 
-        return { id, token: parsed.token };
+        return { id, token: parsed.token, role: parsed.role};
     } catch {
         console.error('AuthProvider: error reading stored user');
         return null;
@@ -56,6 +57,14 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
         return readStoredUser()?.token ?? null;
     };
 
+    const getAuthRole = (): string | null => {
+        if (user?.role) {
+            return user.role;
+        }
+
+        return readStoredUser()?.role ?? null;
+    };
+
     const signIn = async (login: LoginProps = { email: '', password: '' }, option: string = 'default') => {
         var res;
         switch (option) {
@@ -71,7 +80,7 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
                 res = await submitLogin(login);
 
                 if (res.id && res.token) {
-                    const nextUser = { id: res.id, token: res.token };
+                    const nextUser = { id: res.id, token: res.token, role: res.role };
                     storeUser(nextUser);
                     setUser(nextUser);
                 } else {
@@ -86,7 +95,7 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
         setUser(null);
     };
 
-    return <AuthContext.Provider value={{ user, signIn, signOut, getAuthToken }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ user, signIn, signOut, getAuthToken, getAuthRole }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {

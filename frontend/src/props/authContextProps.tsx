@@ -6,4 +6,5 @@ export type AuthContextType = {
   signIn: (login?: LoginProps, option?: string) => Promise<void>;
   signOut: () => void;
   getAuthToken: () => string | null;
+  getAuthRole: () => string | null;
 };
