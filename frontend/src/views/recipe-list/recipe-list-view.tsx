@@ -55,6 +55,34 @@ export default function RecipeListView() {
 
     // updateFilters
 
+    const dietOptions: string[] = Array.from<string>(
+        new Set<string>(
+            rows
+                .map((row: RecipeRow) => row.diet)
+                .filter((diet: string) => diet.trim() !== ''),
+        ),
+    ).sort((a: string, b: string) => a.localeCompare(b));
+
+    const ingredientOptions: string[] = Array.from<string>(
+        new Set<string>(
+            rows
+                .flatMap((row: RecipeRow) =>
+                    row.ingridient_name
+                        .split(',')
+                        .map((ingredient: string) => ingredient.trim())
+                        .filter((ingredient: string) => ingredient !== ''),
+                ),
+        ),
+    ).sort((a: string, b: string) => a.localeCompare(b));
+
+    const nameOptions: string[] = Array.from<string>(
+        new Set<string>(
+            rows
+                .map((row: RecipeRow) => row.recipe_name)
+                .filter((name: string) => name.trim() !== ''),
+        ),
+    ).sort((a: string, b: string) => a.localeCompare(b));
+
     const columns: GridColDef<RecipeRow>[] = [
     {
         field: 'recipe_name',
@@ -86,7 +114,7 @@ export default function RecipeListView() {
 
     return (
         <Box sx={{height: '100%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
-            <RecipeListTableToolbar/> {/*passar a updateFilters como prop (callback)*/}
+            <RecipeListTableToolbar name={nameOptions} diets={dietOptions} ingredients={ingredientOptions}/> {/*passar a updateFilters como prop (callback)*/}
             {error && (
                 <Alert severity='error' sx={{ width: '100%' }}>
                     {error}
