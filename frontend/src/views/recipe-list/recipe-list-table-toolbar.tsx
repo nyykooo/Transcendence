@@ -9,19 +9,17 @@ import { images } from '../../configs/images';
 import { type RecipeListFiltersProps } from '../../props/recipe-list'
 
 type RecipeListTableToolbarProps = {
-    name: string[];
-    diets: string[];
-    ingredients: string[];
+    defaultFilters: RecipeListFiltersProps;
 };
 
-export default function RecipeListTableToolbar({ name, diets, ingredients }: RecipeListTableToolbarProps) {
+export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTableToolbarProps) {
 
     // SelectedFilters
     const [selectedFilters, setSelectedFilters] = useState<RecipeListFiltersProps | null>();
 
     const [selectedDiets, setSelectedDiets] = useState<string[]>([]);
     
-    const handleChangeDiet = (event: SelectChangeEvent<typeof diets>) => {
+    const handleChangeDiet = (event: SelectChangeEvent<typeof defaultFilters.diets>) => {
         const {
             target: { value },
         } = event;
@@ -33,7 +31,7 @@ export default function RecipeListTableToolbar({ name, diets, ingredients }: Rec
 
     const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
 
-    const handleChangeIngredients = (event: SelectChangeEvent<typeof ingredients>) => {
+    const handleChangeIngredients = (event: SelectChangeEvent<typeof defaultFilters.ingridients>) => {
         const {
             target: { value },
         } = event;
@@ -45,7 +43,7 @@ export default function RecipeListTableToolbar({ name, diets, ingredients }: Rec
 
 
     // ### Cost ###
-    const [selectedCost, setSelectedCost] = useState<number[]>([0, 10.0]);
+    const [selectedCost, setSelectedCost] = useState<number[]>(defaultFilters.cost ? [defaultFilters.cost.min ?? 0, defaultFilters.cost.max ?? 10] : [0, 10]);
 
     const handleChangeselectedCost = (event: Event, newValue: number[], activeThumb: number) => {
         if (activeThumb === 0) {
@@ -58,7 +56,7 @@ export default function RecipeListTableToolbar({ name, diets, ingredients }: Rec
 
     
     // ### Serving ###
-    const [selectedServing, setSelectedServing] = useState<number[]>([0, 10]);
+    const [selectedServing, setSelectedServing] = useState<number[]>(defaultFilters.servings ? [defaultFilters.servings.min ?? 0, defaultFilters.servings.max ?? 10] : [0, 10]);
 
     const handleChangeSelectedServing = (event: Event, newValue: number[], activeThumb: number) => {
         if (activeThumb === 0) {
@@ -69,12 +67,12 @@ export default function RecipeListTableToolbar({ name, diets, ingredients }: Rec
         event.preventDefault();
     };
 
-    const recipes = name;
+    const recipes = defaultFilters.recipes ?? [];
 
     const [selectedRecipes, setSelectedRecipes] = useState<string[]>([]);
 
     const handleChangeRecipes = ( _event: React.SyntheticEvent, newValue: string[] ) => {
-        setSelectedRecipes(newValue); // newValue = array completo dos itens selecionados
+        setSelectedRecipes(newValue);
     };
 
     // ### Buttons ###
@@ -83,7 +81,7 @@ export default function RecipeListTableToolbar({ name, diets, ingredients }: Rec
         const _selectedFilters: RecipeListFiltersProps = {
             recipes: selectedRecipes,
             diets: selectedDiets,
-            ingredients: selectedIngredients,
+            ingridients: selectedIngredients,
             cost: {
                 min: selectedCost[0],
                 max: selectedCost[1]
@@ -121,14 +119,14 @@ export default function RecipeListTableToolbar({ name, diets, ingredients }: Rec
                 {/* Diet == Multiple Select */}
                 <MultipleSelect 
                     name="Diets"
-                    options={diets}
+                    options={defaultFilters.diets}
                     selectedOptions={selectedDiets}
                     onChange={handleChangeDiet}
                 />
                 {/* Ingredients == Multiple Select */}
                 <MultipleSelect 
                     name="Ingredients"
-                    options={ingredients}
+                    options={defaultFilters.ingridients}
                     selectedOptions={selectedIngredients}
                     onChange={handleChangeIngredients}
                 />
