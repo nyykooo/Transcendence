@@ -5,4 +5,5 @@ export type SliderSelectorProps = {
     valueText: string;
     name: string;
     onChange: (event: Event, newValue: number[], activeThumb: number) => void;
+    step?: number;
 }

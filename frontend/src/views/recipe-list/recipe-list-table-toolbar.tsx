@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Box, Stack, Button, type SelectChangeEvent } from '@mui/material';
 
@@ -10,9 +10,10 @@ import { type RecipeListFiltersProps } from '../../props/recipe-list'
 
 type RecipeListTableToolbarProps = {
     defaultFilters: RecipeListFiltersProps;
+    handleSearch: (selectedFilters: RecipeListFiltersProps | null | undefined) => void;
 };
 
-export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTableToolbarProps) {
+export default function RecipeListTableToolbar({ defaultFilters, handleSearch }: RecipeListTableToolbarProps) {
 
     // SelectedFilters
     const [selectedFilters, setSelectedFilters] = useState<RecipeListFiltersProps | null>();
@@ -43,20 +44,31 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
 
 
     // ### Cost ###
-    const [selectedCost, setSelectedCost] = useState<number[]>(defaultFilters.cost ? [defaultFilters.cost.min ?? 0, defaultFilters.cost.max ?? 10] : [0, 10]);
+    const [selectedCost, setSelectedCost] = useState<number[]>([0, defaultFilters.cost?.max ?? 10]);
+
+    useEffect(() => {
+        if (defaultFilters.cost && defaultFilters.cost.max > 0) {
+            setSelectedCost([0, defaultFilters.cost.max]);
+        }
+    }, [defaultFilters.cost]);
 
     const handleChangeselectedCost = (event: Event, newValue: number[], activeThumb: number) => {
         if (activeThumb === 0) {
-            setSelectedCost([Math.min(newValue[0], selectedCost[1] - 1), selectedCost[1]]);
+            setSelectedCost([Math.min(newValue[0], selectedCost[1] - 0.1), selectedCost[1]]);
         } else {
-            setSelectedCost([selectedCost[0], Math.max(newValue[1], selectedCost[0] + 1)]);
+            setSelectedCost([selectedCost[0], Math.max(newValue[1], selectedCost[0] + 0.1)]);
         }
         event.preventDefault();
     };
 
-    
     // ### Serving ###
-    const [selectedServing, setSelectedServing] = useState<number[]>(defaultFilters.servings ? [defaultFilters.servings.min ?? 0, defaultFilters.servings.max ?? 10] : [0, 10]);
+    const [selectedServing, setSelectedServing] = useState<number[]>([0, defaultFilters.servings?.max ?? 10]);
+
+    useEffect(() => {
+        if (defaultFilters.servings && defaultFilters.servings.max > 0) {
+            setSelectedServing([0, defaultFilters.servings.max]);
+        }
+    }, [defaultFilters.servings]);
 
     const handleChangeSelectedServing = (event: Event, newValue: number[], activeThumb: number) => {
         if (activeThumb === 0) {
@@ -76,7 +88,7 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
     };
 
     // ### Buttons ###
-    const handleSearch = () =>
+    const handleSearchButton = () =>
     {
         const _selectedFilters: RecipeListFiltersProps = {
             recipes: selectedRecipes,
@@ -93,17 +105,27 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
         }
         console.log(_selectedFilters);
         setSelectedFilters(_selectedFilters);
-        console.log("Search button clicked with filters: ", selectedFilters);
     }
+
+    useEffect(() => {
+        handleSearch(selectedFilters);
+    }, [selectedFilters]);
+
+
     const handleCleanFilters = () =>
     {
-        setSelectedCost([0, 10]);
-        setSelectedServing([0, 10]);
+        setSelectedCost([0, defaultFilters.cost?.max ?? 10]);
+        setSelectedServing([0, defaultFilters.servings?.max ?? 10]);
         setSelectedRecipes([]);
         setSelectedDiets([]);
         setSelectedIngredients([]);
-        setSelectedFilters(null);
+        setSelectedFilters(defaultFilters);
     }
+
+    useEffect (() => {
+        setSelectedCost(defaultFilters.cost ? [0, defaultFilters.cost.max ?? 10] : [0, 10]);
+        setSelectedServing(defaultFilters.servings ? [0, defaultFilters.servings.max ?? 10] : [0, 10]);
+    }, [defaultFilters]);
 
     return (
         <Box sx={{width: '100%', height: '20%'}}>
@@ -137,8 +159,9 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
                         valueText="€"
                         onChange={handleChangeselectedCost}
                         min={0}
-                        max={10}
+                        max={defaultFilters.cost?.max ?? 10}
                         name='selectedCost'
+                        step={0.1}
                     />
                     {/* selectedServing == Slider Selector */}
                     <SliderSelector
@@ -146,11 +169,12 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
                         valueText="units"
                         onChange={handleChangeSelectedServing}
                         min={0}
-                        max={10}
+                        max={defaultFilters.servings?.max ?? 10}
                         name='selectedServing'
+                        step={1}
                     />
                 </Stack>
-                <Button onClick={() => handleSearch()}>
+                <Button onClick={() => handleSearchButton()}>
                     <Logo size={20} path={images.icons.search}></Logo>
                 </Button>
                 <Button onClick={() => handleCleanFilters()}>
