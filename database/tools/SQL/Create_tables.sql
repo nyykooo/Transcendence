@@ -8,6 +8,7 @@ CREATE TABLE dev_dba.users
     liked integer[] DEFAULT '{}',
     viewed integer[] DEFAULT '{}',
 	friend_list TEXT[] DEFAULT '{}',
+	is_author TEXT[] DEFAULT '{}',
 	created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp with time zone,
 	last_login timestamp with time zone,
@@ -100,12 +101,10 @@ CREATE TABLE public.all_recipes
 );
 
 
-
-
 CREATE TABLE public.pending_recipes
 (
 	id bigserial NOT NULL,
-	author bigint REFERENCES dev_dba.users(name) ON DELETE CASCADE,
+	author TEXT,
 	name TEXT NOT NULL,
 	ingredients JSONB NOT NULL,
 	diet TEXT NOT NULL DEFAULT 'Vegan',
