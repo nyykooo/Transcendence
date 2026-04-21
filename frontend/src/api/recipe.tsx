@@ -2,19 +2,7 @@ import { api } from '../configs/api';
 import { type Recipe } from '../props/recipeProps';
 import type { User } from '../props/userProps';
 
-// Simple mapping of ingredient IDs to names (you might want to fetch this from an API endpoint)
-// const ingredientMap: { [key: number]: string } = {
-//     9: 'Garlic',
-//     20: 'Onion',
-//     32: 'Tomato Concentrate',
-//     74: 'Basil',
-//     93: 'Eggs',
-//     99: 'Saloia Bread',
-//     103: 'Chili Pepper',
-//     105: 'Red Bell Pepper',
-//     122: 'Tomato',
-//     124: 'Thyme'
-// };
+
 
 export async function getRecipe(name: string): Promise<Recipe | null>
 {
@@ -49,7 +37,7 @@ export async function getRecipe(name: string): Promise<Recipe | null>
 
         return recipe;
     } catch (error) {
-        console.error('Error fetching recipe:', error);
+        console.log('Error fetching recipe:', error);
         return null;
     }
 }

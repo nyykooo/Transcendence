@@ -29,7 +29,7 @@ function readStoredUser(): User | null {
 
         return { id, token: parsed.token, role: parsed.role};
     } catch {
-        console.error('AuthProvider: error reading stored user');
+        console.log('AuthProvider: error reading stored user');
         return null;
     }
 }

@@ -47,7 +47,7 @@ async function startServer() {
 		console.log('Connected to PostgreSQL');
 		startHttpsServer();
 	} catch (error) {
-		console.error('Failed to connect to PostgreSQL:', error.message);
+		console.log('Failed to connect to PostgreSQL:', error.message);
 		process.exit(1);
 	}
 }

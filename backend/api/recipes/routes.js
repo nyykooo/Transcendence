@@ -1,5 +1,5 @@
 const express = require('express');
-const {requireAuth} = require('../auth/requireAuth');
+const {requireAuth, requireAuthWithRateLimit} = require('../auth/requireAuth');
 const {recipes, nextRecipeId} = require('./store');
 const { pool } = require('../db');
 
@@ -42,7 +42,7 @@ function serializeRecipeRow(row) {
     };
 }
 
-router.get(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
+router.get(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
     const query = `
         SELECT
             r.name,
@@ -67,7 +67,7 @@ router.get(['/recipes', '/RecipeListView'], requireAuth, (req, res) => {
         });
 });
 
-router.post(['/recipes', '/RecipeListView'], requireAuth, async (req, res) => {
+router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (req, res) => {
     const body = req.body || {};
     if (!body.name)
         return res.status(400).json({error: 'name is required'});
@@ -120,7 +120,7 @@ router.post(['/recipes', '/RecipeListView'], requireAuth, async (req, res) => {
     }
 });
 
-router.get(['/recipes/:name', '/RecipeView/:name'], requireAuth, async (req, res) => {
+router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
     const name = decodeURIComponent(req.params.name); // search normalized values?
 
     try {
@@ -150,12 +150,12 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuth, async (req, res
         };
         return res.json(recipe);
     } catch (error) {
-        console.error('Error fetching recipe:', error);
+        console.log('Error fetching recipe:', error);
         return res.status(500).json({error: 'Internal server error'});
     }
 })
 
-router.put(['/recipes/:id', '/RecipeView/:id'], requireAuth, async (req, res) => {
+router.put(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0)
         return res.status(400).json({error: 'Invalid recipe id'});
@@ -224,7 +224,7 @@ router.put(['/recipes/:id', '/RecipeView/:id'], requireAuth, async (req, res) =>
 
 // Still need to change this to use the DB
 
-router.delete(['/recipes/:id', '/RecipeView/:id'], requireAuth, (req, res) => {
+router.delete(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, (req, res) => {
     const id = Number(req.params.id);
     const index = recipes.findIndex(r => r.id === id);
     if (index === -1)

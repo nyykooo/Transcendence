@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const axios = require('axios');
 const path = require('path')
 const { pool } = require('../db');
-const { requireAuth } = require('./requireAuth');
+const { requireAuth, requireAuthWithRateLimit } = require('./requireAuth');
 const { upload } = require('./upload');
 const router = express.Router();
 const DEFAULT_AVATAR = '/uploads/avatars/test.webp';
@@ -48,7 +48,7 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     if (error?.code === '23505')
       return res.status(409).json({error: "User already exists"});
-    console.error('[register] unexpected error:', error);
+    console.log('[register] unexpected error:', error);
     return res.status(500).json({error: "Failed to create user"});
   }
 })
@@ -88,14 +88,14 @@ async function loginHandler(req,res) {
     return res.status(200).json({message: "Sucessful login", id: user.id, token, role: user.role});
 
   } catch (error) {
-    console.error('[login] unexpected error:', error);
+    console.log('[login] unexpected error:', error);
     return res.status(500).json({error: "Failed to login"});
   }
 }
 
 router.post(['/Login', '/login'], loginHandler);
 
-router.put(['/profile'], requireAuth, async (req, res) => {
+router.put(['/profile'], requireAuthWithRateLimit, async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -128,12 +128,12 @@ router.put(['/profile'], requireAuth, async (req, res) => {
     if (error?.code === '23505') {
       return res.status(409).json({error: 'Email already in use'});
     }
-    console.error('[PUT /profile] unexpected error:', error);
+    console.log('[PUT /profile] unexpected error:', error);
     return res.status(500).json({error: 'Failed to update profile'});
   }
 });
 
-router.put(['/profile/password'], requireAuth, async (req, res) => {
+router.put(['/profile/password'], requireAuthWithRateLimit, async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -174,12 +174,12 @@ router.put(['/profile/password'], requireAuth, async (req, res) => {
       user: updated.rows[0],
     });
   } catch (error) {
-    console.error('[PUT /profile/password] unexpected error:', error);
+    console.log('[PUT /profile/password] unexpected error:', error);
     return res.status(500).json({error: 'Failed to update password'});
   }
 });
 
-router.get(['/profile' ,'/auth'], requireAuth, async (req, res) => {
+router.get(['/profile' ,'/auth'], requireAuthWithRateLimit, async (req, res) => {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -200,12 +200,12 @@ router.get(['/profile' ,'/auth'], requireAuth, async (req, res) => {
 
       return res.json({ message: 'ok', user: result.rows[0] });
     } catch (error) {
-      console.error('[GET /profile] unexpected error:', error);
+      console.log('[GET /profile] unexpected error:', error);
       return res.status(500).json({ error: 'Failed to load profile' });
     }
 })
 
-router.post('/profile/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
+router.post('/profile/avatar', requireAuthWithRateLimit, upload.single('avatar'), async (req, res) => {
     // This route will:
     const file = req.file;
     
@@ -237,7 +237,7 @@ router.post('/profile/avatar', requireAuth, upload.single('avatar'), async (req,
 
     catch (error)
     {
-      console.error('[POST /profile/avatar] unexpected error:', error);
+      console.log('[POST /profile/avatar] unexpected error:', error);
       return res.status(500).json({error: 'Failed to update avatar'});
     }
 });
@@ -394,7 +394,7 @@ router.get('/auth/github/callback', async (req, res) => {
     redirectTo.searchParams.set('token', jwtToken);
     return res.redirect(redirectTo.toString());
   } catch (error) {
-    console.error('[GET /auth/github/callback] unexpected error:', error?.response?.data || error);
+    console.log('[GET /auth/github/callback] unexpected error:', error?.response?.data || error);
     return res.status(500).json({error: "GitHub OAuth failed"});
   }
 });
