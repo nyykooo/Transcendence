@@ -19,13 +19,8 @@ function readStoredUser(): User | null {
         const parsed = JSON.parse(raw);
         if (!parsed || typeof parsed !== 'object')
             return null;
-<<<<<<< Updated upstream
         // TODO: think in a better way to check valid roles in authProvider
         if (typeof parsed.token !== 'string'/*  || typeof parsed.role !== 'string' */)
-=======
-        
-        if (typeof parsed.token !== 'string')
->>>>>>> Stashed changes
             return null;
 
         const id = typeof parsed.id === 'number' ? parsed.id : Number(parsed.id);
