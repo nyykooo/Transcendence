@@ -68,7 +68,8 @@ BEGIN
             prep_time = NEW.prep_time,
 			cooking_time = NEW.cooking_time,
 			liked = NEW.liked,
-			viewed = NEW.viewed
+			viewed = NEW.viewed,
+            author = NEW.author
         WHERE id = NEW.id;
     END IF;
     
@@ -80,5 +81,26 @@ CREATE TRIGGER trigger_replicate_all_recipes_update
     AFTER UPDATE ON dev_dba.all_recipes
     FOR EACH ROW
     EXECUTE FUNCTION replicate_all_recipes_update();
+
+
+
+CREATE OR REPLACE FUNCTION dev_dba.update_timestamp()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $BODY$
+BEGIN
+    NEW.last_update := CURRENT_DATE;
+    RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION dev_dba.update_timestamp() OWNER TO dev_dba;
+-- ALTER FUNCTION dev_dba.update_timestamp() OWNER TO dev_dba;
+
+CREATE TRIGGER set_updated_timestamp
+    BEFORE INSERT OR UPDATE ON dev_dba.ingredients
+    FOR EACH ROW
+    EXECUTE FUNCTION dev_dba.update_timestamp();
+
 
 SELECT 'Triggers created!' as message;

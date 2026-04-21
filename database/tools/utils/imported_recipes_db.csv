@@ -1,5 +1,5 @@
 ﻿recipe_name,ingredient_name,quantity,unit
-Brunch,Yogurt,0.75,unit
+Brunch,Yogurt,75,g
 Vegan Brunch,Coffee,1,unit
 Vegan Brunch,White Mushrooms,50,g
 Vegan Brunch,Spinach,20,g
@@ -121,194 +121,194 @@ BART,Lemon Mayonnaise,40,g
 BART,Butter,5,g
 BART,Arugula,15,g
 BART,Bacon,40,g
-Vegan Sandwich,Saloia Bread,0.2,g
-Vegan Sandwich,Zucchini,0.38,g
-Vegan Sandwich,Pear,0.06,g
-Vegan Sandwich,Hummus,0.11,g
-Vegan Sandwich,Caramelized Onion,0.04,g
-Vegan Sandwich,Sesame Seeds,0.04,g
-Vegan Sandwich,Chives,0.1,g
-Vegan Sandwich,Spinach,0.08,g
-Salmon Sandwich,Tzatziki Sauce,0.06,g
-Salmon Sandwich,Chives,0.06,g
-Salmon Sandwich,Green Apple,0.04,g
-Salmon Sandwich,Lemon,0.01,g
-Salmon Sandwich,Salt,0,g
-Salmon Sandwich,Olive Oil,0.03,g
-Salmon Sandwich,Iberian Salad,0.16,g
-Seasonal Fruits,Pineapple,0.07,g
-Seasonal Fruits,Kiwi,0.08,g
-Seasonal Fruits,Blackberry,0.39,g
-Seasonal Fruits,Cantaloupe Melon,0.15,g
-Seasonal Fruits,Grapes,0.09,g
-Seasonal Fruits,Banana,0.07,g
-Seasonal Fruits,Raspberry,0.29,g
-Seasonal Fruits,Oats,0.01,g
-Seasonal Fruits,Caramelized Mixed Nuts,0.06,g
-Seasonal Fruits,Coconut Flakes,0.05,g
-Seasonal Fruits,Coconut Foam,0.15,g
-Clafoutis,Eggs,0.48,unit
-Clafoutis,Brown Sugar,0.1,g
-Clafoutis,Whole Milk,0.05,g
-Clafoutis,Flour,0.04,g
-Clafoutis,Vanilla Extract,0.12,g
-Clafoutis,Salt,0,g
-Clafoutis,Butter,0.02,g
-Clafoutis,Strawberry Jam,0.65,g
-Clafoutis,Powdered Sugar,0.04,g
-Clafoutis,Strawberry,1.22,g
-Banana Cake,Banana,0.57,g
-Banana Cake,Brown Sugar,0.18,g
-Banana Cake,Flour,0.09,g
-Banana Cake,Walnuts,0.62,g
-Banana Cake,Coconut Milk,0.28,g
-Banana Cake,Ginger,0.03,g
-Banana Cake,Baking Powder,0.04,g
-Banana Cake,Cinnamon,0.03,g
-Banana Cake,Nutmeg,0.07,g
-Banana Cake,Oil,0.26,g
-Banana Cake,Caramelized Mixed Nuts,0.04,g
-Banana Cake,Salted Caramel,0.08,g
-Brigadeiro French Toast,Brigadeiro,0.13,g
-Brigadeiro French Toast,Coconut Flakes,0.08,g
-Brigadeiro French Toast,Strawberry,0.12,g
-Brigadeiro French Toast,Oil,0.09,g
-Brigadeiro French Toast,French Toast Milk,0.03,g
-Brigadeiro French Toast,Butter,0.18,g
-Brigadeiro French Toast,Brioche Bread,0.18,g
-Mascarpone Dulce de Leche French Toast,Dulce de Leche,0.17,g
-Mascarpone Dulce de Leche French Toast,Mascarpone,0.4,g
-Mascarpone Dulce de Leche French Toast,Oil,0.09,g
-Mascarpone Dulce de Leche French Toast,French Toast Milk,0.03,g
-Mascarpone Dulce de Leche French Toast,Brioche Bread,0.18,g
-Mascarpone Dulce de Leche French Toast,Butter,0.18,g
-Banana Nutella Pancake,Banana,0.14,g
-Banana Nutella Pancake,Nutella,0.48,g
-Banana Nutella Pancake,Caramelized Mixed Nuts,0.15,g
-Tropical Curd Pancake,Kiwi,0.05,g
-Tropical Curd Pancake,Pineapple,0.07,g
-Vegan Beetroot Pancake,Mango,0.53,g
-Vegan Beetroot Pancake,Mango Puree,0.65,g
-Vegan Beetroot Pancake,Coconut Foam,0.2,g
-Vegan Beetroot Pancake,Coconut Flakes,0.14,g
-Vegan Beetroot Pancake,Strawberry,0.12,g
-Vegan Beetroot Pancake,Raspberry,0.38,g
-Vegan Beetroot Pancake,Blueberry,0.36,g
-Herb Oil,Olive Oil,0.51,g
-Herb Oil,Garlic,0.04,g
-Herb Oil,Chives,0.3,g
-Herb Oil,Parsley,0.1,g
-Herb Oil,Cilantro,0.08,g
-Herb Oil,Thyme,0.17,g
-Herb Oil,Basil,0.21,g
-Herb Oil,Lemon,0.04,g
-Guacamole,Avocado,1.63,g
-Guacamole,Red Onion,0.07,g
-Guacamole,Tomato,0.14,g
-Guacamole,Chili Pepper,0.06,g
-Guacamole,Cilantro,0.04,g
-Guacamole,Lime,0.08,g
-Guacamole,Olive Oil,0.05,g
-Guacamole,Salt,0,g
-Orange Vinaigrette,Orange,0.25,g
-Orange Vinaigrette,Olive Oil,0.2,g
-Orange Vinaigrette,Black Pepper,0.06,g
-Orange Vinaigrette,Salt,0,g
-Caramelized Onion,Onion,1.48,g
-Caramelized Onion,Olive Oil,0.38,g
-Caramelized Onion,White Wine,0.21,g
-Caramelized Onion,Vinegar,0.14,g
-Caramelized Onion,Brown Sugar,0.3,g
-Caramelized Onion,Worcestershire Sauce,0.19,g
-Hummus,Chickpeas,0.24,g
-Hummus,Olive Oil,0.13,g
-Hummus,Lemon,0.03,g
-Hummus,Tahini,0.15,g
-Hummus,Salt,0,g
-Hummus,Black Pepper,0.06,g
-Hummus,Beetroot,0.14,g
-Hummus,Olive Oil,0.04,g
-Lemon Mayonnaise,Mayonnaise,0.31,g
-Lemon Mayonnaise,Salt,0,g
-Lemon Mayonnaise,Black Pepper,0.08,g
-Lemon Mayonnaise,Lemon,0.06,g
-Tzatziki Sauce,Greek Yogurt,0.3,g
-Tzatziki Sauce,Cucumber,0.31,g
-Tzatziki Sauce,Salt,0,g
-Tzatziki Sauce,Black Pepper,0.06,g
-Tzatziki Sauce,Olive Oil,0.03,g
-Tzatziki Sauce,Mint,0.04,g
-Hollandaise Sauce,Eggs,0.4,unit
-Hollandaise Sauce,Lemon,0.21,g
-Hollandaise Sauce,Butter,1.41,g
-Hollandaise Sauce,Salt,0,g
-Hollandaise Sauce,Black Pepper,0.06,g
-Mornay Sauce,Whole Milk,0.3,g
-Mornay Sauce,Flour,0.01,g
-Mornay Sauce,Butter,0.18,g
-Mornay Sauce,Emmental Cheese,2.02,g
-Mornay Sauce,Parmesan Cheese,3.82,g
-Mornay Sauce,Salt,0.01,g
-Mornay Sauce,Black Pepper,0.47,g
-Strawberry Jam,Strawberry,3.65,g
-Strawberry Jam,Brown Sugar,0.03,g
-Strawberry Jam,Lemon,0.08,g
-Tropical Curd,Eggs,0.36,unit
-Tropical Curd,Water,0,g
-Tropical Curd,Brown Sugar,0.24,g
-Tropical Curd,Lemon,0.26,g
-Tropical Curd,Starch,0.04,g
-Tropical Curd,Butter,0.11,g
-Mango Puree,Mango,1.32,g
-Mango Puree,Brown Sugar,0.02,g
-Caramelized Mixed Nuts,Mixed Nuts,10.85,g
-Caramelized Mixed Nuts,Brown Sugar,1.22,g
-Caramelized Mixed Nuts,Salt,0.01,g
-Traditional Pancake Batter,Flour,0.23,g
-Traditional Pancake Batter,Brown Sugar,0.11,g
-Traditional Pancake Batter,Eggs,0.24,unit
-Traditional Pancake Batter,Baking Powder,0.04,g
-Traditional Pancake Batter,Salt,0,g
-Traditional Pancake Batter,Whole Milk,0.12,g
-Traditional Pancake Batter,Butter,0.28,g
-Traditional Pancake Batter,Vanilla Extract,0.39,g
-French Toast Milk,Milk,0.09,g
-French Toast Milk,Brown Sugar,0.02,g
-French Toast Milk,Cinnamon,0.02,g
-French Toast Milk,Eggs,0.12,unit
-Salted Caramel,Brown Sugar,0.29,g
-Salted Caramel,Water,0,g
-Salted Caramel,Cream,0.36,g
-Salted Caramel,Butter,0.56,g
-Salted Caramel,Salt,0,g
-Salted Caramel,Vanilla Extract,0.39,g
-Brigadeiro,Condensed Milk,1.1,g
-Brigadeiro,Cocoa Powder,0.34,g
-Brigadeiro,Butter,0.14,g
-Granola,Honey,1.08,g
-Granola,Oats,0.34,g
-Granola,Puffed Rice,1.59,g
-Granola,Mixed Nuts,1.08,g
-Granola,Goji Berries,0.34,g
-Granola,Cranberry,0.25,g
-Granola,Cinnamon,0.05,g
-Granola,Coconut Flakes,0.48,g
-Granola,Pumpkin Seeds,0.3,g
-Granola,Sunflower Seeds,0.12,g
-Pate Sucree,Flour,0.05,g
-Pate Sucree,Butter,0.42,g
-Pate Sucree,Brown Sugar,0.05,g
-Pate Sucree,Eggs,0,g
-Pate Sucree,Salt,0,g
-Meringues,Egg Whites,0,g
-Meringues,Brown Sugar,0.26,g
-Vegan Beetroot Pancake,Banana,0.27,g
-Vegan Beetroot Pancake,Beetroot,0.29,g
-Vegan Beetroot Pancake,Oats,0.19,g
-Vegan Beetroot Pancake,Soy Milk,0.21,g
-Vegan Beetroot Pancake,Vanilla Extract,0.35,g
-Vegan Beetroot Pancake,Agave Syrup,0.49,g
-Vegan Beetroot Pancake,Flour,0.02,g
+Vegan Sandwich,Saloia Bread,200,g
+Vegan Sandwich,Zucchini,38,g
+Vegan Sandwich,Pear,60,g
+Vegan Sandwich,Hummus,110,g
+Vegan Sandwich,Caramelized Onion,40,g
+Vegan Sandwich,Sesame Seeds,4,g
+Vegan Sandwich,Chives,10,g
+Vegan Sandwich,Spinach,80,g
+Salmon Sandwich,Tzatziki Sauce,60,g
+Salmon Sandwich,Chives,6,g
+Salmon Sandwich,Green Apple,40,g
+Salmon Sandwich,Lemon,10,g
+Salmon Sandwich,Salt,1,g
+Salmon Sandwich,Olive Oil,30,g
+Salmon Sandwich,Iberian Salad,16,g
+Seasonal Fruits,Pineapple,70,g
+Seasonal Fruits,Kiwi,8,g
+Seasonal Fruits,Blackberry,39,g
+Seasonal Fruits,Cantaloupe Melon,15,g
+Seasonal Fruits,Grapes,9,g
+Seasonal Fruits,Banana,7,g
+Seasonal Fruits,Raspberry,29,g
+Seasonal Fruits,Oats,10,g
+Seasonal Fruits,Caramelized Mixed Nuts,60,g
+Seasonal Fruits,Coconut Flakes,5,g
+Seasonal Fruits,Coconut Foam,15,g
+Clafoutis,Eggs,5,unit
+Clafoutis,Brown Sugar,100,g
+Clafoutis,Whole Milk,50,g
+Clafoutis,Flour,40,g
+Clafoutis,Vanilla Extract,1.2,g
+Clafoutis,Salt,1,g
+Clafoutis,Butter,200,g
+Clafoutis,Strawberry Jam,65,g
+Clafoutis,Powdered Sugar,4,g
+Clafoutis,Strawberry,120,g
+Banana Cake,Banana,540,g
+Banana Cake,Brown Sugar,150,g
+Banana Cake,Flour,200,g
+Banana Cake,Walnuts,50,g
+Banana Cake,Coconut Milk,150,g
+Banana Cake,Ginger,5.45,g
+Banana Cake,Baking Powder,6,g
+Banana Cake,Cinnamon,3,g
+Banana Cake,Nutmeg,2,g
+Banana Cake,Oil,150,g
+Banana Cake,Caramelized Mixed Nuts,7,g
+Banana Cake,Salted Caramel,30,g
+Brigadeiro French Toast,Brigadeiro,80,g
+Brigadeiro French Toast,Coconut Flakes,8,g
+Brigadeiro French Toast,Strawberry,18.6,g
+Brigadeiro French Toast,Oil,50,g
+Brigadeiro French Toast,French Toast Milk,30,g
+Brigadeiro French Toast,Butter,25,g
+Brigadeiro French Toast,Brioche Bread,60,g
+Mascarpone Dulce de Leche French Toast,Dulce de Leche,60,g
+Mascarpone Dulce de Leche French Toast,Mascarpone,60,g
+Mascarpone Dulce de Leche French Toast,Oil,50,g
+Mascarpone Dulce de Leche French Toast,French Toast Milk,30,g
+Mascarpone Dulce de Leche French Toast,Brioche Bread,60,g
+Mascarpone Dulce de Leche French Toast,Butter,25,g
+Banana Nutella Pancake,Banana,135,g
+Banana Nutella Pancake,Nutella,60,g
+Banana Nutella Pancake,Caramelized Mixed Nuts,25,g
+Tropical Curd Pancake,Kiwi,22,g
+Tropical Curd Pancake,Pineapple,56,g
+Vegan Beetroot Pancake,Mango,120,g
+Vegan Beetroot Pancake,Mango Puree,80,g
+Vegan Beetroot Pancake,Coconut Foam,40,g
+Vegan Beetroot Pancake,Coconut Flakes,15,g
+Vegan Beetroot Pancake,Strawberry,18,g
+Vegan Beetroot Pancake,Raspberry,23,g
+Vegan Beetroot Pancake,Blueberry,15,g
+Herb Oil,Olive Oil,200,g
+Herb Oil,Garlic,11,g
+Herb Oil,Chives,18,g
+Herb Oil,Parsley,20,g
+Herb Oil,Cilantro,13,g
+Herb Oil,Thyme,12,g
+Herb Oil,Basil,13,g
+Herb Oil,Lemon,62,g
+Guacamole,Avocado,300,g
+Guacamole,Red Onion,82,g
+Guacamole,Tomato,86,g
+Guacamole,Chili Pepper,11,g
+Guacamole,Cilantro,6,g
+Guacamole,Lime,34,g
+Guacamole,Olive Oil,20,g
+Guacamole,Salt,1,g
+Orange Vinaigrette,Orange,355,g
+Orange Vinaigrette,Olive Oil,80,g
+Orange Vinaigrette,Black Pepper,3,g
+Orange Vinaigrette,Salt,3,g
+Caramelized Onion,Onion,3280,g
+Caramelized Onion,Olive Oil,150,g
+Caramelized Onion,White Wine,150,g
+Caramelized Onion,Vinegar,250,g
+Caramelized Onion,Brown Sugar,250,g
+Caramelized Onion,Worcestershire Sauce,100,g
+Hummus,Chickpeas,206,g
+Hummus,Olive Oil,50,g
+Hummus,Lemon,47,g
+Hummus,Tahini,10,g
+Hummus,Salt,3,g
+Hummus,Black Pepper,3,g
+Hummus,Beetroot,150,g
+Hummus,Olive Oil,40,g
+Lemon Mayonnaise,Mayonnaise,150,g
+Lemon Mayonnaise,Salt,2,g
+Lemon Mayonnaise,Black Pepper,4,g
+Lemon Mayonnaise,Lemon,93,g
+Tzatziki Sauce,Greek Yogurt,150,g
+Tzatziki Sauce,Cucumber,150,g
+Tzatziki Sauce,Salt,2,g
+Tzatziki Sauce,Black Pepper,3,g
+Tzatziki Sauce,Olive Oil,10,g
+Tzatziki Sauce,Mint,5,g
+Hollandaise Sauce,Eggs,3,unit
+Hollandaise Sauce,Lemon,311,g
+Hollandaise Sauce,Butter,200,g
+Hollandaise Sauce,Salt,3,g
+Hollandaise Sauce,Black Pepper,3,g
+Mornay Sauce,Whole Milk,500,g
+Mornay Sauce,Flour,25,g
+Mornay Sauce,Butter,25,g
+Mornay Sauce,Emmental Cheese,300,g
+Mornay Sauce,Parmesan Cheese,200,g
+Mornay Sauce,Salt,10,g
+Mornay Sauce,Black Pepper,25,g
+Strawberry Jam,Strawberry,560,g
+Strawberry Jam,Brown Sugar,25,g
+Strawberry Jam,Lemon,124,g
+Tropical Curd,Eggs,3,unit
+Tropical Curd,Water,360,g
+Tropical Curd,Brown Sugar,200,g
+Tropical Curd,Lemon,390,g
+Tropical Curd,Starch,15,g
+Tropical Curd,Butter,15,g
+Mango Puree,Mango,302,g
+Mango Puree,Brown Sugar,20,g
+Caramelized Mixed Nuts,Mixed Nuts,1000,g
+Caramelized Mixed Nuts,Brown Sugar,1000,g
+Caramelized Mixed Nuts,Salt,15,g
+Traditional Pancake Batter,Flour,500,g
+Traditional Pancake Batter,Brown Sugar,90,g
+Traditional Pancake Batter,Eggs,2,unit
+Traditional Pancake Batter,Baking Powder,6,g
+Traditional Pancake Batter,Salt,1,g
+Traditional Pancake Batter,Whole Milk,200,g
+Traditional Pancake Batter,Butter,40,g
+Traditional Pancake Batter,Vanilla Extract,20,g
+French Toast Milk,Milk,150,g
+French Toast Milk,Brown Sugar,15,g
+French Toast Milk,Cinnamon,2,g
+French Toast Milk,Eggs,1,unit
+Salted Caramel,Brown Sugar,240,g
+Salted Caramel,Water,110,g
+Salted Caramel,Cream,180,g
+Salted Caramel,Butter,80,g
+Salted Caramel,Salt,3,g
+Salted Caramel,Vanilla Extract,20,g
+Brigadeiro,Condensed Milk,400,g
+Brigadeiro,Cocoa Powder,50,g
+Brigadeiro,Butter,20,g
+Granola,Honey,200,g
+Granola,Oats,200,g
+Granola,Puffed Rice,150,g
+Granola,Mixed Nuts,100,g
+Granola,Goji Berries,25,g
+Granola,Cranberry,25,g
+Granola,Cinnamon,5,g
+Granola,Coconut Flakes,50,g
+Granola,Pumpkin Seeds,50,g
+Granola,Sunflower Seeds,50,g
+Pate Sucree,Flour,100,g
+Pate Sucree,Butter,60,g
+Pate Sucree,Brown Sugar,40,g
+Pate Sucree,Eggs,1,unit
+Pate Sucree,Salt,1,g
+Meringues,Egg Whites,70,g
+Meringues,Brown Sugar,210,g
+Vegan Beetroot Pancake,Banana,255,g
+Vegan Beetroot Pancake,Beetroot,300,g
+Vegan Beetroot Pancake,Oats,115,g
+Vegan Beetroot Pancake,Soy Milk,180,g
+Vegan Beetroot Pancake,Vanilla Extract,18,g
+Vegan Beetroot Pancake,Agave Syrup,40,g
+Vegan Beetroot Pancake,Flour,50,g
 Classic Gin,Cucumber,0.05,g
 Classic Gin,Gin,0.65,g
 Classic Gin,Tonic Water,0.39,g

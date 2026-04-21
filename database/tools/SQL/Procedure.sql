@@ -62,25 +62,37 @@ DECLARE
     v_ppkg NUMERIC(7,2);
     v_unit TEXT;
     v_quantity NUMERIC(6,2);
+    v_quantity_in_kg NUMERIC(10,5);
     v_total_cost NUMERIC(10,2);
-    v_cost NUMERIC(10,2);
 BEGIN
     FOR v_recipe_id IN 
         SELECT DISTINCT recipe_id FROM dev_dba.recipe_ingredients
     LOOP
         v_total_cost := 0;
         
-        FOR v_ingredient_id, v_quantity, v_ppkg IN
-            SELECT ri.ingredient_id, ri.quantity, i.price_per_kg
+        FOR v_ingredient_id, v_quantity, v_unit, v_ppkg IN
+            SELECT ri.ingredient_id, ri.quantity, ri.unit, i.price_per_kg
             FROM dev_dba.recipe_ingredients ri
             INNER JOIN dev_dba.ingredients i ON ri.ingredient_id = i.id
             WHERE ri.recipe_id = v_recipe_id
         LOOP
-            v_total_cost := v_total_cost + (v_ppkg * (v_quantity / 1000));
+            -- Convert quantity to kg based on unit
+            IF v_unit = 'Kg' THEN
+                v_quantity_in_kg := v_quantity;
+            ELSIF v_unit = 'g' THEN
+                v_quantity_in_kg := v_quantity / 1000;
+            ELSE
+                -- Default to grams if unit is NULL or unknown
+                v_quantity_in_kg := v_quantity / 1000;
+            END IF;
+            
+            -- Calculate cost: price_per_kg * quantity_in_kg
+            v_total_cost := v_total_cost + (v_ppkg * v_quantity_in_kg);
         END LOOP;
         
+        -- Round to 2 decimal places for currency
         UPDATE dev_dba.all_recipes 
-        SET cost = v_total_cost
+        SET cost = ROUND(v_total_cost, 2)
         WHERE id = v_recipe_id;
         
     END LOOP;

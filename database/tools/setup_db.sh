@@ -83,5 +83,11 @@ echo ""
 
 
 echo ""
+echo "Creating table constraints..."
+echo ""
+"${SQL_RUNNER}" "${SQL_DIR}ConstraintsPostCreation.sql"
+
+
+echo ""
 echo "Database setup completed successfully!"
 echo ""
