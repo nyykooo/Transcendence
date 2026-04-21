@@ -72,10 +72,48 @@ router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (re
     if (!body.name)
         return res.status(400).json({error: 'name is required'});
 
+    if (!req.userId) {
+        return res.status(401).json({error: 'Unauthorized'});
+    }
+
+    let ingredients = body.ingredients ?? [];
+    if (typeof ingredients === 'string') {
+        try {
+            ingredients = JSON.parse(ingredients);
+        } catch {
+            ingredients = [];
+        }
+    }
+
+    const normalizedIngredients =
+        Array.isArray(ingredients) || (ingredients && typeof ingredients === 'object')
+            ? ingredients
+            : [];
+
+    let authorName;
+    try {
+        const authorResult = await pool.query(
+            `SELECT name
+             FROM dev_dba.users
+             WHERE id = $1
+             LIMIT 1`,
+            [req.userId],
+        );
+
+        if (authorResult.rowCount === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        authorName = authorResult.rows[0].name;
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to resolve recipe author', details: error.message });
+    }
+
     const query = `
         INSERT INTO public.pending_recipes (
-            user_id,
+            author,
             name,
+            ingredients,
             diet,
             instructions,
             url,
@@ -84,11 +122,12 @@ router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (re
             prep_time,
             cooking_time,
             status
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending')
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')
         RETURNING
             id,
-            user_id,
+            author,
             name,
+            ingredients,
             diet,
             instructions,
             url,
@@ -101,9 +140,10 @@ router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (re
     `;
 
     const values = [
-        req.userId,
+        authorName,
         body.name,
-        body.diet ?? 0,
+        JSON.stringify(normalizedIngredients),
+        body.diet ?? 'Vegan',
         body.instructions ?? null,
         body.url ?? null,
         body.cost ?? 0,
@@ -164,7 +204,7 @@ router.put(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, async 
 
     try {
         const existing = await pool.query(
-            `SELECT id, user_id
+            `SELECT id, author
              FROM public.pending_recipes
              WHERE id = $1
              LIMIT 1`,
@@ -173,7 +213,19 @@ router.put(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, async 
 
         if (!existing.rows || existing.rows.length === 0)
             return res.status(404).json({error: 'Recipe not found'});
-        if (existing.rows[0].user_id !== req.userId)
+
+        const ownerResult = await pool.query(
+            `SELECT name
+             FROM dev_dba.users
+             WHERE id = $1
+             LIMIT 1`,
+            [req.userId],
+        );
+
+        if (ownerResult.rowCount === 0)
+            return res.status(404).json({error: 'User not found'});
+
+        if (existing.rows[0].author !== ownerResult.rows[0].name)
             return res.status(403).json({error: 'Forbidden: not recipe owner'});
 
         const query = `
@@ -190,7 +242,7 @@ router.put(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, async 
             WHERE id = $9
             RETURNING
                 id,
-                user_id,
+                author,
                 name,
                 diet,
                 instructions,
