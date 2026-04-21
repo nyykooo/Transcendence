@@ -13,6 +13,7 @@ import { type Recipe, type RecipeListFiltersProps, type RecipeRow } from '../../
 export default function RecipeListView() {
     const { user } = useAuth();
     const [rows, setRows] = useState<RecipeRow[]>([]);
+    const [filteredRows, setFilteredRows] = useState<RecipeRow[]>([]);
     const [defaultFilters, setDefaultFilters] = useState<RecipeListFiltersProps>({
         recipes: [],
         ingridients: [],
@@ -54,10 +55,12 @@ export default function RecipeListView() {
                 }));
 
                 setRows(mappedRows);
+                setFilteredRows(mappedRows);
             } catch (err) {
                 const message = err instanceof Error ? err.message : 'Failed to load recipes';
                 setError(message);
                 setRows([]);
+                setFilteredRows([]);
             } finally {
                 setIsLoading(false);
             }
@@ -111,9 +114,31 @@ export default function RecipeListView() {
                 max: portions.length > 0 ? Math.max(...portions) : 0,
             }
         };
-        console.log('Extracted default filters: ', _defaultFilters);
         setDefaultFilters(_defaultFilters);
     }, [rows]);
+
+    // handle search
+    function handleSearch(selectedFilters: RecipeListFiltersProps | null | undefined) {
+        if (!selectedFilters) {
+            // fazer um tratamento de erro melhor aqui, talvez mostrar um alerta ou algo do tipo
+            setFilteredRows(rows);
+            return;
+        }
+        const filtered: RecipeRow[] = rows.filter((row: RecipeRow) => {
+            const matchesRecipe = selectedFilters.recipes.length === 0 || selectedFilters.recipes.includes(row.recipe_name);
+            const matchesDiet = selectedFilters.diets.length === 0 || selectedFilters.diets.includes(row.diet);
+            const matchesIngredient =
+                selectedFilters.ingridients.length === 0 ||
+                row.ingridient_name.split(',').some(ingredient => selectedFilters.ingridients.includes(ingredient.trim()));
+            const matchesCost =
+                (isNaN(Number(row.cost)) || (Number(row.cost) >= selectedFilters.cost.min && Number(row.cost) <= selectedFilters.cost.max));
+            const matchesPortions =
+                (isNaN(Number(row.portions)) || (Number(row.portions) >= selectedFilters.servings.min && Number(row.portions) <= selectedFilters.servings.max));
+
+            return matchesRecipe && matchesDiet && matchesIngredient && matchesCost && matchesPortions;
+        });
+        setFilteredRows(filtered);
+    }
 
     const columns: GridColDef<RecipeRow>[] = [
         {
@@ -147,6 +172,7 @@ export default function RecipeListView() {
         <Box sx={{height: '100%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
             <RecipeListTableToolbar 
                 defaultFilters={defaultFilters}
+                handleSearch={handleSearch}
             /> {/*passar a updateFilters como prop (callback)*/}
             {error && (
                 <Alert severity='error' sx={{ width: '100%' }}>
@@ -155,7 +181,7 @@ export default function RecipeListView() {
             )}
             <Box sx={{ height: 400, width: '100%' }}>
                 <DataGrid
-                    rows={rows}
+                    rows={filteredRows}
                     columns={columns}
                     getRowId={(row: RecipeRow) => `${row.recipe_name}-${row.ingridient_name}`}
                     loading={isLoading}
