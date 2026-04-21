@@ -5,18 +5,25 @@ import type {
     ProfileEnvelope,
     ProfilePayload,
     ProfileUpdateInput,
+    TwoFactorVerifyInput,
 } from '../props/profile/apiProps';
+import type { TwoFactorSetupPayload } from '../props/profile/sharedProps';
 
 const PROFILE_ENDPOINT = api.profile;
 const PROFILE_AVATAR_ENDPOINT = api.profileAvatar;
 const PROFILE_AVATAR_DELETE_ENDPOINT = api.profileAvatarDelete;
 const PROFILE_PASSWORD_ENDPOINT = api.profilePassword;
+const PROFILE_2FA_SETUP_ENDPOINT = api.profile2faSetup;
+const PROFILE_2FA_VERIFY_ENDPOINT = api.profile2faVerify;
+const PROFILE_2FA_DISABLE_ENDPOINT = api.profile2faDisable;
 
 function normalizeUser(payload?: ProfilePayload | null, fallback?: ProfileUser): ProfileUser {
+    const payloadWithAliases = payload as (ProfilePayload & { two_factor_enabled?: boolean }) | undefined;
     return {
         name: payload?.name || fallback?.name || 'Test User',
         email: payload?.email || fallback?.email || '',
         avatar: payload?.avatar ?? fallback?.avatar ?? null,
+        twoFactorEnabled: payload?.twoFactorEnabled ?? payloadWithAliases?.two_factor_enabled ?? fallback?.twoFactorEnabled ?? false,
     };
 }
 
@@ -112,4 +119,57 @@ export async function deleteProfileAvatar(token: string, fallback?: ProfileUser)
     }
 
     return normalizeUser(data?.user, fallback);
+}
+
+export async function setupProfileTwoFactor(token: string): Promise<TwoFactorSetupPayload> {
+    const response = await fetch(PROFILE_2FA_SETUP_ENDPOINT, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await parseProfileEnvelope(response);
+    if (!response.ok) {
+        throw new Error(getResponseError(data, 'Failed to initialize 2FA setup.'));
+    }
+
+    if (!data?.qrCodeDataUrl || !data?.manualEntryKey) {
+        throw new Error('2FA setup response was incomplete.');
+    }
+
+    return {
+        qrCodeDataUrl: data.qrCodeDataUrl,
+        manualEntryKey: data.manualEntryKey,
+    };
+}
+
+export async function verifyProfileTwoFactor(token: string, input: TwoFactorVerifyInput): Promise<void> {
+    const response = await fetch(PROFILE_2FA_VERIFY_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+    });
+
+    const data = await parseProfileEnvelope(response);
+    if (!response.ok) {
+        throw new Error(getResponseError(data, 'Failed to verify 2FA setup.'));
+    }
+}
+
+export async function disableProfileTwoFactor(token: string, input: TwoFactorVerifyInput): Promise<void> {
+    const response = await fetch(PROFILE_2FA_DISABLE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+    });
+
+    const data = await parseProfileEnvelope(response);
+    if (!response.ok) {
+        throw new Error(getResponseError(data, 'Failed to disable 2FA.'));
+    }
 }

@@ -1,6 +1,6 @@
 import type { ChangeEvent, PropsWithChildren } from 'react';
 
-import type { ApiMessage, ProfileUser } from './sharedProps';
+import type { ApiMessage, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
 
 export type ProfilePageShellProps = PropsWithChildren;
 
@@ -50,3 +50,14 @@ export type ProfileActionButtonProps = PropsWithChildren<{
 export type ProfileFormStackProps = PropsWithChildren;
 
 export type ProfileSectionNoteProps = PropsWithChildren;
+
+export type ProfileTwoFactorPanelProps = {
+    enabled: boolean;
+    loading: boolean;
+    code: string;
+    setupPayload: TwoFactorSetupPayload | null;
+    onCodeChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    onSetup: () => void;
+    onVerify: () => void;
+    onDisable: () => void;
+};

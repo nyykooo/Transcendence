@@ -5,6 +5,7 @@ import {
     ProfileAvatarSection,
     ProfileDetailsSection,
     ProfilePasswordSection,
+    ProfileTwoFactorSection,
 } from './ProfileSections';
 import { useProfile } from './useProfile';
 
@@ -17,17 +18,24 @@ export default function Profile() {
         avatarLoading,
         profileLoading,
         passwordLoading,
+        twoFactorLoading,
         profileError,
         message,
         profileForm,
         passwordForm,
+        twoFactorCode,
+        twoFactorSetup,
         handleFileSelect,
         handleUpload,
         handleAvatarDelete,
         handleProfileUpdate,
         handlePasswordUpdate,
+        handleTwoFactorSetup,
+        handleTwoFactorVerify,
+        handleTwoFactorDisable,
         handleProfileFieldChange,
         handlePasswordFieldChange,
+        handleTwoFactorCodeChange,
     } = useProfile();
 
     return (
@@ -70,6 +78,18 @@ export default function Profile() {
                             loading={passwordLoading}
                             onFieldChange={handlePasswordFieldChange}
                             onSave={handlePasswordUpdate}
+                        />
+
+                        <Divider />
+                        <ProfileTwoFactorSection
+                            enabled={Boolean(user.twoFactorEnabled)}
+                            loading={twoFactorLoading}
+                            code={twoFactorCode}
+                            setupPayload={twoFactorSetup}
+                            onCodeChange={handleTwoFactorCodeChange}
+                            onSetup={handleTwoFactorSetup}
+                            onVerify={handleTwoFactorVerify}
+                            onDisable={handleTwoFactorDisable}
                         />
                     </Stack>
                 </CardContent>

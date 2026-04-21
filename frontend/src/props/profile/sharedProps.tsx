@@ -2,6 +2,12 @@ export type ProfileUser = {
     name: string;
     email: string;
     avatar: string | null;
+    twoFactorEnabled?: boolean;
+};
+
+export type TwoFactorSetupPayload = {
+    qrCodeDataUrl: string;
+    manualEntryKey: string;
 };
 
 export type ApiMessage = {

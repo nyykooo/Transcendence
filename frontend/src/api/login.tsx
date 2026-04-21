@@ -1,22 +1,48 @@
 import { api } from '../configs/api';
-import { type LoginProps, type LoginResponse } from '../props/loginProps';
+import { type LoginProps, type LoginResponse, type TwoFactorLoginProps } from '../props/loginProps';
 import type { User } from '../props/userProps';
+
+async function parseJsonSafe(response: Response): Promise<any> {
+    try {
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
 
 export async function submitLogin(login: LoginProps): Promise<LoginResponse>
 {
-    return await fetch(api.login, {
+    const response = await fetch(api.login, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(login)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Login failed');
-        }
-        return response.json();
     });
+
+    const data = await parseJsonSafe(response);
+    if (!response.ok) {
+        throw new Error(data?.error || data?.message || 'Login failed');
+    }
+
+    return data as LoginResponse;
+}
+
+export async function submitTwoFactorLogin(input: TwoFactorLoginProps): Promise<LoginResponse> {
+    const response = await fetch(api.login2fa, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(input),
+    });
+
+    const data = await parseJsonSafe(response);
+    if (!response.ok) {
+        throw new Error(data?.error || data?.message || '2FA login failed');
+    }
+
+    return data as LoginResponse;
 }
 
 export async function submitGithubLogin(): Promise<LoginResponse>

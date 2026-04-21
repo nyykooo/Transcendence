@@ -3,12 +3,15 @@ import { useEffect, useState, type ChangeEvent } from 'react';
 import { useAuth } from '../../components/AuthProvider';
 import {
     deleteProfileAvatar,
+    disableProfileTwoFactor,
     fetchProfile,
+    setupProfileTwoFactor,
     updatePassword,
     updateProfile,
     uploadProfileAvatar,
+    verifyProfileTwoFactor,
 } from '../../api/profile';
-import type { ApiMessage, PasswordForm, ProfileForm, ProfileUser } from '../../props/profile/sharedProps';
+import type { ApiMessage, PasswordForm, ProfileForm, ProfileUser, TwoFactorSetupPayload } from '../../props/profile/sharedProps';
 
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const;
@@ -30,6 +33,7 @@ export function useProfile() {
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [profileLoading, setProfileLoading] = useState(false);
     const [passwordLoading, setPasswordLoading] = useState(false);
+    const [twoFactorLoading, setTwoFactorLoading] = useState(false);
     const [profileError, setProfileError] = useState<string | null>(null);
     const [message, setMessage] = useState<ApiMessage | null>(null);
 
@@ -44,6 +48,8 @@ export function useProfile() {
         newPassword: '',
         confirmPassword: '',
     });
+    const [twoFactorCode, setTwoFactorCode] = useState('');
+    const [twoFactorSetup, setTwoFactorSetup] = useState<TwoFactorSetupPayload | null>(null);
 
     const handleProfileFieldChange =
         (field: keyof ProfileForm) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +62,10 @@ export function useProfile() {
             const value = event.target.value;
             setPasswordForm((prev: PasswordForm) => ({ ...prev, [field]: value }));
         };
+
+    const handleTwoFactorCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setTwoFactorCode(event.target.value);
+    };
 
     useEffect(() => {
         if (!preview) {
@@ -277,6 +287,94 @@ export function useProfile() {
         }
     };
 
+    const handleTwoFactorSetup = async () => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to configure 2FA.' });
+            return;
+        }
+
+        setTwoFactorLoading(true);
+        setMessage(null);
+
+        try {
+            const payload = await setupProfileTwoFactor(token);
+            setTwoFactorSetup(payload);
+            setMessage({ type: 'success', text: '2FA setup started. Scan the QR code and verify below.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Could not start 2FA setup.',
+            });
+        } finally {
+            setTwoFactorLoading(false);
+        }
+    };
+
+    const handleTwoFactorVerify = async () => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to verify 2FA.' });
+            return;
+        }
+
+        const normalizedCode = twoFactorCode.trim();
+        if (!normalizedCode) {
+            setMessage({ type: 'error', text: 'Enter your authenticator code first.' });
+            return;
+        }
+
+        setTwoFactorLoading(true);
+        setMessage(null);
+
+        try {
+            await verifyProfileTwoFactor(token, { token: normalizedCode });
+            setUser((prev) => ({ ...prev, twoFactorEnabled: true }));
+            setTwoFactorCode('');
+            setTwoFactorSetup(null);
+            setMessage({ type: 'success', text: '2FA enabled successfully.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Could not verify 2FA code.',
+            });
+        } finally {
+            setTwoFactorLoading(false);
+        }
+    };
+
+    const handleTwoFactorDisable = async () => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to disable 2FA.' });
+            return;
+        }
+
+        const normalizedCode = twoFactorCode.trim();
+        if (!normalizedCode) {
+            setMessage({ type: 'error', text: 'Enter your authenticator code to disable 2FA.' });
+            return;
+        }
+
+        setTwoFactorLoading(true);
+        setMessage(null);
+
+        try {
+            await disableProfileTwoFactor(token, { token: normalizedCode });
+            setUser((prev) => ({ ...prev, twoFactorEnabled: false }));
+            setTwoFactorCode('');
+            setTwoFactorSetup(null);
+            setMessage({ type: 'success', text: '2FA disabled successfully.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Could not disable 2FA.',
+            });
+        } finally {
+            setTwoFactorLoading(false);
+        }
+    };
+
     return {
         user,
         selectedFile,
@@ -284,17 +382,24 @@ export function useProfile() {
         avatarLoading,
         profileLoading,
         passwordLoading,
+        twoFactorLoading,
         profileError,
         message,
         hasCustomAvatar: isCustomAvatar(user.avatar),
         profileForm,
         passwordForm,
+        twoFactorCode,
+        twoFactorSetup,
         handleFileSelect,
         handleUpload,
         handleAvatarDelete,
         handleProfileUpdate,
         handlePasswordUpdate,
+        handleTwoFactorSetup,
+        handleTwoFactorVerify,
+        handleTwoFactorDisable,
         handleProfileFieldChange,
         handlePasswordFieldChange,
+        handleTwoFactorCodeChange,
     };
 }

@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 
-import type { PasswordForm, ProfileForm, ProfileUser } from './sharedProps';
+import type { PasswordForm, ProfileForm, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
 
 export type ProfileAvatarSectionProps = {
     user: ProfileUser;
@@ -25,4 +25,15 @@ export type ProfilePasswordSectionProps = {
     loading: boolean;
     onFieldChange: (field: keyof PasswordForm) => (event: ChangeEvent<HTMLInputElement>) => void;
     onSave: () => void;
+};
+
+export type ProfileTwoFactorSectionProps = {
+    enabled: boolean;
+    loading: boolean;
+    code: string;
+    setupPayload: TwoFactorSetupPayload | null;
+    onCodeChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    onSetup: () => void;
+    onVerify: () => void;
+    onDisable: () => void;
 };

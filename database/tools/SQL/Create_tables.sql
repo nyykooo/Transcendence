@@ -15,6 +15,10 @@ CREATE TABLE dev_dba.users
 	is_active boolean DEFAULT false,
 	avatar TEXT,
 	git_id BIGINT,
+	two_factor_enabled boolean DEFAULT false,
+	two_factor_secret text,
+	two_factor_temp_secret text,
+	two_factor_enabled_at timestamp with time zone,
 	CONSTRAINT "unique_user" UNIQUE(name),
     PRIMARY KEY (id)
 );

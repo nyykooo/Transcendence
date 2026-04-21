@@ -6,7 +6,9 @@ const path = require('path')
 const { pool } = require('../db');
 const { requireAuth, requireAuthWithRateLimit } = require('./requireAuth');
 const { upload, removeFileIfExists, uploadDir } = require('./upload');
+const { generateTotpSecret, buildQrCodeDataUrl, verifyTotpToken } = require('./twoFactorService');
 const router = express.Router();
+
 const DEFAULT_AVATAR = '/uploads/avatars/test.webp';
 
 let currentId = 1;
@@ -15,36 +17,31 @@ const users = [];
 router.post('/register', async (req, res) => {
   const {email, password, name} = req.body;
   const normalizedEmail = String(email || '').trim().toLowerCase();
+  const normalizedName = String(name || '').trim();
 
     if (!normalizedEmail || !password )
       return res.status(400).json({error: "email, password are required"});
 
+    if (!normalizedName)
+      return res.status(400).json({error: "name is required"});
+
     try {
     const passwordHash = await bcrypt.hash(password, 10);
-    if (name)
-    {
-      
-      const created = await pool.query(
-        `INSERT INTO dev_dba.users (name, password, email, avatar, is_active, last_login)
-        VALUES ($1, $2, $3, $4, false, NOW())
-        RETURNING id, email, name, avatar, is_active, created_at, last_login, role`,
-        [name, passwordHash, normalizedEmail, DEFAULT_AVATAR]
-      );
-      const newuser = { ...created.rows[0] };
-      const token = jwt.sign(
-        {id: newuser.id, email: newuser.email, avatar: newuser.avatar, role: newuser.role},
-        process.env.JWT_SECRET,
-        {expiresIn: "1h"}
-      );
-      return res.status(200).json({message: "created user", newuser, token});
-    } else {
-      const token = jwt.sign(
-        {id: newuser.id, email: newuser.email, avatar: newuser.avatar, role: newuser.role},
-        process.env.JWT_SECRET,
-        {expiresIn: "1h"}
-      );
-      return res.status(200).json({message: "created user", newuser, token});
-    }
+    const created = await pool.query(
+      `INSERT INTO dev_dba.users (name, password, email, avatar, is_active, last_login)
+      VALUES ($1, $2, $3, $4, false, NOW())
+      RETURNING id, email, name, avatar, is_active, created_at, last_login, role`,
+      [normalizedName, passwordHash, normalizedEmail, DEFAULT_AVATAR]
+    );
+
+    const newuser = { ...created.rows[0] };
+    const token = jwt.sign(
+      {id: newuser.id, email: newuser.email, avatar: newuser.avatar, role: newuser.role},
+      process.env.JWT_SECRET,
+      {expiresIn: "1h"}
+    );
+
+    return res.status(200).json({message: "created user", newuser, token});
   } catch (error) {
     if (error?.code === '23505')
       return res.status(409).json({error: "User already exists"});
@@ -54,46 +51,154 @@ router.post('/register', async (req, res) => {
 })
 
 
-async function loginHandler(req,res) {
-    const {email, password} = req.body;
+async function loginHandler(req, res) {
+  const { email, password } = req.body;
   const normalizedEmail = String(email || '').trim().toLowerCase();
-    if (!email || !password)
-        return res.status(400).json({error: "Email and password required"});
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
 
   try {
     const result = await pool.query(
-      `SELECT id, email, name, password, avatar, is_active, role
+      `SELECT id, email, name, password, avatar, is_active, role, two_factor_enabled, two_factor_secret
        FROM dev_dba.users
        WHERE lower(email) = $1
        LIMIT 1`,
       [normalizedEmail]
     );
 
-    if (result.rowCount === 0)
-      return res.status(404).json({error: "Email is not registered"});
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Email is not registered' });
+    }
 
     const user = result.rows[0];
 
     const ok = await bcrypt.compare(password, user.password);
-    if (!ok)
-      return res.status(401).json({error: "Incorrect password"});
-    
-    await pool.query('UPDATE dev_dba.users SET last_login = NOW(), is_active = true WHERE id = $1', [user.id]);
+    if (!ok) {
+      return res.status(401).json({ error: 'Incorrect password' });
+    }
+
+    const requires2fa = Boolean(user.two_factor_enabled && user.two_factor_secret);
+
+    if (requires2fa) {
+      const twoFactorToken = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          purpose: '2fa_pending',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      return res.status(200).json({
+        message: '2FA required',
+        requires2fa: true,
+        twoFactorToken,
+        id: user.id,
+        role: user.role,
+      });
+    }
+
+    await pool.query(
+      'UPDATE dev_dba.users SET last_login = NOW(), is_active = true WHERE id = $1',
+      [user.id]
+    );
 
     const token = jwt.sign(
-      {id: user.id, email: user.email, avatar: user.avatar, role: user.role},
+      { id: user.id, email: user.email, avatar: user.avatar, role: user.role },
       process.env.JWT_SECRET,
-      {expiresIn: "1h"}
+      { expiresIn: '1h' }
     );
-    return res.status(200).json({message: "Sucessful login", id: user.id, token, role: user.role});
 
+    return res.status(200).json({
+      message: 'Sucessful login',
+      id: user.id,
+      token,
+      role: user.role,
+      requires2fa: false,
+    });
   } catch (error) {
     console.log('[login] unexpected error:', error);
-    return res.status(500).json({error: "Failed to login"});
+    return res.status(500).json({ error: 'Failed to login' });
   }
 }
 
 router.post(['/Login', '/login'], loginHandler);
+
+async function completeTwoFactorLoginHandler(req, res) {
+  try {
+    const twoFactorToken = String(req.body?.twoFactorToken || '').trim();
+    const otp = String(req.body?.otp || req.body?.token || '').trim();
+
+    if (!twoFactorToken || !otp) {
+      return res.status(400).json({ error: 'twoFactorToken and otp are required' });
+    }
+
+    let pending;
+    try {
+      pending = jwt.verify(twoFactorToken, process.env.JWT_SECRET);
+    } catch {
+      return res.status(401).json({ error: 'Invalid or expired 2FA token' });
+    }
+
+    if (pending?.purpose !== '2fa_pending' || !pending?.id) {
+      return res.status(401).json({ error: 'Invalid 2FA token payload' });
+    }
+
+    const result = await pool.query(
+      `SELECT id, email, avatar, role, two_factor_enabled, two_factor_secret
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+      [pending.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    if (!user.two_factor_enabled || !user.two_factor_secret) {
+      return res.status(400).json({ error: '2FA is not enabled for this user' });
+    }
+
+    const isValid = verifyTotpToken({
+      secret: user.two_factor_secret,
+      token: otp,
+    });
+
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid OTP code' });
+    }
+
+    await pool.query(
+      'UPDATE dev_dba.users SET last_login = NOW(), is_active = true WHERE id = $1',
+      [user.id]
+    );
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, avatar: user.avatar, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    return res.status(200).json({
+      message: 'Sucessful login',
+      id: user.id,
+      token,
+      role: user.role,
+      requires2fa: false,
+    });
+  } catch (error) {
+    console.error('[POST /login/2fa] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to complete 2FA login' });
+  }
+}
+
+router.post(['/Login/2fa', '/login/2fa'], completeTwoFactorLoginHandler);
 
 
 function toAvatarDiskPath(avatarValue) {
@@ -336,6 +441,161 @@ router.post('/profile/avatar', requireAuthWithRateLimit, upload.single('avatar')
     }
 });
 
+async function setupTwoFactorHandler(req, res) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
+    const userResult = await pool.query (
+      `SELECT id, email, two_factor_enabled
+      FROM dev_dba.users
+      WHERE id = $1
+      LIMIT 1`,
+      [userId]
+    );
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({error: 'User not found'});
+    }
+
+    const user = userResult.rows[0];
+    if (user.two_factor_enabled) {
+      return res.status(409).json({error: '2FA is already enabled'});
+    }
+
+    const secret = generateTotpSecret(user.email);
+    const otpauthUrl = secret.otpauth_url;
+    const qrCodeDataUrl = await buildQrCodeDataUrl(otpauthUrl);
+
+    await pool.query(
+      `UPDATE dev_dba.users
+      SET two_factor_temp_secret = $1
+      WHERE id = $2`,
+      [secret.base32, userId]
+    );
+    return res.status(200).json({
+      message: '2FA setup initialized',
+      qrCodeDataUrl,
+      manualEntryKey: secret.base32,
+    });
+  } catch (error) {
+    console.error('[POST /profile/2fa/setup] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to initialize 2FA setup'});
+  }
+  
+}
+
+router.post('/profile/2fa/setup', requireAuth, setupTwoFactorHandler);
+
+async function verifyTwoFactorSetupHandler(req, res) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const token = String(req.body?.token || req.body?.otp || '').trim();
+    if (!token) {
+      return res.status(400).json({ error: 'OTP code is required' });
+    }
+
+    const userResult = await pool.query(
+      `SELECT id, two_factor_enabled, two_factor_temp_secret
+      FROM dev_dba.users
+      WHERE id = $1
+      LIMIT 1`,
+      [userId]
+    );
+
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = userResult.rows[0];
+    if (user.two_factor_enabled) {
+      return res.status(409).json({ error: '2FA is already enabled'});
+    }
+
+    if (!user.two_factor_temp_secret) {
+      return res.status(400).json({error: 'No pending 2FA setup found'});
+    }
+
+    const isValid = verifyTotpToken({
+      secret: user.two_factor_temp_secret,
+      token,
+    });
+
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid OTP code '});
+    }
+
+    await pool.query (
+      `UPDATE dev_dba.users
+      SET two_factor_secret = $1, two_factor_temp_secret = NULL, two_factor_enabled = true, two_factor_enabled_at = NOW()
+      WHERE id = $2`,
+      [user.two_factor_temp_secret, userId]
+    );
+
+    return res.status(200).json({ message: '2FA enabled sucessfully' })
+  } catch (error) {
+    console.error('[POST /profile/2fa/verify] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to verify 2FA setup' });
+  }
+}
+router.post('/profile/2fa/verify', requireAuth, verifyTwoFactorSetupHandler);
+
+async function disableTwoFactorHandler(req, res) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const token = String(req.body?.token || req.body?.otp || '').trim();
+    if (!token) {
+      return res.status(400).json({ error: 'OTP code is required' });
+    }
+
+    const userResult = await pool.query(
+      `SELECT id, two_factor_enabled, two_factor_secret
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+       [userId]
+    );
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = userResult.rows[0];
+    if (!user.two_factor_enabled || !user.two_factor_secret) {
+      return res.status(400).json({ error: '2FA is not enabled' });
+    }
+
+    const isValid = verifyTotpToken({
+      secret: user.two_factor_secret,
+      token,
+    });
+
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid OTP code' });
+    }
+
+    await pool.query(
+      `UPDATE dev_dba.users
+       SET two_factor_enabled = false, two_factor_secret = NULL, two_factor_temp_secret = NULL, two_factor_enabled_at = NULL
+       WHERE id = $1`,
+       [userId]
+    );
+
+    return res.status(200).json({ message: '2FA disabled successfully' });
+  } catch (error) {
+    console.error('[POST /profile/2fa/disable] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to disable 2FA' });
+  }
+}
+
+router.post('/profile/2fa/disable', requireAuth, disableTwoFactorHandler);
 
 // Simple (training-only) global state store.
 // NOTE: This is not safe for multi-user/concurrent logins in real apps.

@@ -1,10 +1,11 @@
 import { Box } from '@mui/material';
 
-import { ProfileActionButton, ProfileAvatarPanel, ProfileField, ProfileFormStack, ProfileSectionCard, ProfileSectionNote } from './ProfileComponents';
+import { ProfileActionButton, ProfileAvatarPanel, ProfileField, ProfileFormStack, ProfileSectionCard, ProfileSectionNote, ProfileTwoFactorPanel } from './ProfileComponents';
 import type {
     ProfileAvatarSectionProps,
     ProfileDetailsSectionProps,
     ProfilePasswordSectionProps,
+    ProfileTwoFactorSectionProps,
 } from '../../props/profile/sectionProps';
 
 export function ProfileAvatarSection({
@@ -84,5 +85,29 @@ export function ProfilePasswordSection({
                 </Box>
             </ProfileFormStack>
         </ProfileSectionCard>
+    );
+}
+
+export function ProfileTwoFactorSection({
+    enabled,
+    loading,
+    code,
+    setupPayload,
+    onCodeChange,
+    onSetup,
+    onVerify,
+    onDisable,
+}: ProfileTwoFactorSectionProps) {
+    return (
+        <ProfileTwoFactorPanel
+            enabled={enabled}
+            loading={loading}
+            code={code}
+            setupPayload={setupPayload}
+            onCodeChange={onCodeChange}
+            onSetup={onSetup}
+            onVerify={onVerify}
+            onDisable={onDisable}
+        />
     );
 }

@@ -14,7 +14,7 @@ import type { LoginProps } from '../props/loginProps';
 
 export default function Login()
 {
-    const { signIn } = useAuth();
+    const { signIn, completeTwoFactorSignIn } = useAuth();
     const navigate = useNavigate();
 
     const [pass, setPass] = useState<string>('');
@@ -24,9 +24,16 @@ export default function Login()
     };
 
     const  [email, setEmail] = useState<string>('');
+    const [otp, setOtp] = useState<string>('');
+    const [twoFactorToken, setTwoFactorToken] = useState<string | null>(null);
+    const [requiresTwoFactor, setRequiresTwoFactor] = useState<boolean>(false);
 
     const handleUpdateEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(event.target.value);
+    };
+
+    const handleUpdateOtp = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setOtp(event.target.value);
     };
 
     function validateEmailProps(email: string, password: string) {
@@ -38,13 +45,32 @@ export default function Login()
     const handleSubmitLogin = async () => {
         try {
 
+            if (requiresTwoFactor) {
+                if (!twoFactorToken) {
+                    throw new Error('Missing 2FA challenge token. Please login again.');
+                }
+                if (!otp.trim()) {
+                    throw new Error('OTP code is required');
+                }
+
+                await completeTwoFactorSignIn(twoFactorToken, otp.trim());
+                navigate('/');
+                return;
+            }
+
             validateEmailProps(email, pass);
 
             const login: LoginProps = {
                 email: email,
                 password: pass
             };
-            await signIn(login);
+            const res = await signIn(login);
+            if (res?.requires2fa && res.twoFactorToken) {
+                setTwoFactorToken(res.twoFactorToken);
+                setRequiresTwoFactor(true);
+                return;
+            }
+
             navigate('/'); // navigates to home page after successful login
         } catch (err) {
             alert('Login failed: ' + err);
@@ -78,10 +104,17 @@ export default function Login()
                     autoComplete="current-password"
                     onChange={handleUpdatePass}
                 />
+                {requiresTwoFactor && (
+                    <TextField
+                        label="2FA Code"
+                        onChange={handleUpdateOtp}
+                        value={otp}
+                    />
+                )}
                 <Button
                     onClick={handleSubmitLogin}
                 >
-                    Submit
+                    {requiresTwoFactor ? 'Verify 2FA' : 'Submit'}
                 </Button>
                 <Button
                     onClick={handleGithubLogin}

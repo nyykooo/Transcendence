@@ -3,9 +3,9 @@ import { createContext, useContext, useState } from 'react';
 import { type User } from '../props/userProps'
 import { type AuthProviderProps } from '../props/authProviderProps';
 import { type AuthContextType } from '../props/authContextProps';
-import type { LoginProps } from '../props/loginProps';
+import type { LoginProps, LoginResponse } from '../props/loginProps';
 
-import { submitLogin, startGithubLogin } from '../api/login';
+import { submitLogin, submitTwoFactorLogin, startGithubLogin } from '../api/login';
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -65,28 +65,49 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
         return readStoredUser()?.role ?? null;
     };
 
-    const signIn = async (login: LoginProps = { email: '', password: '' }, option: string = 'default') => {
-        var res;
+    const signIn = async (login: LoginProps = { email: '', password: '' }, option: string = 'default'): Promise<LoginResponse | void> => {
+        let res: LoginResponse;
         switch (option) {
             case 'github':
                 // Starts OAuth by redirecting away from the SPA.
                 // The OAuth callback route will store the token and reload the app.
                 startGithubLogin();
-                break;
+                return;
             default:
                 if (login.email === '' || login.password === '') {
                     throw new Error('Email and password are required');
                 }
                 res = await submitLogin(login);
 
+                if (res.requires2fa) {
+                    return res;
+                }
+
                 if (res.id && res.token) {
-                    const nextUser = { id: res.id, token: res.token, role: res.role };
+                    const nextUser = { id: res.id, token: res.token, role: res.role || 'user' };
                     storeUser(nextUser);
                     setUser(nextUser);
+                    return res;
                 } else {
                     throw new Error('Invalid credentials');
                 }
         }
+    };
+
+    const completeTwoFactorSignIn = async (twoFactorToken: string, otp: string): Promise<LoginResponse> => {
+        if (!twoFactorToken || !otp) {
+            throw new Error('twoFactorToken and otp are required');
+        }
+
+        const res = await submitTwoFactorLogin({ twoFactorToken, otp });
+        if (!res.id || !res.token) {
+            throw new Error('Invalid 2FA login response');
+        }
+
+        const nextUser = { id: res.id, token: res.token, role: res.role || 'user' };
+        storeUser(nextUser);
+        setUser(nextUser);
+        return res;
     };
 
     const signOut = () => {
@@ -95,7 +116,7 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
         setUser(null);
     };
 
-    return <AuthContext.Provider value={{ user, signIn, signOut, getAuthToken, getAuthRole }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ user, signIn, completeTwoFactorSignIn, signOut, getAuthToken, getAuthRole }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
