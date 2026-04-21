@@ -10,9 +10,10 @@ import { type RecipeListFiltersProps } from '../../props/recipe-list'
 
 type RecipeListTableToolbarProps = {
     defaultFilters: RecipeListFiltersProps;
+    handleSearch: (selectedFilters: RecipeListFiltersProps | null | undefined) => void;
 };
 
-export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTableToolbarProps) {
+export default function RecipeListTableToolbar({ defaultFilters, handleSearch }: RecipeListTableToolbarProps) {
 
     // SelectedFilters
     const [selectedFilters, setSelectedFilters] = useState<RecipeListFiltersProps | null>();
@@ -87,7 +88,7 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
     };
 
     // ### Buttons ###
-    const handleSearch = () =>
+    const handleSearchButton = () =>
     {
         const _selectedFilters: RecipeListFiltersProps = {
             recipes: selectedRecipes,
@@ -104,8 +105,13 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
         }
         console.log(_selectedFilters);
         setSelectedFilters(_selectedFilters);
-        console.log("Search button clicked with filters: ", selectedFilters);
     }
+
+    useEffect(() => {
+        handleSearch(selectedFilters);
+    }, [selectedFilters]);
+
+
     const handleCleanFilters = () =>
     {
         setSelectedCost([0, defaultFilters.cost?.max ?? 10]);
@@ -113,7 +119,7 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
         setSelectedRecipes([]);
         setSelectedDiets([]);
         setSelectedIngredients([]);
-        setSelectedFilters(null);
+        setSelectedFilters(defaultFilters);
     }
 
     useEffect (() => {
@@ -168,7 +174,7 @@ export default function RecipeListTableToolbar({ defaultFilters }: RecipeListTab
                         step={1}
                     />
                 </Stack>
-                <Button onClick={() => handleSearch()}>
+                <Button onClick={() => handleSearchButton()}>
                     <Logo size={20} path={images.icons.search}></Logo>
                 </Button>
                 <Button onClick={() => handleCleanFilters()}>
