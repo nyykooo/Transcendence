@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { rateLimit } = require('./rateLimit');
 
 function requireAuth(req, res, next) {
     const auth = req.headers.authorization;
@@ -15,4 +16,13 @@ function requireAuth(req, res, next) {
     }
 }
 
-module.exports = { requireAuth };
+// Middleware que combina auth + rate limit
+async function requireAuthWithRateLimit(req, res, next) {
+    // Primeiro autentica
+    requireAuth(req, res, () => {
+        // Depois aplica rate limit
+        rateLimit(req, res, next);
+    });
+}
+
+module.exports = { requireAuth, requireAuthWithRateLimit };

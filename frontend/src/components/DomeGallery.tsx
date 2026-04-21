@@ -71,7 +71,7 @@ function buildItems(pool: ImageItem[], seg: number): ItemDef[] {
     return coords.map(c => ({ ...c, src: '', alt: '' }));
   }
   if (pool.length > totalSlots) {
-    console.warn(
+    console.log(
       `[DomeGallery] Provided image count (${pool.length}) exceeds available tiles (${totalSlots}). Some images will not be shown.`
     );
   }
