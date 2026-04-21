@@ -2,7 +2,7 @@ import { Box, Slider, Typography } from '@mui/material';
 
 import { type SliderSelectorProps } from '../props/slider-selector-props';
 
-export default function SliderSelector({ min, max, value, valueText = '', name, onChange }: SliderSelectorProps) {  
+export default function SliderSelector({ min, max, value, valueText = '', name, onChange, step = 1 }: SliderSelectorProps) {  
   const valuetext = (value: number) => {
     return `${value}${valueText}`;
   }
@@ -21,6 +21,7 @@ export default function SliderSelector({ min, max, value, valueText = '', name, 
         disableSwap
         min={min}
         max={max}
+        step={step}
       />
     </Box>
   );
