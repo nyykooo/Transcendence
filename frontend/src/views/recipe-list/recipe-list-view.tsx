@@ -204,7 +204,7 @@ export default function RecipeListView() {
                         },
                     },
                     }}
-                    pageSizeOptions={[5]}
+                    pageSizeOptions={[5, 10, 20, 50, 100]}
                     disableRowSelectionOnClick
                 />
             </Box>

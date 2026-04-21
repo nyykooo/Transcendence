@@ -102,8 +102,7 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
                 min: selectedServing[0],
                 max: selectedServing[1]
             }
-        }
-        console.log(_selectedFilters);
+        };
         setSelectedFilters(_selectedFilters);
     }
 
