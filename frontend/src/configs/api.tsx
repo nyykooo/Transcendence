@@ -8,5 +8,6 @@ export const api = {
     recipe: `${API_BASE_URL}/recipes/`,
     profile: `${API_BASE_URL}/profile`,
     profileAvatar: `${API_BASE_URL}/profile/avatar`,
+    profileAvatarDelete: `${API_BASE_URL}/profile/avatar`,
     profilePassword: `${API_BASE_URL}/profile/password`
 };

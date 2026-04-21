@@ -32,4 +32,14 @@ const upload = multer({
     fileFilter: fileFilter
 });
 
-module.exports = {upload};
+async function removeFileIfExists(filePath) {
+  try {
+    await fs.promises.access(filePath, fs.constants.F_OK);
+    await fs.promises.unlink(filePath);
+  } catch (err) {
+    // File does not exist or cannot be accessed, ignore
+  }
+}
+
+
+module.exports = {upload, removeFileIfExists, uploadDir};

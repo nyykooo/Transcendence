@@ -11,18 +11,22 @@ export function ProfileAvatarSection({
     user,
     previewSrc,
     selectedFile,
+    hasCustomAvatar,
     loading,
     onFileSelect,
     onUpload,
+    onDeleteAvatar,
 }: ProfileAvatarSectionProps) {
     return (
         <ProfileAvatarPanel
             user={user}
             previewSrc={previewSrc}
             selectedFile={selectedFile}
+            hasCustomAvatar={hasCustomAvatar}
             loading={loading}
             onFileSelect={onFileSelect}
             onUpload={onUpload}
+            onDeleteAvatar={onDeleteAvatar}
         />
     );
 }

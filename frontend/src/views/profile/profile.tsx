@@ -13,6 +13,7 @@ export default function Profile() {
         user,
         selectedFile,
         preview,
+        hasCustomAvatar,
         avatarLoading,
         profileLoading,
         passwordLoading,
@@ -22,6 +23,7 @@ export default function Profile() {
         passwordForm,
         handleFileSelect,
         handleUpload,
+        handleAvatarDelete,
         handleProfileUpdate,
         handlePasswordUpdate,
         handleProfileFieldChange,
@@ -45,9 +47,11 @@ export default function Profile() {
                             user={user}
                             previewSrc={preview}
                             selectedFile={selectedFile}
+                            hasCustomAvatar={hasCustomAvatar}
                             loading={avatarLoading}
                             onFileSelect={handleFileSelect}
                             onUpload={handleUpload}
+                            onDeleteAvatar={handleAvatarDelete}
                         />
 
                         <Divider />

@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent } from 'react';
 
 import { useAuth } from '../../components/AuthProvider';
 import {
+    deleteProfileAvatar,
     fetchProfile,
     updatePassword,
     updateProfile,
@@ -11,6 +12,15 @@ import type { ApiMessage, PasswordForm, ProfileForm, ProfileUser } from '../../p
 
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const;
+const DEFAULT_AVATAR_SUFFIX = '/uploads/avatars/test.webp';
+
+function isCustomAvatar(avatar: string | null): boolean {
+    if (!avatar) {
+        return false;
+    }
+
+    return !avatar.endsWith(DEFAULT_AVATAR_SUFFIX);
+}
 
 export function useProfile() {
     const { user: authUser, getAuthToken } = useAuth();
@@ -155,6 +165,42 @@ export function useProfile() {
         }
     };
 
+    const handleAvatarDelete = async () => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to delete an avatar.' });
+            return;
+        }
+
+        if (!isCustomAvatar(user.avatar)) {
+            setMessage({ type: 'error', text: 'No custom avatar to delete.' });
+            return;
+        }
+
+        setAvatarLoading(true);
+        setMessage(null);
+
+        try {
+            const nextUser = await deleteProfileAvatar(token, user);
+            setUser(nextUser);
+            setSelectedFile(null);
+
+            if (preview) {
+                URL.revokeObjectURL(preview);
+            }
+
+            setPreview(null);
+            setMessage({ type: 'success', text: 'Avatar deleted successfully.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Error deleting avatar. Please try again.',
+            });
+        } finally {
+            setAvatarLoading(false);
+        }
+    };
+
     const handleProfileUpdate = async () => {
         const token = getAuthToken();
         if (!token) {
@@ -240,10 +286,12 @@ export function useProfile() {
         passwordLoading,
         profileError,
         message,
+        hasCustomAvatar: isCustomAvatar(user.avatar),
         profileForm,
         passwordForm,
         handleFileSelect,
         handleUpload,
+        handleAvatarDelete,
         handleProfileUpdate,
         handlePasswordUpdate,
         handleProfileFieldChange,

@@ -156,9 +156,11 @@ export function ProfileAvatarPanel({
     user,
     previewSrc,
     selectedFile,
+    hasCustomAvatar,
     loading,
     onFileSelect,
     onUpload,
+    onDeleteAvatar,
 }: ProfileAvatarPanelProps) {
     return (
         <ProfileSectionCard title="Avatar" description="Use a clear, square image for the best result.">
@@ -200,7 +202,23 @@ export function ProfileAvatarPanel({
                         <ProfileActionButton loading={loading} onClick={onUpload} minWidth={160}>
                             Save Avatar
                         </ProfileActionButton>
+
+                        <ProfileActionButton
+                            loading={loading}
+                            onClick={onDeleteAvatar}
+                            color="error"
+                            variant="outlined"
+                            minWidth={170}
+                        >
+                            Delete Avatar
+                        </ProfileActionButton>
                     </Stack>
+
+                    {!hasCustomAvatar && (
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1.25, display: 'block' }}>
+                            You are currently using the default avatar.
+                        </Typography>
+                    )}
                 </Box>
             </Box>
         </ProfileSectionCard>

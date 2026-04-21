@@ -25,9 +25,11 @@ export type ProfileAvatarPanelProps = {
     user: ProfileUser;
     previewSrc: string | null;
     selectedFile: File | null;
+    hasCustomAvatar: boolean;
     loading: boolean;
     onFileSelect: (event: ChangeEvent<HTMLInputElement>) => void;
     onUpload: () => void;
+    onDeleteAvatar: () => void;
 };
 
 export type ProfileFieldProps = {
@@ -40,7 +42,7 @@ export type ProfileFieldProps = {
 export type ProfileActionButtonProps = PropsWithChildren<{
     loading: boolean;
     onClick: () => void;
-    color?: 'primary' | 'secondary';
+    color?: 'primary' | 'secondary' | 'error';
     variant?: 'contained' | 'outlined';
     minWidth?: number;
 }>;

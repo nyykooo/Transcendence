@@ -9,6 +9,7 @@ import type {
 
 const PROFILE_ENDPOINT = api.profile;
 const PROFILE_AVATAR_ENDPOINT = api.profileAvatar;
+const PROFILE_AVATAR_DELETE_ENDPOINT = api.profileAvatarDelete;
 const PROFILE_PASSWORD_ENDPOINT = api.profilePassword;
 
 function normalizeUser(payload?: ProfilePayload | null, fallback?: ProfileUser): ProfileUser {
@@ -97,4 +98,18 @@ export async function updatePassword(token: string, input: PasswordUpdateInput):
     if (!response.ok) {
         throw new Error(getResponseError(data, 'Password update failed.'));
     }
+}
+
+export async function deleteProfileAvatar(token: string, fallback?: ProfileUser): Promise<ProfileUser> {
+    const response = await fetch(PROFILE_AVATAR_DELETE_ENDPOINT, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await parseProfileEnvelope(response);
+    if (!response.ok) {
+        throw new Error(getResponseError(data, 'Failed to delete avatar.'));
+    }
+
+    return normalizeUser(data?.user, fallback);
 }

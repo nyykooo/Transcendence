@@ -5,7 +5,7 @@ const axios = require('axios');
 const path = require('path')
 const { pool } = require('../db');
 const { requireAuth, requireAuthWithRateLimit } = require('./requireAuth');
-const { upload } = require('./upload');
+const { upload, removeFileIfExists, uploadDir } = require('./upload');
 const router = express.Router();
 const DEFAULT_AVATAR = '/uploads/avatars/test.webp';
 
@@ -94,6 +94,83 @@ async function loginHandler(req,res) {
 }
 
 router.post(['/Login', '/login'], loginHandler);
+
+
+function toAvatarDiskPath(avatarValue) {
+  if (!avatarValue || avatarValue === DEFAULT_AVATAR) return null;
+
+  let pathname = '';
+  try {
+    // Works for absolute URL and relative path
+    pathname = new URL(String(avatarValue), 'http://local').pathname;
+  } catch {
+    return null;
+  }
+
+  const prefix = '/uploads/avatars/';
+  if (!pathname.startsWith(prefix)) return null;
+
+  const fileName = path.basename(pathname); // strips traversal attempts
+  if (!fileName || fileName === 'test.webp') return null;
+
+  // uploadDir should be backend/api/uploads/avatars
+  const absolutePath = path.resolve(uploadDir, fileName);
+  const avatarsRoot = path.resolve(uploadDir) + path.sep;
+
+  // Final safety check: must stay inside avatars folder
+  if (!absolutePath.startsWith(avatarsRoot)) return null;
+
+  return absolutePath;
+}
+
+async function deleteAvatarHandler(req, res){
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
+    const search = await pool.query(
+      ` SELECT avatar
+        FROM dev_dba.users
+        WHERE id = $1`,
+        [userId]
+    );
+    if (search.rowCount === 0) {
+      return res.status(404).json({error: 'User not found'});
+    }
+    const currentAvatar = search.rows[0].avatar;
+    if (currentAvatar === DEFAULT_AVATAR)
+      return res.status(400).json({error: 'No custom avatar to delete'});
+
+    const avatarDiskPath = toAvatarDiskPath(currentAvatar);
+    
+    const updated = await pool.query(
+      `UPDATE dev_dba.users
+      SET avatar = $1
+      WHERE id = $2
+      RETURNING id, email, name, avatar, role, is_active`,
+      [DEFAULT_AVATAR, userId]
+    );
+    if (updated.rowCount === 0) {
+      return res.status(404).json({error: 'User not found'});
+    }
+    if (avatarDiskPath) {
+      await removeFileIfExists(avatarDiskPath);
+    }
+
+    return res.status(200).json({
+      message: 'Avatar deleted',
+      user: updated.rows[0],
+    });
+  }
+  catch (error) {
+   console.error('[DELETE /profile/avatar] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to delete avatar'});
+  }
+}
+
+
+router.delete('/profile/avatar', requireAuth, deleteAvatarHandler);
 
 router.put(['/profile'], requireAuthWithRateLimit, async (req, res) => {
   try {
@@ -219,6 +296,23 @@ router.post('/profile/avatar', requireAuthWithRateLimit, upload.single('avatar')
     const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${file.filename}`;
 
     try {
+
+      const search = await pool.query(
+        ` SELECT avatar
+          FROM dev_dba.users
+          WHERE id = $1`,
+          [userId]
+      );
+      if (search.rowCount === 0)
+        return res.status(404).json({error: 'User not found'});
+      
+      const currentAvatar = search.rows[0].avatar;
+      if (currentAvatar && currentAvatar !== DEFAULT_AVATAR) {
+        const avatarDiskPath = toAvatarDiskPath(currentAvatar);
+        if (avatarDiskPath) {
+          await removeFileIfExists(avatarDiskPath);
+        }
+      }
       const updated = await pool.query(
         `UPDATE dev_dba.users
         SET avatar = $1

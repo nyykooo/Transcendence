@@ -6,9 +6,11 @@ export type ProfileAvatarSectionProps = {
     user: ProfileUser;
     previewSrc: string | null;
     selectedFile: File | null;
+    hasCustomAvatar: boolean;
     loading: boolean;
     onFileSelect: (event: ChangeEvent<HTMLInputElement>) => void;
     onUpload: () => void;
+    onDeleteAvatar: () => void;
 };
 
 export type ProfileDetailsSectionProps = {
