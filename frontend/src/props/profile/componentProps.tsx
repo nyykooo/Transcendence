@@ -1,6 +1,6 @@
 import type { ChangeEvent, PropsWithChildren } from 'react';
 
-import type { ApiMessage, ProfileUser } from './sharedProps';
+import type { ApiMessage, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
 
 export type ProfilePageShellProps = PropsWithChildren;
 
@@ -25,9 +25,11 @@ export type ProfileAvatarPanelProps = {
     user: ProfileUser;
     previewSrc: string | null;
     selectedFile: File | null;
+    hasCustomAvatar: boolean;
     loading: boolean;
     onFileSelect: (event: ChangeEvent<HTMLInputElement>) => void;
     onUpload: () => void;
+    onDeleteAvatar: () => void;
 };
 
 export type ProfileFieldProps = {
@@ -40,7 +42,7 @@ export type ProfileFieldProps = {
 export type ProfileActionButtonProps = PropsWithChildren<{
     loading: boolean;
     onClick: () => void;
-    color?: 'primary' | 'secondary';
+    color?: 'primary' | 'secondary' | 'error';
     variant?: 'contained' | 'outlined';
     minWidth?: number;
 }>;
@@ -48,3 +50,14 @@ export type ProfileActionButtonProps = PropsWithChildren<{
 export type ProfileFormStackProps = PropsWithChildren;
 
 export type ProfileSectionNoteProps = PropsWithChildren;
+
+export type ProfileTwoFactorPanelProps = {
+    enabled: boolean;
+    loading: boolean;
+    code: string;
+    setupPayload: TwoFactorSetupPayload | null;
+    onCodeChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    onSetup: () => void;
+    onVerify: () => void;
+    onDisable: () => void;
+};

@@ -21,6 +21,7 @@ import type {
     ProfileSectionNoteProps,
     ProfileStatusBannerProps,
     ProfileSummaryCardProps,
+    ProfileTwoFactorPanelProps,
 } from '../../props/profile/componentProps';
 
 export function ProfilePageShell({ children }: ProfilePageShellProps) {
@@ -156,9 +157,11 @@ export function ProfileAvatarPanel({
     user,
     previewSrc,
     selectedFile,
+    hasCustomAvatar,
     loading,
     onFileSelect,
     onUpload,
+    onDeleteAvatar,
 }: ProfileAvatarPanelProps) {
     return (
         <ProfileSectionCard title="Avatar" description="Use a clear, square image for the best result.">
@@ -200,9 +203,92 @@ export function ProfileAvatarPanel({
                         <ProfileActionButton loading={loading} onClick={onUpload} minWidth={160}>
                             Save Avatar
                         </ProfileActionButton>
+
+                        <ProfileActionButton
+                            loading={loading}
+                            onClick={onDeleteAvatar}
+                            color="error"
+                            variant="outlined"
+                            minWidth={170}
+                        >
+                            Delete Avatar
+                        </ProfileActionButton>
                     </Stack>
+
+                    {!hasCustomAvatar && (
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1.25, display: 'block' }}>
+                            You are currently using the default avatar.
+                        </Typography>
+                    )}
                 </Box>
             </Box>
+        </ProfileSectionCard>
+    );
+}
+
+export function ProfileTwoFactorPanel({
+    enabled,
+    loading,
+    code,
+    setupPayload,
+    onCodeChange,
+    onSetup,
+    onVerify,
+    onDisable,
+}: ProfileTwoFactorPanelProps) {
+    return (
+        <ProfileSectionCard
+            title="Two-Factor Authentication"
+            description="Protect your account with a time-based one-time password from an authenticator app."
+        >
+            <ProfileFormStack>
+                <ProfileSectionNote>
+                    Status: {enabled ? 'Enabled' : 'Disabled'}
+                </ProfileSectionNote>
+
+                {!enabled && (
+                    <Box>
+                        <ProfileActionButton loading={loading} onClick={onSetup} variant="outlined" minWidth={180}>
+                            Start 2FA Setup
+                        </ProfileActionButton>
+                    </Box>
+                )}
+
+                {setupPayload && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        <Typography variant="body2" color="text.secondary">
+                            Scan this QR code with Google Authenticator, Authy, or a compatible app.
+                        </Typography>
+                        <Box
+                            component="img"
+                            src={setupPayload.qrCodeDataUrl}
+                            alt="2FA QR code"
+                            sx={{ width: 180, height: 180, borderRadius: 2, border: '1px solid rgba(15,23,42,0.12)' }}
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                            Manual key: <strong>{setupPayload.manualEntryKey}</strong>
+                        </Typography>
+                    </Box>
+                )}
+
+                <ProfileField label="Authenticator Code" value={code} onChange={onCodeChange} />
+
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                    <ProfileActionButton loading={loading} onClick={onVerify} minWidth={200}>
+                        Verify And Enable 2FA
+                    </ProfileActionButton>
+
+                    <ProfileActionButton
+                        loading={loading}
+                        onClick={onDisable}
+                        color="error"
+                        variant="outlined"
+                        minWidth={170}
+                    >
+                        Disable 2FA
+                    </ProfileActionButton>
+                </Stack>
+            </ProfileFormStack>
         </ProfileSectionCard>
     );
 }
