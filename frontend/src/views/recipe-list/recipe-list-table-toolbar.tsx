@@ -38,7 +38,7 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
 
     const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
 
-    const handleChangeIngredients = (event: SelectChangeEvent<typeof defaultFilters.ingridients>) => {
+    const handleChangeIngredients = (event: SelectChangeEvent<typeof defaultFilters.ingredients>) => {
         const {
             target: { value },
         } = event;
@@ -97,7 +97,7 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
         const _selectedFilters: RecipeListFiltersProps = {
             recipes: selectedRecipes,
             diets: selectedDiets,
-            ingridients: selectedIngredients,
+            ingredients: selectedIngredients,
             cost: {
                 min: selectedCost[0],
                 max: selectedCost[1]
@@ -151,7 +151,7 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
                 {/* Ingredients == Multiple Select */}
                 <MultipleSelect 
                     name="Ingredients"
-                    options={defaultFilters.ingridients}
+                    options={defaultFilters.ingredients}
                     selectedOptions={selectedIngredients}
                     onChange={handleChangeIngredients}
                 />

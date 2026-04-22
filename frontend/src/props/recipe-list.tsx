@@ -1,6 +1,6 @@
 export type RecipeListFiltersProps = {
     recipes: string[];
-    ingridients: string[];
+    ingredients: string[];
     diets: string[];
     cost: {
         min: number;
@@ -14,7 +14,7 @@ export type RecipeListFiltersProps = {
 
 export type Recipe = {
     recipe_name: string;
-    ingridient_name: string;
+    ingredient_name: string;
     diet: string;
     cost: number;
     portions: number;
@@ -22,7 +22,6 @@ export type Recipe = {
     viewed: number;
 
 };
-
 
 export type RecipesResponse = {
     count: number;
@@ -31,10 +30,24 @@ export type RecipesResponse = {
 
 export type RecipeRow = {
     recipe_name: string;
-    ingridient_name: string;
+    ingredient_name: string;
     diet: string;
     cost: number;
     portions: number;
     liked: number;
     viewed: number;
+};
+
+export type PendingRecipesResponse = {
+    count: number;
+    recipes: PendingRecipe[];
+};
+
+export type PendingRecipe = {
+    recipe_name: string;
+    ingredient_name: string;
+    diet: string;
+    author: string;
+    status: string;
+    submission_date: string;
 };

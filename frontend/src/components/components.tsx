@@ -7,3 +7,6 @@ export { default as Settings } from './Settings';
 export { default as MultipleSelect } from './MultipleSelect';
 export { default as SliderSelector } from './SliderSelector';
 export { default as MultipleAutoComplete } from './MultipleAutoComplete';
+export { default as ProtectedRoute } from './ProtectedRoute';
+export { default as RoleBaseGuard } from './RoleBaseGuard';
+export { default as ErrorPage } from './errorPage';

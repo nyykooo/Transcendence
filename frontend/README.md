@@ -260,7 +260,7 @@ Success `200`:
   "recipes": [
     {
       "recipe_name": "Avocado Toast",
-      "ingridient_name": "avocado, bread, olive oil",
+      "ingredient_name": "avocado, bread, olive oil",
       "ingredients_names": ["avocado", "bread", "olive oil"],
       "diet": "vegan",
       "cost": 12,
@@ -292,7 +292,7 @@ Success `201`: created pending recipe row.
 
 Fetch one recipe by exact name.
 
-Success `200` fields include: `name`, `ingridients`, `instructions`, `prep_time`, `cook_time`, `portions`, `diet`, `cost`, `liked`, `viewed`.
+Success `200` fields include: `name`, `ingredients`, `instructions`, `prep_time`, `cook_time`, `portions`, `diet`, `cost`, `liked`, `viewed`.
 
 Common errors: `404`, `500`.
 

@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { type ErrorPageProps } from "../../props/ErrorPageProps";
+import { type ErrorPageProps } from "../props/ErrorPageProps";
 
 export default function ErrorPage(props: ErrorPageProps) {
     return (

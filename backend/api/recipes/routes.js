@@ -31,7 +31,7 @@ function serializeRecipeRow(row) {
     return {
         recipe_name: row.name,
         // String para exibir na coluna "Ingredient Name" da tabela.
-        ingridient_name: ingredientNames.join(', '),
+        ingredient_name: ingredientNames.join(', '),
         // Array útil para filtros/autocomplete no frontend.
         ingredients_names: ingredientNames,
         diet: row.diet,

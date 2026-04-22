@@ -30,7 +30,7 @@ export async function getRecipe(name: string): Promise<Recipe | null>
         // Map the backend response to Recipe type
         const recipe: Recipe = {
             name: data.name,
-            ingridients: data.ingridients ? data.ingridients : [],
+            ingredients: data.ingredients ? data.ingredients : [],
             instructions: data.instructions ? data.instructions : '',
             image: data.image ? data.image : ''
         };

@@ -8,6 +8,8 @@ export const api = {
     githubAuth: `${API_BASE_URL}/auth/github`,
     register: `${API_BASE_URL}/register`,
     recipe: `${API_BASE_URL}/recipes/`,
+    pendingRecipes: `${API_BASE_URL}/pending/recipes/`,
+    allUsers: `${API_BASE_URL}/admin/users`,
     profile: `${API_BASE_URL}/profile`,
     profileAvatar: `${API_BASE_URL}/profile/avatar`,
     profileAvatarDelete: `${API_BASE_URL}/profile/avatar`,

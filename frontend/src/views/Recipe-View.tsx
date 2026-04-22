@@ -29,9 +29,9 @@ export default function RecipeView() {
             <Stack sx={{display: 'flex', flexDirection: 'row', gap: 4, alignItems: 'center'}}>
                 <Logo size={300} path={recipe?.image || ''}/>
                 <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-                    <Typography variant="h4">Ingridients:</Typography>
-                    {recipe?.ingridients?.map((ingridient, index) => (
-                        <Typography key={index}>{`${ingridient.quantity} ${ingridient.unit} of ${ingridient.name}`}</Typography>
+                    <Typography variant="h4">ingredients:</Typography>
+                    {recipe?.ingredients?.map((ingredient, index) => (
+                        <Typography key={index}>{`${ingredient.quantity} ${ingredient.unit} of ${ingredient.name}`}</Typography>
                     ))}
                     <Typography variant="h4">Instructions:</Typography>
                     <Typography>{recipe?.instructions}</Typography>
