@@ -1330,6 +1330,9 @@ router.get('/auth/github/callback', async (req, res) => {
 
 router.get('/admin/users', requireAuthWithRateLimit, async (req, res) => {
   try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     const result = await pool.query(
       `SELECT id, email, name, avatar, role, is_active
        FROM dev_dba.users
@@ -1337,7 +1340,7 @@ router.get('/admin/users', requireAuthWithRateLimit, async (req, res) => {
     );
     return res.status(200).json({ users: result.rows });
   } catch (error) {
-    console.log('[GET /users] unexpected error:', error);
+    console.log('[GET /admin/users] unexpected error:', error);
     return res.status(500).json({ error: 'Failed to load users' });
   }
 });
