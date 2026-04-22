@@ -2,7 +2,19 @@ import { Box, Slider, Typography } from '@mui/material';
 
 import { type SliderSelectorProps } from '../props/slider-selector-props';
 
-export default function SliderSelector({ min, max, value, valueText = '', name, onChange, step = 1 }: SliderSelectorProps) {  
+export default function SliderSelector({ min, max, value, valueText = '', name, onChange, step = 1 }: SliderSelectorProps) {
+  const safeStep = Number.isFinite(step) && step > 0 ? step : 1;
+  const safeMin = Number.isFinite(min) ? min : 0;
+  const rawMax = Number.isFinite(max) ? max : safeMin + safeStep;
+  const safeMax = rawMax > safeMin ? rawMax : safeMin + safeStep;
+
+  const safeValue: number[] = Array.isArray(value)
+    ? [
+        Number.isFinite(value[0]) ? Math.max(safeMin, Math.min(value[0], safeMax)) : safeMin,
+        Number.isFinite(value[1]) ? Math.max(safeMin, Math.min(value[1], safeMax)) : safeMax,
+      ]
+    : [safeMin, safeMax];
+
   const valuetext = (value: number) => {
     return `${value}${valueText}`;
   }
@@ -14,14 +26,14 @@ export default function SliderSelector({ min, max, value, valueText = '', name, 
       </Typography>
       <Slider
         getAriaLabel={() => 'Minimum distance'}
-        value={value}
+        value={safeValue}
         onChange={onChange}
         valueLabelDisplay="auto"
         getAriaValueText={valuetext}
         disableSwap
-        min={min}
-        max={max}
-        step={step}
+        min={safeMin}
+        max={safeMax}
+        step={safeStep}
       />
     </Box>
   );

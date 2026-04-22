@@ -20,11 +20,11 @@ export default function RecipeListView() {
         diets: [],
         cost: {
             min: 0,
-            max: 0,
+            max: 10,
         },
         servings: {
             min: 0,
-            max: 0,
+            max: 10,
         }
     });
     const [isLoading, setIsLoading] = useState(true);
