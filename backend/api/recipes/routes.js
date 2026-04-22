@@ -81,10 +81,9 @@ router.get(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateL
             r.name,
             r.ingredients,
             r.diet,
-            r.cost,
-            r.portions,
-            r.liked,
-            r.viewed
+            r.status,
+            r.submitted_at
+
             FROM public.pending_recipes r
             ORDER BY r.name ASC
             `;
@@ -347,8 +346,9 @@ router.get(['/pending/recipes/:name', '/pending/RecipeView/:name'], requireAuthW
             portions: raw_recipe.portions,
             prep_time: raw_recipe.prep_time,
             cook_time: raw_recipe.cooking_time,
-            liked: raw_recipe.liked,
-            viewed: raw_recipe.viewed,
+            status: raw_recipe.status,
+            submitted_at: raw_recipe.submitted_at,
+            url: raw_recipe.url
         };
         return res.json(recipe);
     } catch (error) {
@@ -357,10 +357,11 @@ router.get(['/pending/recipes/:name', '/pending/RecipeView/:name'], requireAuthW
     }
 })
 
-router.put(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, async (req, res) => {
-    const id = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0)
-        return res.status(400).json({error: 'Invalid recipe id'});
+router.put(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    if (!name) {
+        return res.status(400).json({error: 'Invalid recipe name'});
+    }
 
     const body = req.body || {};
 
@@ -368,9 +369,9 @@ router.put(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, async 
         const existing = await pool.query(
             `SELECT id, author
              FROM public.all_recipes
-             WHERE id = $1
+             WHERE name = $1
              LIMIT 1`,
-            [id],
+            [name],
         );
 
         if (!existing.rows || existing.rows.length === 0)
@@ -436,10 +437,11 @@ router.put(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, async 
     }
 });
 
-router.put(['/pending/recipes/:id', '/pending/RecipeView/:id'], requireAuthWithRateLimit, async (req, res) => {
-    const id = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0)
-        return res.status(400).json({error: 'Invalid recipe id'});
+router.put(['/pending/recipes/:name', '/pending/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    if (!name) {
+        return res.status(400).json({error: 'Invalid recipe name'});
+    }
 
     const body = req.body || {};
 
@@ -447,9 +449,9 @@ router.put(['/pending/recipes/:id', '/pending/RecipeView/:id'], requireAuthWithR
         const existing = await pool.query(
             `SELECT id, author
              FROM public.pending_recipes
-             WHERE id = $1
+             WHERE name = $1
              LIMIT 1`,
-            [id],
+            [name],
         );
 
         if (!existing.rows || existing.rows.length === 0)
@@ -508,7 +510,7 @@ router.put(['/pending/recipes/:id', '/pending/RecipeView/:id'], requireAuthWithR
             body.portions ?? null,
             body.prep_time ?? null,
             body.cooking_time ?? null,
-            id,
+            name,
         ];
 
         const { rows } = await pool.query(query, values);
@@ -520,9 +522,12 @@ router.put(['/pending/recipes/:id', '/pending/RecipeView/:id'], requireAuthWithR
 
 // Still need to change this to use the DB
 
-router.delete(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, async (req, res) => {
-    const id = Number(req.params.id);
-    const index = recipes.findIndex(r => r.id === id);
+router.delete(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    if (!name) {
+        return res.status(400).json({error: 'Invalid recipe name'});
+    }
+    const index = recipes.findIndex(r => r.name === name);
     if (index === -1)
             return res.status(404).json({error: 'Recipe not found'})
     if (recipes[index].createdBy !== req.userId)
@@ -531,16 +536,19 @@ router.delete(['/recipes/:id', '/RecipeView/:id'], requireAuthWithRateLimit, asy
     return res.status(204).send();
 });
 
-router.delete(['/pending/recipes/:id', '/pending/RecipeView/:id'], requireAuthWithRateLimit, async (req, res) => {
-    const id = Number(req.params.id);
+router.delete(['/pending/recipes/:name', '/pending/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    if (!name) {
+        return res.status(400).json({error: 'Invalid recipe name'});
+    }
 
     try {
         const existing = await pool.query(
             `SELECT id, author
              FROM public.pending_recipes
-             WHERE id = $1
+             WHERE name = $1
              LIMIT 1`,
-            [id],
+            [name],
         );
 
         if (!existing.rows || existing.rows.length === 0)
@@ -562,8 +570,8 @@ router.delete(['/pending/recipes/:id', '/pending/RecipeView/:id'], requireAuthWi
 
         await pool.query(
             `DELETE FROM public.pending_recipes
-             WHERE id = $1`,
-            [id],
+             WHERE name = $1`,
+            [name],
         );
 
         return res.status(204).send();
