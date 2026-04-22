@@ -13,5 +13,8 @@ export const api = {
     profilePassword: `${API_BASE_URL}/profile/password`,
     profile2faSetup: `${API_BASE_URL}/profile/2fa/setup`,
     profile2faVerify: `${API_BASE_URL}/profile/2fa/verify`,
-    profile2faDisable: `${API_BASE_URL}/profile/2fa/disable`
+    profile2faDisable: `${API_BASE_URL}/profile/2fa/disable`,
+    profileFriends: `${API_BASE_URL}/profile/friends`,
+    profileFriendRequests: `${API_BASE_URL}/profile/friends/requests`,
+    profileFriendRequestsAccept: `${API_BASE_URL}/profile/friends/requests/accept`,
 };

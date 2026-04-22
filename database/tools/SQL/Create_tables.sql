@@ -8,6 +8,7 @@ CREATE TABLE dev_dba.users
     liked integer[] DEFAULT '{}',
     viewed integer[] DEFAULT '{}',
 	friend_list TEXT[] DEFAULT '{}',
+	request_list TEXT[] DEFAULT '{}',
 	is_author TEXT[] DEFAULT '{}',
 	created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp with time zone,

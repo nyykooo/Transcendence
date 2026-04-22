@@ -1,6 +1,6 @@
 import type { ChangeEvent, PropsWithChildren } from 'react';
 
-import type { ApiMessage, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
+import type { ApiMessage, FriendUser, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
 
 export type ProfilePageShellProps = PropsWithChildren;
 
@@ -60,4 +60,16 @@ export type ProfileTwoFactorPanelProps = {
     onSetup: () => void;
     onVerify: () => void;
     onDisable: () => void;
+};
+
+export type ProfileFriendsPanelProps = {
+    friends: FriendUser[];
+    friendRequests: FriendUser[];
+    friendEmail: string;
+    loading: boolean;
+    onFriendEmailChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    onAddFriend: () => void;
+    onRemoveFriend: (email: string) => void;
+    onAcceptFriendRequest: (email: string) => void;
+    onRejectFriendRequest: (email: string) => void;
 };

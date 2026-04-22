@@ -15,6 +15,7 @@ import type {
     ProfileAvatarPanelProps,
     ProfileFieldProps,
     ProfileFormStackProps,
+    ProfileFriendsPanelProps,
     ProfileHeroCardProps,
     ProfilePageShellProps,
     ProfileSectionCardProps,
@@ -288,6 +289,175 @@ export function ProfileTwoFactorPanel({
                         Disable 2FA
                     </ProfileActionButton>
                 </Stack>
+            </ProfileFormStack>
+        </ProfileSectionCard>
+    );
+}
+
+export function ProfileFriendsPanel({
+    friends,
+    friendRequests,
+    friendEmail,
+    loading,
+    onFriendEmailChange,
+    onAddFriend,
+    onRemoveFriend,
+    onAcceptFriendRequest,
+    onRejectFriendRequest,
+}: ProfileFriendsPanelProps) {
+    return (
+        <ProfileSectionCard
+            title="Friends"
+            description="Send requests by name, accept incoming requests, and manage your friends list."
+        >
+            <ProfileFormStack>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+                    <TextField
+                        label="Friend Name"
+                        value={friendEmail}
+                        onChange={onFriendEmailChange}
+                        type="text"
+                        fullWidth
+                    />
+                    <ProfileActionButton loading={loading} onClick={onAddFriend} minWidth={160}>
+                        Send Request
+                    </ProfileActionButton>
+                </Stack>
+
+                {friendRequests.length === 0 && (
+                    <ProfileSectionNote>
+                        No incoming friend requests.
+                    </ProfileSectionNote>
+                )}
+
+                {friendRequests.length > 0 && (
+                    <Stack spacing={1.25}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                            Incoming Requests
+                        </Typography>
+
+                        {friendRequests.map((requester) => (
+                            <Box
+                                key={requester.email}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: 1.5,
+                                    border: '1px solid rgba(15, 23, 42, 0.08)',
+                                    borderRadius: 2,
+                                    p: 1.5,
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                                    <Avatar src={requester.avatar || undefined} sx={{ width: 36, height: 36 }}>
+                                        {requester.name.charAt(0)}
+                                    </Avatar>
+                                    <Box>
+                                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                            {requester.name}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {requester.email}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+                                    <ProfileActionButton
+                                        loading={loading}
+                                        onClick={() => onAcceptFriendRequest(requester.email)}
+                                        color="secondary"
+                                        minWidth={110}
+                                    >
+                                        Accept
+                                    </ProfileActionButton>
+
+                                    <ProfileActionButton
+                                        loading={loading}
+                                        onClick={() => onRejectFriendRequest(requester.email)}
+                                        color="error"
+                                        variant="outlined"
+                                        minWidth={110}
+                                    >
+                                        Reject
+                                    </ProfileActionButton>
+                                </Stack>
+                            </Box>
+                        ))}
+                    </Stack>
+                )}
+
+                {friends.length === 0 && (
+                    <ProfileSectionNote>
+                        You have no friends added yet.
+                    </ProfileSectionNote>
+                )}
+
+                {friends.length > 0 && (
+                    <Stack spacing={1.25}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                            Your Friends
+                        </Typography>
+
+                        {friends.map((friend) => {
+                            const isOnline = friend.is_active === true;
+
+                            return (
+                            <Box
+                                key={friend.email}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: 1.5,
+                                    border: '1px solid rgba(15, 23, 42, 0.08)',
+                                    borderRadius: 2,
+                                    p: 1.5,
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                                    <Avatar src={friend.avatar || undefined} sx={{ width: 36, height: 36 }}>
+                                        {friend.name.charAt(0)}
+                                    </Avatar>
+                                    <Box>
+                                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                            {friend.name}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {friend.email}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.25 }}>
+                                            <Box
+                                                component="span"
+                                                sx={{
+                                                    width: 8,
+                                                    height: 8,
+                                                    borderRadius: '50%',
+                                                    bgcolor: isOnline ? 'success.main' : 'text.disabled',
+                                                }}
+                                            />
+                                            <Typography variant="caption" color={isOnline ? 'success.main' : 'text.secondary'}>
+                                                {isOnline ? 'Online' : 'Offline'}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </Box>
+
+                                <ProfileActionButton
+                                    loading={loading}
+                                    onClick={() => onRemoveFriend(friend.email)}
+                                    color="error"
+                                    variant="outlined"
+                                    minWidth={120}
+                                >
+                                    Remove
+                                </ProfileActionButton>
+                            </Box>
+                            );
+                        })}
+                    </Stack>
+                )}
             </ProfileFormStack>
         </ProfileSectionCard>
     );

@@ -1,8 +1,18 @@
+export type FriendUser = {
+    id: number;
+    name: string;
+    email: string;
+    avatar: string | null;
+    is_active?: boolean;
+};
+
 export type ProfileUser = {
     name: string;
     email: string;
     avatar: string | null;
     twoFactorEnabled?: boolean;
+    friends?: FriendUser[];
+    friendRequests?: FriendUser[];
 };
 
 export type TwoFactorSetupPayload = {

@@ -1,6 +1,8 @@
 import type { ProfileUser } from '../props/profile/sharedProps';
 import { api } from '../configs/api';
 import type {
+    FriendRequestCreateInput,
+    FriendUpdateInput,
     PasswordUpdateInput,
     ProfileEnvelope,
     ProfilePayload,
@@ -16,6 +18,9 @@ const PROFILE_PASSWORD_ENDPOINT = api.profilePassword;
 const PROFILE_2FA_SETUP_ENDPOINT = api.profile2faSetup;
 const PROFILE_2FA_VERIFY_ENDPOINT = api.profile2faVerify;
 const PROFILE_2FA_DISABLE_ENDPOINT = api.profile2faDisable;
+const PROFILE_FRIENDS_ENDPOINT = api.profileFriends;
+const PROFILE_FRIEND_REQUESTS_ENDPOINT = api.profileFriendRequests;
+const PROFILE_FRIEND_REQUESTS_ACCEPT_ENDPOINT = api.profileFriendRequestsAccept;
 
 function normalizeUser(payload?: ProfilePayload | null, fallback?: ProfileUser): ProfileUser {
     const payloadWithAliases = payload as (ProfilePayload & { two_factor_enabled?: boolean }) | undefined;
@@ -24,6 +29,8 @@ function normalizeUser(payload?: ProfilePayload | null, fallback?: ProfileUser):
         email: payload?.email || fallback?.email || '',
         avatar: payload?.avatar ?? fallback?.avatar ?? null,
         twoFactorEnabled: payload?.twoFactorEnabled ?? payloadWithAliases?.two_factor_enabled ?? fallback?.twoFactorEnabled ?? false,
+        friends: payload?.friends ?? fallback?.friends ?? [],
+        friendRequests: payload?.friendRequests ?? fallback?.friendRequests ?? [],
     };
 }
 
@@ -172,4 +179,76 @@ export async function disableProfileTwoFactor(token: string, input: TwoFactorVer
     if (!response.ok) {
         throw new Error(getResponseError(data, 'Failed to disable 2FA.'));
     }
+}
+
+export async function addProfileFriend(token: string, input: FriendRequestCreateInput, fallback?: ProfileUser): Promise<ProfileUser> {
+    const response = await fetch(PROFILE_FRIENDS_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+    });
+
+    const data = await parseProfileEnvelope(response);
+    if (!response.ok) {
+        throw new Error(getResponseError(data, 'Failed to send friend request.'));
+    }
+
+    return normalizeUser(data?.user, fallback);
+}
+
+export async function removeProfileFriend(token: string, input: FriendUpdateInput, fallback?: ProfileUser): Promise<ProfileUser> {
+    const response = await fetch(PROFILE_FRIENDS_ENDPOINT, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+    });
+
+    const data = await parseProfileEnvelope(response);
+    if (!response.ok) {
+        throw new Error(getResponseError(data, 'Failed to remove friend.'));
+    }
+
+    return normalizeUser(data?.user, fallback);
+}
+
+export async function acceptProfileFriendRequest(token: string, input: FriendUpdateInput, fallback?: ProfileUser): Promise<ProfileUser> {
+    const response = await fetch(PROFILE_FRIEND_REQUESTS_ACCEPT_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+    });
+
+    const data = await parseProfileEnvelope(response);
+    if (!response.ok) {
+        throw new Error(getResponseError(data, 'Failed to accept friend request.'));
+    }
+
+    return normalizeUser(data?.user, fallback);
+}
+
+export async function rejectProfileFriendRequest(token: string, input: FriendUpdateInput, fallback?: ProfileUser): Promise<ProfileUser> {
+    const response = await fetch(PROFILE_FRIEND_REQUESTS_ENDPOINT, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+    });
+
+    const data = await parseProfileEnvelope(response);
+    if (!response.ok) {
+        throw new Error(getResponseError(data, 'Failed to reject friend request.'));
+    }
+
+    return normalizeUser(data?.user, fallback);
 }
