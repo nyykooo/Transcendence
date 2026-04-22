@@ -1345,6 +1345,28 @@ router.get('/admin/users', requireAuthWithRateLimit, async (req, res) => {
   }
 });
 
+router.delete('/admin/users/:id', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const userId = req.params.id;
+    const result = await pool.query(
+      `DELETE FROM dev_dba.users
+       WHERE id = $1
+       RETURNING id`,
+      [userId]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    return res.status(200).json({ message: 'User deleted', userId: result.rows[0].id });
+  } catch (error) {
+    console.log(`[DELETE /admin/users/:${userId}] unexpected error:`, error);
+    return res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
 // ========== FILE MANAGEMENT ENDPOINTS ==========
 
 router.get('/profile/files', requireAuthWithRateLimit, async (req, res) => {
