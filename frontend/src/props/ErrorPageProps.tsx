@@ -1,4 +1,4 @@
 export type ErrorPageProps = {
-    status: number;
+    status?: number;
     message: string;
 }

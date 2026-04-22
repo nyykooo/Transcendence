@@ -26,5 +26,9 @@ export const paths = {
     register: {
       path: '/register',
       name: 'Register'
+    },
+    admin: {
+      path: '/admin',
+      name: 'Admin Panel'
     }
 }

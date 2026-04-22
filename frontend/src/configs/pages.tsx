@@ -10,7 +10,7 @@ export const pages: PageProps[] = [
         label: 'Recipes List' 
     },
     {
-        route: 'recipe',
-        label: 'Recipe' 
+        route: 'admin',
+        label: 'Admin Panel' 
     },
 ]

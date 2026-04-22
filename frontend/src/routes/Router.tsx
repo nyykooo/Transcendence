@@ -9,10 +9,11 @@ import {
   Login,
   Register,
   GithubCallback,
-  Profile
+  Profile,
+  AdminView
  }  from "../views/index";
-import ProtectedRoute from "../components/ProtectedRoute";
 import FileManagement from "../components/FileManagement";
+import { ProtectedRoute } from "../components/components";
 
 export default function Router() {
   return (
@@ -26,6 +27,7 @@ export default function Router() {
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/file-management" element={<ProtectedRoute><FileManagement /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute><AdminView /></ProtectedRoute>} />
       <Route path="/auth/github/callback" element={<GithubCallback />} />
       <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
     </Routes>
