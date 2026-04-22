@@ -230,7 +230,7 @@ function toAvatarDiskPath(avatarValue) {
 
 async function deleteAvatarHandler(req, res){
   try {
-    const userId = req.user?.id;
+    const userId = req.userId ?? req.user?.id;
     if (!userId) {
       return res.status(401).json({error: 'Unauthorized'});
     }
@@ -279,7 +279,7 @@ router.delete('/profile/avatar', requireAuth, deleteAvatarHandler);
 
 router.put(['/profile'], requireAuthWithRateLimit, async (req, res) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.userId ?? req.user?.id;
     if (!userId) {
       return res.status(401).json({error: 'Unauthorized'});
     }
@@ -317,7 +317,7 @@ router.put(['/profile'], requireAuthWithRateLimit, async (req, res) => {
 
 router.put(['/profile/password'], requireAuthWithRateLimit, async (req, res) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.userId ?? req.user?.id;
     if (!userId) {
       return res.status(401).json({error: 'Unauthorized'});
     }
@@ -363,7 +363,7 @@ router.put(['/profile/password'], requireAuthWithRateLimit, async (req, res) => 
 
 router.get(['/profile' ,'/auth'], requireAuthWithRateLimit, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = req.userId ?? req.user?.id;
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
@@ -394,7 +394,7 @@ router.post('/profile/avatar', requireAuthWithRateLimit, upload.single('avatar')
     if (!file)
       return res.status(400).json({error: 'No file uploaded'});
     
-    const userId = req.user?.id;
+    const userId = req.userId ?? req.user?.id;
     if (!userId)
       return res.status(401).json({error: 'Unauthorized'});
     
@@ -443,7 +443,7 @@ router.post('/profile/avatar', requireAuthWithRateLimit, upload.single('avatar')
 
 async function setupTwoFactorHandler(req, res) {
   try {
-    const userId = req.user?.id;
+    const userId = req.userId ?? req.user?.id;
     if (!userId) {
       return res.status(401).json({error: 'Unauthorized'});
     }
@@ -489,7 +489,7 @@ router.post('/profile/2fa/setup', requireAuth, setupTwoFactorHandler);
 
 async function verifyTwoFactorSetupHandler(req, res) {
   try {
-    const userId = req.user?.id;
+    const userId = req.userId ?? req.user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -546,7 +546,7 @@ router.post('/profile/2fa/verify', requireAuth, verifyTwoFactorSetupHandler);
 
 async function disableTwoFactorHandler(req, res) {
   try {
-    const userId = req.user?.id;
+    const userId = req.userId ?? req.user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
