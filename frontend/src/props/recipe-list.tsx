@@ -23,7 +23,6 @@ export type Recipe = {
 
 };
 
-
 export type RecipesResponse = {
     count: number;
     recipes: Recipe[];
@@ -39,14 +38,16 @@ export type RecipeRow = {
     viewed: number;
 };
 
-export type PendingRecipeRow = {
+export type PendingRecipesResponse = {
+    count: number;
+    recipes: PendingRecipe[];
+};
+
+export type PendingRecipe = {
     recipe_name: string;
     ingredient_name: string;
     diet: string;
-    cost: number;
-    portions: number;
     author: string;
     status: string;
     submission_date: string;
-    url: string;
 };
