@@ -38,3 +38,12 @@ export type RecipeRow = {
     liked: number;
     viewed: number;
 };
+
+export type PendingRecipeRow = {
+    recipe_name: string;
+    ingridient_name: string;
+    diet: string;
+    cost: number;
+    portions: number;
+    creator: string;
+};
