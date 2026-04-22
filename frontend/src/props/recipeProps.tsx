@@ -1,4 +1,4 @@
-type Ingridient = {
+type ingredient = {
     name: string;
     quantity: number;
     unit: string;
@@ -6,7 +6,7 @@ type Ingridient = {
 
 export type Recipe = {
     name: string;
-    ingridients: Ingridient[] | null;
+    ingredients: ingredient[] | null;
     instructions: string | null;
     image: string | null;
 }

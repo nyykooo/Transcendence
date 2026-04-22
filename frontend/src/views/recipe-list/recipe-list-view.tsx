@@ -16,7 +16,7 @@ export default function RecipeListView() {
     const [filteredRows, setFilteredRows] = useState<RecipeRow[]>([]);
     const [defaultFilters, setDefaultFilters] = useState<RecipeListFiltersProps>({
         recipes: [],
-        ingridients: [],
+        ingredients: [],
         diets: [],
         cost: {
             min: 0,
@@ -46,7 +46,7 @@ export default function RecipeListView() {
                 const recipes = await getRecipes(user.token);
                 const mappedRows: RecipeRow[] = recipes.map((recipe: Recipe) => ({
                     recipe_name: recipe.recipe_name,
-                    ingridient_name: recipe.ingridient_name,
+                    ingredient_name: recipe.ingredient_name,
                     diet: recipe.diet,
                     cost: recipe.cost,
                     portions: recipe.portions,
@@ -82,7 +82,7 @@ export default function RecipeListView() {
             new Set<string>(
                 rows
                     .flatMap((row: RecipeRow) =>
-                        row.ingridient_name
+                        row.ingredient_name
                             .split(',')
                             .map((ingredient: string) => ingredient.trim())
                             .filter((ingredient: string) => ingredient !== ''),
@@ -103,7 +103,7 @@ export default function RecipeListView() {
 
         const _defaultFilters = {
             recipes: nameOptions,
-            ingridients: ingredientOptions,
+            ingredients: ingredientOptions,
             diets: dietOptions,
             cost: {
                 min: costs.length > 0 ? Math.min(...costs) : 0,
@@ -128,8 +128,8 @@ export default function RecipeListView() {
             const matchesRecipe = selectedFilters.recipes.length === 0 || selectedFilters.recipes.includes(row.recipe_name);
             const matchesDiet = selectedFilters.diets.length === 0 || selectedFilters.diets.includes(row.diet);
             const matchesIngredient =
-                selectedFilters.ingridients.length === 0 ||
-                row.ingridient_name.split(',').some(ingredient => selectedFilters.ingridients.includes(ingredient.trim()));
+                selectedFilters.ingredients.length === 0 ||
+                row.ingredient_name.split(',').some(ingredient => selectedFilters.ingredients.includes(ingredient.trim()));
             const matchesCost =
                 (isNaN(Number(row.cost)) || (Number(row.cost) >= selectedFilters.cost.min && Number(row.cost) <= selectedFilters.cost.max));
             const matchesPortions =
@@ -147,7 +147,7 @@ export default function RecipeListView() {
             flex: 1,
         },
         {
-            field: 'ingridient_name',
+            field: 'ingredient_name',
             headerName: 'Ingredient Name',
             flex: 2,
         },
@@ -183,7 +183,7 @@ export default function RecipeListView() {
                 <DataGrid
                     rows={filteredRows}
                     columns={columns}
-                    getRowId={(row: RecipeRow) => `${row.recipe_name}-${row.ingridient_name}`}
+                    getRowId={(row: RecipeRow) => `${row.recipe_name}-${row.ingredient_name}`}
                     loading={isLoading}
                     slots={{
                         loadingOverlay: () => (

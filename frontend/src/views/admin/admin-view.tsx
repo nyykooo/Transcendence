@@ -27,7 +27,7 @@ export default function AdminView()
     //         const recipes = await getPendingRecipes(user.token);
     //         const mappedRows: PendingRecipeRow[] = recipes.map((recipe: PendingRecipe) => ({
     //             recipe_name: recipe.recipe_name,
-    //             ingridient_name: recipe.ingridient_name,
+    //             ingredient_name: recipe.ingredient_name,
     //             diet: recipe.diet,
     //             cost: recipe.cost,
     //             portions: recipe.portions,
