@@ -9,6 +9,7 @@ function requireAuth(req, res, next) {
     try {
         req.user = jwt.verify(token, process.env.JWT_SECRET);
         req.userId = req.user.sub ?? req.user.id;
+        req.userRole = req.user.role;
         next();
     }
     catch(e) {
