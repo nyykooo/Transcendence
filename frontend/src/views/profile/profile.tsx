@@ -4,6 +4,7 @@ import { ProfileHeroCard, ProfilePageShell, ProfileStatusBanner } from './Profil
 import {
     ProfileAvatarSection,
     ProfileDetailsSection,
+    ProfileFriendsSection,
     ProfilePasswordSection,
     ProfileTwoFactorSection,
 } from './ProfileSections';
@@ -25,6 +26,8 @@ export default function Profile() {
         passwordForm,
         twoFactorCode,
         twoFactorSetup,
+        friendEmail,
+        friendsLoading,
         handleFileSelect,
         handleUpload,
         handleAvatarDelete,
@@ -33,9 +36,14 @@ export default function Profile() {
         handleTwoFactorSetup,
         handleTwoFactorVerify,
         handleTwoFactorDisable,
+        handleAddFriend,
+        handleRemoveFriend,
+        handleAcceptFriendRequest,
+        handleRejectFriendRequest,
         handleProfileFieldChange,
         handlePasswordFieldChange,
         handleTwoFactorCodeChange,
+        handleFriendEmailChange,
     } = useProfile();
 
     return (
@@ -81,6 +89,21 @@ export default function Profile() {
                         />
 
                         <Divider />
+
+                        <ProfileFriendsSection
+                            friends={user.friends || []}
+                            friendRequests={user.friendRequests || []}
+                            friendEmail={friendEmail}
+                            loading={friendsLoading}
+                            onFriendEmailChange={handleFriendEmailChange}
+                            onAddFriend={handleAddFriend}
+                            onRemoveFriend={handleRemoveFriend}
+                            onAcceptFriendRequest={handleAcceptFriendRequest}
+                            onRejectFriendRequest={handleRejectFriendRequest}
+                        />
+
+                        <Divider />
+
                         <ProfileTwoFactorSection
                             enabled={Boolean(user.twoFactorEnabled)}
                             loading={twoFactorLoading}

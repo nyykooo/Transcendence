@@ -4,6 +4,8 @@ export type ProfilePayload = Partial<ProfileUser>;
 
 export type ProfileEnvelope = {
     user?: ProfilePayload;
+    friends?: ProfilePayload['friends'];
+    requests?: ProfilePayload['friendRequests'];
     avatar?: string | null;
     qrCodeDataUrl?: string;
     manualEntryKey?: string;
@@ -23,4 +25,12 @@ export type PasswordUpdateInput = {
 
 export type TwoFactorVerifyInput = {
     token: string;
+};
+
+export type FriendRequestCreateInput = {
+    name: string;
+};
+
+export type FriendUpdateInput = {
+    email: string;
 };

@@ -2,9 +2,13 @@ import { useEffect, useState, type ChangeEvent } from 'react';
 
 import { useAuth } from '../../components/AuthProvider';
 import {
+    addProfileFriend,
+    acceptProfileFriendRequest,
     deleteProfileAvatar,
     disableProfileTwoFactor,
     fetchProfile,
+    rejectProfileFriendRequest,
+    removeProfileFriend,
     setupProfileTwoFactor,
     updatePassword,
     updateProfile,
@@ -34,6 +38,7 @@ export function useProfile() {
     const [profileLoading, setProfileLoading] = useState(false);
     const [passwordLoading, setPasswordLoading] = useState(false);
     const [twoFactorLoading, setTwoFactorLoading] = useState(false);
+    const [friendsLoading, setFriendsLoading] = useState(false);
     const [profileError, setProfileError] = useState<string | null>(null);
     const [message, setMessage] = useState<ApiMessage | null>(null);
 
@@ -41,6 +46,8 @@ export function useProfile() {
         name: 'Test User',
         email: '',
         avatar: null,
+        friends: [],
+        friendRequests: [],
     });
     const [profileForm, setProfileForm] = useState<ProfileForm>({ name: '', email: '' });
     const [passwordForm, setPasswordForm] = useState<PasswordForm>({
@@ -50,6 +57,7 @@ export function useProfile() {
     });
     const [twoFactorCode, setTwoFactorCode] = useState('');
     const [twoFactorSetup, setTwoFactorSetup] = useState<TwoFactorSetupPayload | null>(null);
+    const [friendName, setFriendName] = useState('');
 
     const handleProfileFieldChange =
         (field: keyof ProfileForm) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +73,10 @@ export function useProfile() {
 
     const handleTwoFactorCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
         setTwoFactorCode(event.target.value);
+    };
+
+    const handleFriendEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setFriendName(event.target.value);
     };
 
     useEffect(() => {
@@ -375,6 +387,127 @@ export function useProfile() {
         }
     };
 
+    const handleAddFriend = async () => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to send friend requests.' });
+            return;
+        }
+
+        const normalizedName = friendName.trim().toLowerCase();
+        if (!normalizedName) {
+            setMessage({ type: 'error', text: 'Friend name is required.' });
+            return;
+        }
+
+        setFriendsLoading(true);
+        setMessage(null);
+
+        try {
+            const nextUser = await addProfileFriend(token, { name: normalizedName }, user);
+            setUser(nextUser);
+            setFriendName('');
+            setMessage({ type: 'success', text: 'Friend request sent.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Could not send friend request.',
+            });
+        } finally {
+            setFriendsLoading(false);
+        }
+    };
+
+    const handleRemoveFriend = async (email: string) => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to remove friends.' });
+            return;
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail) {
+            setMessage({ type: 'error', text: 'Friend email is required.' });
+            return;
+        }
+
+        setFriendsLoading(true);
+        setMessage(null);
+
+        try {
+            const nextUser = await removeProfileFriend(token, { email: normalizedEmail }, user);
+            setUser(nextUser);
+            setMessage({ type: 'success', text: 'Friend removed successfully.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Could not remove friend.',
+            });
+        } finally {
+            setFriendsLoading(false);
+        }
+    };
+
+    const handleAcceptFriendRequest = async (email: string) => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to accept friend requests.' });
+            return;
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail) {
+            setMessage({ type: 'error', text: 'Requester email is required.' });
+            return;
+        }
+
+        setFriendsLoading(true);
+        setMessage(null);
+
+        try {
+            const nextUser = await acceptProfileFriendRequest(token, { email: normalizedEmail }, user);
+            setUser(nextUser);
+            setMessage({ type: 'success', text: 'Friend request accepted.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Could not accept friend request.',
+            });
+        } finally {
+            setFriendsLoading(false);
+        }
+    };
+
+    const handleRejectFriendRequest = async (email: string) => {
+        const token = getAuthToken();
+        if (!token) {
+            setMessage({ type: 'error', text: 'You need to be logged in to reject friend requests.' });
+            return;
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail) {
+            setMessage({ type: 'error', text: 'Requester email is required.' });
+            return;
+        }
+
+        setFriendsLoading(true);
+        setMessage(null);
+
+        try {
+            const nextUser = await rejectProfileFriendRequest(token, { email: normalizedEmail }, user);
+            setUser(nextUser);
+            setMessage({ type: 'success', text: 'Friend request rejected.' });
+        } catch (error) {
+            setMessage({
+                type: 'error',
+                text: error instanceof Error ? error.message : 'Could not reject friend request.',
+            });
+        } finally {
+            setFriendsLoading(false);
+        }
+    };
+
     return {
         user,
         selectedFile,
@@ -383,6 +516,7 @@ export function useProfile() {
         profileLoading,
         passwordLoading,
         twoFactorLoading,
+        friendsLoading,
         profileError,
         message,
         hasCustomAvatar: isCustomAvatar(user.avatar),
@@ -390,6 +524,7 @@ export function useProfile() {
         passwordForm,
         twoFactorCode,
         twoFactorSetup,
+        friendEmail: friendName,
         handleFileSelect,
         handleUpload,
         handleAvatarDelete,
@@ -398,8 +533,13 @@ export function useProfile() {
         handleTwoFactorSetup,
         handleTwoFactorVerify,
         handleTwoFactorDisable,
+        handleAddFriend,
+        handleRemoveFriend,
+        handleAcceptFriendRequest,
+        handleRejectFriendRequest,
         handleProfileFieldChange,
         handlePasswordFieldChange,
         handleTwoFactorCodeChange,
+        handleFriendEmailChange,
     };
 }

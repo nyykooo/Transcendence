@@ -11,6 +11,80 @@ const router = express.Router();
 
 const DEFAULT_AVATAR = '/uploads/avatars/test.webp';
 
+function normalizeFriendEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+async function loadUserFriends(userId) {
+  const ownerResult = await pool.query(
+    `SELECT friend_list
+     FROM dev_dba.users
+     WHERE id = $1
+     LIMIT 1`,
+    [userId]
+  );
+
+  if (ownerResult.rowCount === 0) {
+    return null;
+  }
+
+  const rawFriends = Array.isArray(ownerResult.rows[0].friend_list)
+    ? ownerResult.rows[0].friend_list
+    : [];
+  const normalizedFriends = rawFriends
+    .map((email) => normalizeFriendEmail(email))
+    .filter(Boolean);
+
+  if (normalizedFriends.length === 0) {
+    return [];
+  }
+
+  const friendsResult = await pool.query(
+    `SELECT id, name, email, avatar, is_active
+     FROM dev_dba.users
+     WHERE lower(email) = ANY($1::text[])
+     ORDER BY name ASC`,
+    [normalizedFriends]
+  );
+
+  return friendsResult.rows;
+}
+
+async function loadUserFriendRequests(userId) {
+  const ownerResult = await pool.query(
+    `SELECT request_list
+     FROM dev_dba.users
+     WHERE id = $1
+     LIMIT 1`,
+    [userId]
+  );
+
+  if (ownerResult.rowCount === 0) {
+    return null;
+  }
+
+  const rawRequests = Array.isArray(ownerResult.rows[0].request_list)
+    ? ownerResult.rows[0].request_list
+    : [];
+  const normalizedRequests = rawRequests
+    .map((email) => normalizeFriendEmail(email))
+    .filter(Boolean);
+
+  if (normalizedRequests.length === 0) {
+    return [];
+  }
+
+  const requestsResult = await pool.query(
+    `SELECT id, name, email, avatar, is_active
+     FROM dev_dba.users
+     WHERE lower(email) = ANY($1::text[])
+     ORDER BY name ASC`,
+    [normalizedRequests]
+  );
+
+  return requestsResult.rows;
+}
+
 let currentId = 1;
 const users = [];
 
@@ -127,6 +201,21 @@ async function loginHandler(req, res) {
 }
 
 router.post(['/Login', '/login'], loginHandler);
+
+router.put(['/Logout', '/logout'], loginHandler, (req, res) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({error: 'Unauthorized'});
+  }
+  pool.query(
+    `UPDATE dev_dba.users
+     SET is_active = false
+     WHERE id = $1`,
+    [userId]
+  );
+  return res.status(200).json({message: 'Logged out successfully'});
+});
 
 async function completeTwoFactorLoginHandler(req, res) {
   try {
@@ -369,7 +458,7 @@ router.get(['/profile' ,'/auth'], requireAuthWithRateLimit, async (req, res) => 
       }
 
       const result = await pool.query(
-        `SELECT id, email, name, avatar, is_active, role
+        `SELECT id, email, name, avatar, is_active, role, two_factor_enabled
          FROM dev_dba.users
          WHERE id = $1
          LIMIT 1`,
@@ -380,12 +469,469 @@ router.get(['/profile' ,'/auth'], requireAuthWithRateLimit, async (req, res) => 
         return res.status(404).json({ error: 'User not found' });
       }
 
-      return res.json({ message: 'ok', user: result.rows[0] });
+      const friends = await loadUserFriends(userId);
+      if (friends === null) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const friendRequests = await loadUserFriendRequests(userId);
+      if (friendRequests === null) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      return res.json({
+        message: 'ok',
+        user: {
+          ...result.rows[0],
+          friends,
+          friendRequests,
+        },
+      });
     } catch (error) {
       console.log('[GET /profile] unexpected error:', error);
       return res.status(500).json({ error: 'Failed to load profile' });
     }
 })
+
+router.get('/profile/friends', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const friends = await loadUserFriends(userId);
+    if (friends === null) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json({ message: 'Friends loaded', friends });
+  } catch (error) {
+    console.error('[GET /profile/friends] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to load friends' });
+  }
+});
+
+router.post('/profile/friends', requireAuthWithRateLimit, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const targetName = String(req.body?.name || '').trim().toLowerCase();
+    if (!targetName) {
+      return res.status(400).json({ error: 'Friend name is required' });
+    }
+
+    await client.query('BEGIN');
+
+    const requesterResult = await client.query(
+      `SELECT id, email, name, friend_list, request_list
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1
+       FOR UPDATE`,
+      [userId]
+    );
+
+    if (requesterResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const requesterEmail = normalizeFriendEmail(requesterResult.rows[0].email);
+
+    const targetResult = await client.query(
+      `SELECT id, email, name, friend_list, request_list
+       FROM dev_dba.users
+       WHERE lower(name) = $1
+       LIMIT 1
+       FOR UPDATE`,
+      [targetName]
+    );
+
+    if (targetResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Friend user not found' });
+    }
+
+    const friendId = targetResult.rows[0].id;
+    if (friendId === userId) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'You cannot add yourself as a friend' });
+    }
+    const friendEmail = normalizeFriendEmail(targetResult.rows[0].email);
+
+    const requesterFriendList = Array.isArray(requesterResult.rows[0].friend_list)
+      ? requesterResult.rows[0].friend_list.map((email) => normalizeFriendEmail(email))
+      : [];
+    const targetFriendList = Array.isArray(targetResult.rows[0].friend_list)
+      ? targetResult.rows[0].friend_list.map((email) => normalizeFriendEmail(email))
+      : [];
+
+    if (requesterFriendList.includes(friendEmail) || targetFriendList.includes(requesterEmail)) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'You are already friends' });
+    }
+
+    const requesterIncoming = Array.isArray(requesterResult.rows[0].request_list)
+      ? requesterResult.rows[0].request_list.map((email) => normalizeFriendEmail(email))
+      : [];
+    if (requesterIncoming.includes(friendEmail)) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'This user already sent you a friend request. Accept it from your requests list.' });
+    }
+
+    const targetIncoming = Array.isArray(targetResult.rows[0].request_list)
+      ? targetResult.rows[0].request_list.map((email) => normalizeFriendEmail(email))
+      : [];
+    if (targetIncoming.includes(requesterEmail)) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Friend request already sent' });
+    }
+
+    await client.query(
+      `UPDATE dev_dba.users
+       SET request_list = CASE
+         WHEN $2 = ANY(COALESCE(request_list, '{}'::text[])) THEN COALESCE(request_list, '{}'::text[])
+         ELSE array_append(COALESCE(request_list, '{}'::text[]), $2)
+       END
+       WHERE id = $1`,
+      [friendId, requesterEmail]
+    );
+
+    await client.query('COMMIT');
+
+    const profileResult = await pool.query(
+      `SELECT id, email, name, avatar, is_active, role, two_factor_enabled
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+      [userId]
+    );
+    const friends = await loadUserFriends(userId);
+    const friendRequests = await loadUserFriendRequests(userId);
+
+    return res.status(200).json({
+      message: 'Friend request sent',
+      user: {
+        ...profileResult.rows[0],
+        friends: friends || [],
+        friendRequests: friendRequests || [],
+      },
+    });
+  } catch (error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {}
+    console.error('[POST /profile/friends] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to send friend request' });
+  } finally {
+    client.release();
+  }
+});
+
+router.get('/profile/friends/requests', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const requests = await loadUserFriendRequests(userId);
+    if (requests === null) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json({ message: 'Friend requests loaded', requests });
+  } catch (error) {
+    console.error('[GET /profile/friends/requests] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to load friend requests' });
+  }
+});
+
+router.post('/profile/friends/requests/accept', requireAuthWithRateLimit, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const requesterEmailFromBody = normalizeFriendEmail(req.body?.email);
+    if (!requesterEmailFromBody) {
+      return res.status(400).json({ error: 'Requester email is required' });
+    }
+
+    await client.query('BEGIN');
+
+    const currentUserResult = await client.query(
+      `SELECT id, email, friend_list, request_list
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1
+       FOR UPDATE`,
+      [userId]
+    );
+
+    if (currentUserResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const currentUserEmail = normalizeFriendEmail(currentUserResult.rows[0].email);
+    if (requesterEmailFromBody === currentUserEmail) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'You cannot accept your own request' });
+    }
+
+    const requesterResult = await client.query(
+      `SELECT id, email, friend_list
+       FROM dev_dba.users
+       WHERE lower(email) = $1
+       LIMIT 1
+       FOR UPDATE`,
+      [requesterEmailFromBody]
+    );
+
+    if (requesterResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Requester user not found' });
+    }
+
+    const requesterId = requesterResult.rows[0].id;
+    const requesterEmail = normalizeFriendEmail(requesterResult.rows[0].email);
+
+    const currentUserRequests = Array.isArray(currentUserResult.rows[0].request_list)
+      ? currentUserResult.rows[0].request_list.map((email) => normalizeFriendEmail(email))
+      : [];
+
+    if (!currentUserRequests.includes(requesterEmail)) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'No pending friend request from this user' });
+    }
+
+    await client.query(
+      `UPDATE dev_dba.users
+       SET request_list = array_remove(COALESCE(request_list, '{}'::text[]), $2),
+           friend_list = CASE
+             WHEN $2 = ANY(COALESCE(friend_list, '{}'::text[])) THEN COALESCE(friend_list, '{}'::text[])
+             ELSE array_append(COALESCE(friend_list, '{}'::text[]), $2)
+           END
+       WHERE id = $1`,
+      [userId, requesterEmail]
+    );
+
+    await client.query(
+      `UPDATE dev_dba.users
+       SET friend_list = CASE
+         WHEN $2 = ANY(COALESCE(friend_list, '{}'::text[])) THEN COALESCE(friend_list, '{}'::text[])
+         ELSE array_append(COALESCE(friend_list, '{}'::text[]), $2)
+       END
+       WHERE id = $1`,
+      [requesterId, currentUserEmail]
+    );
+
+    await client.query('COMMIT');
+
+    const profileResult = await pool.query(
+      `SELECT id, email, name, avatar, is_active, role, two_factor_enabled
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+      [userId]
+    );
+    const friends = await loadUserFriends(userId);
+    const friendRequests = await loadUserFriendRequests(userId);
+
+    return res.status(200).json({
+      message: 'Friend request accepted',
+      user: {
+        ...profileResult.rows[0],
+        friends: friends || [],
+        friendRequests: friendRequests || [],
+      },
+    });
+  } catch (error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {}
+    console.error('[POST /profile/friends/requests/accept] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to accept friend request' });
+  } finally {
+    client.release();
+  }
+});
+
+router.delete('/profile/friends/requests', requireAuthWithRateLimit, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const requesterEmailFromBody = normalizeFriendEmail(req.body?.email);
+    if (!requesterEmailFromBody) {
+      return res.status(400).json({ error: 'Requester email is required' });
+    }
+
+    await client.query('BEGIN');
+
+    const currentUserResult = await client.query(
+      `SELECT id, email, request_list
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1
+       FOR UPDATE`,
+      [userId]
+    );
+
+    if (currentUserResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const currentUserEmail = normalizeFriendEmail(currentUserResult.rows[0].email);
+    if (requesterEmailFromBody === currentUserEmail) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Invalid requester email' });
+    }
+
+    await client.query(
+      `UPDATE dev_dba.users
+       SET request_list = array_remove(COALESCE(request_list, '{}'::text[]), $2)
+       WHERE id = $1`,
+      [userId, requesterEmailFromBody]
+    );
+
+    await client.query('COMMIT');
+
+    const profileResult = await pool.query(
+      `SELECT id, email, name, avatar, is_active, role, two_factor_enabled
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+      [userId]
+    );
+    const friends = await loadUserFriends(userId);
+    const friendRequests = await loadUserFriendRequests(userId);
+
+    return res.status(200).json({
+      message: 'Friend request removed',
+      user: {
+        ...profileResult.rows[0],
+        friends: friends || [],
+        friendRequests: friendRequests || [],
+      },
+    });
+  } catch (error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {}
+    console.error('[DELETE /profile/friends/requests] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to remove friend request' });
+  } finally {
+    client.release();
+  }
+});
+
+router.delete('/profile/friends', requireAuthWithRateLimit, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const targetEmail = normalizeFriendEmail(req.body?.email);
+    if (!targetEmail) {
+      return res.status(400).json({ error: 'Friend email is required' });
+    }
+
+    await client.query('BEGIN');
+
+    const requesterResult = await client.query(
+      `SELECT id, email
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1
+       FOR UPDATE`,
+      [userId]
+    );
+
+    if (requesterResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const requesterEmail = normalizeFriendEmail(requesterResult.rows[0].email);
+    if (targetEmail === requesterEmail) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'You cannot remove yourself' });
+    }
+
+    const targetResult = await client.query(
+      `SELECT id, email
+       FROM dev_dba.users
+       WHERE lower(email) = $1
+       LIMIT 1
+       FOR UPDATE`,
+      [targetEmail]
+    );
+
+    if (targetResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Friend user not found' });
+    }
+
+    const friendId = targetResult.rows[0].id;
+    const friendEmail = normalizeFriendEmail(targetResult.rows[0].email);
+
+    await client.query(
+      `UPDATE dev_dba.users
+       SET friend_list = array_remove(COALESCE(friend_list, '{}'::text[]), $2)
+       WHERE id = $1`,
+      [userId, friendEmail]
+    );
+
+    await client.query(
+      `UPDATE dev_dba.users
+       SET friend_list = array_remove(COALESCE(friend_list, '{}'::text[]), $2)
+       WHERE id = $1`,
+      [friendId, requesterEmail]
+    );
+
+    await client.query('COMMIT');
+
+    const profileResult = await pool.query(
+      `SELECT id, email, name, avatar, is_active, role, two_factor_enabled
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+      [userId]
+    );
+    const friends = await loadUserFriends(userId);
+
+    return res.status(200).json({
+      message: 'Friend removed',
+      user: {
+        ...profileResult.rows[0],
+        friends: friends || [],
+      },
+    });
+  } catch (error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {}
+    console.error('[DELETE /profile/friends] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to remove friend' });
+  } finally {
+    client.release();
+  }
+});
 
 router.post('/profile/avatar', requireAuthWithRateLimit, upload.single('avatar'), async (req, res) => {
     // This route will:

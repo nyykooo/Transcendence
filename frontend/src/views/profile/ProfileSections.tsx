@@ -1,9 +1,10 @@
 import { Box } from '@mui/material';
 
-import { ProfileActionButton, ProfileAvatarPanel, ProfileField, ProfileFormStack, ProfileSectionCard, ProfileSectionNote, ProfileTwoFactorPanel } from './ProfileComponents';
+import { ProfileActionButton, ProfileAvatarPanel, ProfileField, ProfileFormStack, ProfileFriendsPanel, ProfileSectionCard, ProfileSectionNote, ProfileTwoFactorPanel } from './ProfileComponents';
 import type {
     ProfileAvatarSectionProps,
     ProfileDetailsSectionProps,
+    ProfileFriendsSectionProps,
     ProfilePasswordSectionProps,
     ProfileTwoFactorSectionProps,
 } from '../../props/profile/sectionProps';
@@ -108,6 +109,32 @@ export function ProfileTwoFactorSection({
             onSetup={onSetup}
             onVerify={onVerify}
             onDisable={onDisable}
+        />
+    );
+}
+
+export function ProfileFriendsSection({
+    friends,
+    friendRequests,
+    friendEmail,
+    loading,
+    onFriendEmailChange,
+    onAddFriend,
+    onRemoveFriend,
+    onAcceptFriendRequest,
+    onRejectFriendRequest,
+}: ProfileFriendsSectionProps) {
+    return (
+        <ProfileFriendsPanel
+            friends={friends}
+            friendRequests={friendRequests}
+            friendEmail={friendEmail}
+            loading={loading}
+            onFriendEmailChange={onFriendEmailChange}
+            onAddFriend={onAddFriend}
+            onRemoveFriend={onRemoveFriend}
+            onAcceptFriendRequest={onAcceptFriendRequest}
+            onRejectFriendRequest={onRejectFriendRequest}
         />
     );
 }

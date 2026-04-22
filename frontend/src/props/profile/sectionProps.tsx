@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 
-import type { PasswordForm, ProfileForm, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
+import type { FriendUser, PasswordForm, ProfileForm, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
 
 export type ProfileAvatarSectionProps = {
     user: ProfileUser;
@@ -36,4 +36,16 @@ export type ProfileTwoFactorSectionProps = {
     onSetup: () => void;
     onVerify: () => void;
     onDisable: () => void;
+};
+
+export type ProfileFriendsSectionProps = {
+    friends: FriendUser[];
+    friendRequests: FriendUser[];
+    friendEmail: string;
+    loading: boolean;
+    onFriendEmailChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    onAddFriend: () => void;
+    onRemoveFriend: (email: string) => void;
+    onAcceptFriendRequest: (email: string) => void;
+    onRejectFriendRequest: (email: string) => void;
 };
