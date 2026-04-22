@@ -31,7 +31,7 @@ export default function Settings()
     }
   }
 
-  const pages = [{name: 'Profile', function: () => navigate('/profile')}, {name: 'Settings', function: () => navigate('/settings')}, {name: 'Logout', function: execLogout}];
+  const pages = [{name: 'Profile', function: () => navigate('/profile')}, {name: 'Settings', function: () => navigate('/settings')}, {name: 'File Management', function: () => navigate('/file-management')}, {name: 'Logout', function: execLogout}];
     
   const DrawerList = (
     <Box sx={{ width: '25%', minWidth: 250 }} role="presentation" onClick={toggleDrawer(false)}>
