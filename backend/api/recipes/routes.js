@@ -71,10 +71,6 @@ router.get(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateL
     if (!req.userId) {
         return res.status(401).json({error: 'Unauthorized'});
     }
-    // if (req.userRole !== 'admin') {
-    //     return res.status(403).json({error: 'Forbidden'});
-    // }
- 
     const query = `
         SELECT
             r.author,
@@ -100,6 +96,9 @@ router.get(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateL
 });
 
 router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (req, res) => {
+    if(req.user.role !== 'admin') {
+        return res.status(403).json({error: 'Forbidden: user is not an admin'});
+    }
     const body = req.body || {};
     if (!body.name)
         return res.status(400).json({error: 'name is required'});
@@ -358,6 +357,9 @@ router.get(['/pending/recipes/:name', '/pending/RecipeView/:name'], requireAuthW
 })
 
 router.put(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
+    if(req.user.role !== 'admin') {
+        return res.status(403).json({error: 'Forbidden: user is not an admin'});
+    }
     const name = decodeURIComponent(req.params.name);
     if (!name) {
         return res.status(400).json({error: 'Invalid recipe name'});
@@ -523,6 +525,9 @@ router.put(['/pending/recipes/:name', '/pending/RecipeView/:name'], requireAuthW
 // Still need to change this to use the DB
 
 router.delete(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
+    if(req.user.role !== 'admin') {
+      return res.status(403).json({error: 'Forbidden: user is not an admin'});
+    }
     const name = decodeURIComponent(req.params.name);
     if (!name) {
         return res.status(400).json({error: 'Invalid recipe name'});
