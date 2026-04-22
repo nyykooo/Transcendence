@@ -202,13 +202,13 @@ async function loginHandler(req, res) {
 
 router.post(['/Login', '/login'], loginHandler);
 
-router.put(['/Logout', '/logout'], loginHandler, (req, res) => {
+router.put(['/Logout', '/logout'], requireAuthWithRateLimit, async (req, res) => {
   const userId = req.user?.id;
 
   if (!userId) {
     return res.status(401).json({error: 'Unauthorized'});
   }
-  pool.query(
+  await pool.query(
     `UPDATE dev_dba.users
      SET is_active = false
      WHERE id = $1`,
@@ -379,6 +379,19 @@ router.put(['/profile'], requireAuthWithRateLimit, async (req, res) => {
     if (!name || !normalizedEmail) {
       return res.status(400).json({error: 'name and email required'});
     }
+    const result = await pool.query(
+        `SELECT id, email, password , name, avatar, is_active, git_id
+         FROM dev_dba.users
+         WHERE id = $1
+         LIMIT 1`,
+        [userId]
+      );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const user = result.rows[0];
+    if (user.git_id)
+      return res.status(400).json({error: 'Profile cannot be changed for users registered via GitHub OAuth'});
 
     const updated = await pool.query(
       ` UPDATE dev_dba.users
@@ -411,7 +424,7 @@ router.put(['/profile/password'], requireAuthWithRateLimit, async (req, res) => 
       return res.status(401).json({error: 'Unauthorized'});
     }
     const result = await pool.query(
-        `SELECT id, email, password , name, avatar, is_active
+        `SELECT id, email, password , name, avatar, is_active, git_id
          FROM dev_dba.users
          WHERE id = $1
          LIMIT 1`,
@@ -422,6 +435,8 @@ router.put(['/profile/password'], requireAuthWithRateLimit, async (req, res) => 
       return res.status(404).json({ error: 'User not found' });
     }
     const user = result.rows[0];
+    if (user.git_id)
+      return res.status(400).json({error: 'Password cannot be changed for users registered via GitHub OAuth'});
     const currentPassword = String(req.body?.currentPassword || '');
     const newPassword = String(req.body?.newPassword || '');
     if (!newPassword || !currentPassword)
@@ -994,7 +1009,7 @@ async function setupTwoFactorHandler(req, res) {
       return res.status(401).json({error: 'Unauthorized'});
     }
     const userResult = await pool.query (
-      `SELECT id, email, two_factor_enabled
+      `SELECT id, email, two_factor_enabled, git_id
       FROM dev_dba.users
       WHERE id = $1
       LIMIT 1`,
@@ -1005,6 +1020,10 @@ async function setupTwoFactorHandler(req, res) {
     }
 
     const user = userResult.rows[0];
+    if (user.git_id) {
+      return res.status(400).json({error: '2FA cannot be changed for users registered via GitHub OAuth'});
+    }
+
     if (user.two_factor_enabled) {
       return res.status(409).json({error: '2FA is already enabled'});
     }
@@ -1046,7 +1065,7 @@ async function verifyTwoFactorSetupHandler(req, res) {
     }
 
     const userResult = await pool.query(
-      `SELECT id, two_factor_enabled, two_factor_temp_secret
+      `SELECT id, two_factor_enabled, two_factor_temp_secret, git_id
       FROM dev_dba.users
       WHERE id = $1
       LIMIT 1`,
@@ -1058,6 +1077,10 @@ async function verifyTwoFactorSetupHandler(req, res) {
     }
 
     const user = userResult.rows[0];
+    if (user.git_id) {
+      return res.status(400).json({ error: '2FA cannot be changed for users registered via GitHub OAuth' });
+    }
+
     if (user.two_factor_enabled) {
       return res.status(409).json({ error: '2FA is already enabled'});
     }
@@ -1103,7 +1126,7 @@ async function disableTwoFactorHandler(req, res) {
     }
 
     const userResult = await pool.query(
-      `SELECT id, two_factor_enabled, two_factor_secret
+      `SELECT id, two_factor_enabled, two_factor_secret, git_id
        FROM dev_dba.users
        WHERE id = $1
        LIMIT 1`,
@@ -1114,6 +1137,10 @@ async function disableTwoFactorHandler(req, res) {
     }
 
     const user = userResult.rows[0];
+    if (user.git_id) {
+      return res.status(400).json({ error: '2FA cannot be changed for users registered via GitHub OAuth' });
+    }
+
     if (!user.two_factor_enabled || !user.two_factor_secret) {
       return res.status(400).json({ error: '2FA is not enabled' });
     }
@@ -1262,7 +1289,7 @@ router.get('/auth/github/callback', async (req, res) => {
 
     let user;
     const existing = await pool.query(
-      `SELECT id, email, name, avatar, is_active
+      `SELECT id, email, name, avatar, is_active, git_id, role
        FROM dev_dba.users
        WHERE lower(email) = $1
        LIMIT 1`,
@@ -1274,10 +1301,10 @@ router.get('/auth/github/callback', async (req, res) => {
     } else {
       const hashPass = await bcrypt.hash(ghUser.name || ghUser.login, 10);
       const created = await pool.query(
-        `INSERT INTO dev_dba.users (name, password, email, avatar, is_active, last_login)
-         VALUES ($1, $2, $3, $4, true, NOW())
+        `INSERT INTO dev_dba.users (name, password, email, avatar, is_active, last_login, git_id)
+         VALUES ($1, $2, $3, $4, true, NOW(), $5)
          RETURNING id, email, name, avatar, is_active, role`,
-        [ghUser.name || ghUser.login, hashPass, normalizedEmail, DEFAULT_AVATAR]
+        [ghUser.name || ghUser.login, hashPass, normalizedEmail, DEFAULT_AVATAR, ghUser.id]
       );
       // git_id is not stored, but could be added to the users table if needed for future features
       user = created.rows[0];
