@@ -37,6 +37,7 @@ services:
       - "3443:3443"
     volumes:
       - ./frontend/tools/certs:/etc/ssl/certs:ro
+      - uploads_data:/app/uploads
     networks:
       - transcendence
 
@@ -156,6 +157,7 @@ volumes:
     postgres_data:
     pgadmin_data:
     grafana_data:
+    uploads_data:
 
 networks:
   transcendence:

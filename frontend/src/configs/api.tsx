@@ -4,6 +4,7 @@ export const api = {
     checkToken: `${API_BASE_URL}/auth`,
     login: `${API_BASE_URL}/login`,
     login2fa: `${API_BASE_URL}/login/2fa`,
+    logout: `${API_BASE_URL}/logout`,
     githubAuth: `${API_BASE_URL}/auth/github`,
     register: `${API_BASE_URL}/register`,
     recipe: `${API_BASE_URL}/recipes/`,

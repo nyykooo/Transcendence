@@ -7,6 +7,7 @@ import Logo from './Logo';
 import { useNavigate } from 'react-router';
 
 import { useAuth } from '../components/AuthProvider';
+import { logout } from '../api/settings';
 
 export default function Settings() 
 {
@@ -19,10 +20,15 @@ export default function Settings()
       setOpen(open);
   }
 
-  const execLogout = () => {
-    // remover token do localStorage e do context do user
-    signOut();
-    navigate('/login');
+  const execLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Failed to logout from backend:', error);
+    } finally {
+      signOut();
+      navigate('/login');
+    }
   }
 
   const pages = [{name: 'Profile', function: () => navigate('/profile')}, {name: 'Settings', function: () => navigate('/settings')}, {name: 'Logout', function: execLogout}];
