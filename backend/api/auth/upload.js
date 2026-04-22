@@ -18,11 +18,14 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedDocTypes = ['text/csv', 'application/json', 'application/vnd.ms-excel'];
+    const allowedTypes = [...allowedImageTypes, ...allowedDocTypes];
+    
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Only image files allowed'), false);
+        cb(new Error('Only image or document files allowed (images: JPEG, PNG, GIF, WebP; documents: CSV, JSON)'), false);
     }
 };
 

@@ -12,6 +12,7 @@ import {
   Profile
  }  from "../views/index";
 import ProtectedRoute from "../components/ProtectedRoute";
+import FileManagement from "../components/FileManagement";
 
 export default function Router() {
   return (
@@ -24,6 +25,7 @@ export default function Router() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/file-management" element={<ProtectedRoute><FileManagement /></ProtectedRoute>} />
       <Route path="/auth/github/callback" element={<GithubCallback />} />
       <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
     </Routes>

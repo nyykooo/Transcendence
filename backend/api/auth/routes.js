@@ -3,10 +3,12 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const axios = require('axios');
 const path = require('path')
+const fs = require('fs').promises;
 const { pool } = require('../db');
 const { requireAuth, requireAuthWithRateLimit } = require('./requireAuth');
 const { upload, removeFileIfExists, uploadDir } = require('./upload');
 const { generateTotpSecret, buildQrCodeDataUrl, verifyTotpToken } = require('./twoFactorService');
+const { validateRecipes, parseCSV, parseJSON } = require('./importExport');
 const router = express.Router();
 
 const DEFAULT_AVATAR = '/uploads/avatars/test.webp';
@@ -1337,6 +1339,202 @@ router.get('/users', requireAuthWithRateLimit, async (req, res) => {
   } catch (error) {
     console.log('[GET /users] unexpected error:', error);
     return res.status(500).json({ error: 'Failed to load users' });
+  }
+});
+
+// ========== FILE MANAGEMENT ENDPOINTS ==========
+
+router.get('/profile/files', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    const userId = req.userId ?? req.user?.id;
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
+
+    // List files in uploads directory (documents only, not avatars)
+    try {
+      const files = await fs.readdir(uploadDir);
+      const docFiles = files.filter(f => f.endsWith('.csv') || f.endsWith('.json'));
+      
+      const fileStats = await Promise.all(
+        docFiles.map(async (filename) => {
+          const stats = await fs.stat(path.join(uploadDir, filename));
+          return {
+            filename,
+            size: stats.size,
+            uploadedAt: stats.birthtime,
+            type: filename.endsWith('.csv') ? 'csv' : 'json',
+          };
+        })
+      );
+
+      return res.status(200).json({ files: fileStats });
+    } catch (err) {
+      return res.status(200).json({ files: [] });
+    }
+  } catch (error) {
+    console.error('[GET /profile/files] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to load files'});
+  }
+});
+
+router.post('/profile/files', requireAuthWithRateLimit, upload.single('file'), async (req, res) => {
+  try {
+    const userId = req.userId ?? req.user?.id;
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
+
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({error: 'No file uploaded'});
+    }
+
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+    
+    return res.status(200).json({
+      message: 'File uploaded successfully',
+      file: {
+        filename: file.filename,
+        originalName: file.originalname,
+        size: file.size,
+        type: file.mimetype,
+        url: fileUrl,
+      },
+    });
+  } catch (error) {
+    console.error('[POST /profile/files] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to upload file'});
+  }
+});
+
+router.delete('/profile/files/:filename', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    const userId = req.userId ?? req.user?.id;
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
+
+    const { filename } = req.params;
+    
+    // Prevent directory traversal
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({error: 'Invalid filename'});
+    }
+
+    const filePath = path.join(uploadDir, filename);
+    
+    try {
+      await fs.unlink(filePath);
+      return res.status(200).json({message: 'File deleted successfully'});
+    } catch (err) {
+      return res.status(404).json({error: 'File not found'});
+    }
+  } catch (error) {
+    console.error('[DELETE /profile/files/:filename] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to delete file'});
+  }
+});
+
+// ========== RECIPE IMPORT ENDPOINT ==========
+
+router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), async (req, res) => {
+  try {
+    const userId = req.userId ?? req.user?.id;
+    if (!userId) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
+
+    const currentUserResult = await pool.query(
+      `SELECT name
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+      [userId]
+    );
+
+    const currentUserName = currentUserResult.rows[0]?.name || null;
+    if (!currentUserName) {
+      return res.status(404).json({error: 'User not found'});
+    }
+
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({error: 'No file uploaded'});
+    }
+
+    // Read file content
+    const fileContent = await fs.readFile(file.path, 'utf-8');
+    
+    // Parse based on file type
+    let recipes = [];
+    if (file.mimetype === 'text/csv') {
+      recipes = parseCSV(fileContent);
+    } else if (file.mimetype === 'application/json') {
+      recipes = parseJSON(fileContent);
+    } else {
+      return res.status(400).json({error: 'Only CSV or JSON files are supported'});
+    }
+
+    // Validate recipes
+    const validationResults = validateRecipes(recipes);
+    const validRecipes = validationResults.filter(r => r.valid);
+    const invalidRecipes = validationResults.filter(r => !r.valid);
+
+    // Insert valid recipes into pending_recipes
+    let insertedCount = 0;
+    const errors = [];
+
+    for (const result of validRecipes) {
+      try {
+        const recipe = result.recipe;
+        const author = currentUserName;
+        await pool.query(
+          `INSERT INTO public.pending_recipes (name, ingredients, diet, cost, portions, prep_time, cooking_time, instructions, url, author, status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')`,
+          [
+            recipe.name,
+            JSON.stringify(recipe.ingredients),
+            recipe.diet || 'Vegan',
+            recipe.cost || 0,
+            recipe.portions || 1,
+            recipe.prep_time || null,
+            recipe.cooking_time || null,
+            recipe.instructions || null,
+            recipe.url || null,
+            author,
+          ]
+        );
+        insertedCount++;
+      } catch (err) {
+        errors.push(`Row ${result.index}: ${err.message}`);
+      }
+    }
+
+    // Clean up uploaded file
+    try {
+      await fs.unlink(file.path);
+    } catch {}
+
+    return res.status(200).json({
+      message: `Import completed: ${insertedCount} recipes imported`,
+      stats: {
+        total: recipes.length,
+        imported: insertedCount,
+        failed: invalidRecipes.length + errors.length,
+      },
+      failures: {
+        invalid: invalidRecipes.map(r => ({
+          index: r.index,
+          recipe: r.recipe.name,
+          errors: r.errors,
+        })),
+        insertErrors: errors.length > 0 ? errors : undefined,
+      },
+    });
+  } catch (error) {
+    console.error('[POST /recipes/import] unexpected error:', error);
+    return res.status(500).json({error: 'Failed to import recipes'});
   }
 });
 
