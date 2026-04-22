@@ -88,6 +88,7 @@ EMAIL1="chef.${RUN_ID}@test.com"
 EMAIL2="hacker.${RUN_ID}@test.com"
 PASS1="cook123"
 PASS2="hack123"
+RECIPE_NAME="Tropical Curd Pancake ${RUN_ID}"
 
 step "[1] TLS + root route check (expected 404 on /)..."
 mapfile -t TLS_ROOT < <(request_with_code "$BASE_URL/")
@@ -97,7 +98,7 @@ echo ""
 step "[2] Register user #1..."
 mapfile -t REG1 < <(request_with_code -X POST "${BASE_URL}/register" \
   -H "Content-Type: application/json" \
-  -d "{\"email\":\"${EMAIL1}\",\"password\":\"${PASS1}\",\"name\":\"Chef Warlord\"}")
+  -d "{\"email\":\"${EMAIL1}\",\"password\":\"${PASS1}\",\"name\":\"Chef Warlord ${RUN_ID}\"}")
 print_json_or_raw "${REG1[0]}"
 assert_code "${REG1[-1]}" "200" "Register user #1"
 TOKEN1=$(echo "${REG1[0]}" | jq -r '.token // empty')
@@ -165,21 +166,22 @@ assert_code "${AUTH_OK[-1]}" "200" "Auth with valid token"
 echo ""
 
 step "[8] Create recipe with token..."
-mapfile -t CREATE < <(request_with_code -X POST "${BASE_URL}/recipes" \
+mapfile -t CREATE < <(request_with_code -X POST "${BASE_URL}/pending/recipes" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN1" \
-  -d '{"name":"Pasta Carbonara","instructions":"Eggs, cheese, guanciale, pepper"}')
+  -d "{\"name\":\"${RECIPE_NAME}\",\"ingredients\":[{\"name\":\"Kiwi\",\"unit\":\"g\",\"quantity\":22},{\"name\":\"Pineapple\",\"unit\":\"g\",\"quantity\":56}]}")
 print_json_or_raw "${CREATE[0]}"
 assert_code "${CREATE[-1]}" "201" "Create recipe"
-RECIPE_ID=$(echo "${CREATE[0]}" | jq -r '.id // empty')
-if [[ -z "$RECIPE_ID" ]]; then
-    echo -e "${RED}Recipe ID missing. Exiting.${NC}"
+RECIPE_NAME_CREATED=$(echo "${CREATE[0]}" | jq -r '.name // empty')
+if [[ -z "$RECIPE_NAME_CREATED" ]]; then
+    echo -e "${RED}Recipe name missing. Exiting.${NC}"
     exit 1
 fi
+RECIPE_NAME_ENC=$(jq -nr --arg name "$RECIPE_NAME_CREATED" '$name|@uri')
 echo ""
 
 step "[8b] Create recipe without token (expected 401)..."
-mapfile -t CREATE_NO_TOKEN < <(request_with_code -X POST "${BASE_URL}/recipes" \
+mapfile -t CREATE_NO_TOKEN < <(request_with_code -X POST "${BASE_URL}/pending/recipes" \
   -H "Content-Type: application/json" \
   -d '{"name":"No Token Recipe"}')
 print_json_or_raw "${CREATE_NO_TOKEN[0]}"
@@ -187,7 +189,7 @@ assert_code "${CREATE_NO_TOKEN[-1]}" "401" "Create without token"
 echo ""
 
 step "[8c] Create recipe missing name (expected 400)..."
-mapfile -t CREATE_BAD < <(request_with_code -X POST "${BASE_URL}/recipes" \
+mapfile -t CREATE_BAD < <(request_with_code -X POST "${BASE_URL}/pending/recipes" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN1" \
   -d '{"instructions":"Only instructions"}')
@@ -196,14 +198,14 @@ assert_code "${CREATE_BAD[-1]}" "400" "Create missing name"
 echo ""
 
 step "[9] List recipes with valid token..."
-mapfile -t LIST_OK < <(request_with_code "$BASE_URL/recipes" \
+mapfile -t LIST_OK < <(request_with_code "$BASE_URL/pending/recipes" \
   -H "Authorization: Bearer $TOKEN1")
 print_json_or_raw "${LIST_OK[0]}"
 assert_code "${LIST_OK[-1]}" "200" "List recipes"
 echo ""
 
 step "[10] Invalid JSON payload (expected 400)..."
-mapfile -t BAD_JSON < <(request_with_code -X POST "${BASE_URL}/recipes" \
+mapfile -t BAD_JSON < <(request_with_code -X POST "${BASE_URL}/pending/recipes" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN1" \
   -d '{"name":')
@@ -214,7 +216,7 @@ echo ""
 step "[11] Register + login user #2..."
 mapfile -t REG2 < <(request_with_code -X POST "${BASE_URL}/register" \
   -H "Content-Type: application/json" \
-  -d "{\"email\":\"${EMAIL2}\",\"password\":\"${PASS2}\",\"name\":\"Recipe Thief\"}")
+  -d "{\"email\":\"${EMAIL2}\",\"password\":\"${PASS2}\",\"name\":\"Recipe Thief ${RUN_ID}\"}")
 assert_code "${REG2[-1]}" "200" "Register user #2"
 mapfile -t LOGIN2 < <(request_with_code -X POST "${BASE_URL}/login" \
   -H "Content-Type: application/json" \
@@ -229,7 +231,7 @@ fi
 echo ""
 
 step "[12] Forbidden update with user #2 (expected 403)..."
-mapfile -t FORBIDDEN_UPDATE < <(request_with_code -X PUT "${BASE_URL}/recipes/$RECIPE_ID" \
+mapfile -t FORBIDDEN_UPDATE < <(request_with_code -X PUT "${BASE_URL}/pending/recipes/$RECIPE_NAME_ENC" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN2" \
   -d '{"name":"Hacked Recipe"}')
@@ -238,7 +240,7 @@ assert_code "${FORBIDDEN_UPDATE[-1]}" "403" "Forbidden update"
 echo ""
 
 step "[13] Unsupported method + invalid route..."
-mapfile -t BAD_METHOD < <(request_with_code -X PATCH "${BASE_URL}/recipes" \
+mapfile -t BAD_METHOD < <(request_with_code -X PATCH "${BASE_URL}/pending/recipes" \
   -H "Authorization: Bearer $TOKEN1")
 print_json_or_raw "${BAD_METHOD[0]}"
 assert_code "${BAD_METHOD[-1]}" "404" "Unsupported PATCH route"
