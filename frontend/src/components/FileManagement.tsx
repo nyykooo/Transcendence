@@ -21,14 +21,17 @@ import {
     Paper,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import DeleteIcon from '@mui/icons-material/Delete';
 
-import { uploadFile, deleteFile, importRecipes, listFiles } from '../api/fileManagement';
-import type { FileUploadProgress, RecipeImportResponse, FileInfo, RecipeImportResult } from '../props/fileManagement/fileProps';
+import { uploadFile, importRecipes } from '../api/fileManagement';
+import type { FileUploadProgress, RecipeImportResponse, RecipeImportResult } from '../props/fileManagement/fileProps';
+
+const MIN_PROGRESS_VISIBLE_MS = 1000;
+
+function wait(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export default function FileManagement() {
-    const [files, setFiles] = useState<FileInfo[]>([]);
-    const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState<FileUploadProgress | null>(null);
     const [previewData, setPreviewData] = useState<RecipeImportResult[] | null>(null);
@@ -36,24 +39,6 @@ export default function FileManagement() {
     const [showPreview, setShowPreview] = useState(false);
     const [importResult, setImportResult] = useState<RecipeImportResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
-
-    // Load files on mount
-    React.useEffect(() => {
-        loadFiles();
-    }, []);
-
-    const loadFiles = async () => {
-        try {
-            setLoading(true);
-            const response = await listFiles();
-            setFiles(response.files);
-            setError(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load files');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -77,6 +62,7 @@ export default function FileManagement() {
     };
 
     const handleFileUpload = async (file: File) => {
+        const uploadStart = Date.now();
         const validTypes = ['text/csv', 'application/json', 'application/vnd.ms-excel', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         
         if (!validTypes.includes(file.type)) {
@@ -100,11 +86,14 @@ export default function FileManagement() {
             } else {
                 // For images, just upload directly
                 await uploadFile(file, (prog) => setProgress(prog));
-                await loadFiles();
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Upload failed');
         } finally {
+            const elapsed = Date.now() - uploadStart;
+            if (elapsed < MIN_PROGRESS_VISIBLE_MS) {
+                await wait(MIN_PROGRESS_VISIBLE_MS - elapsed);
+            }
             setUploading(false);
             setProgress(null);
         }
@@ -145,30 +134,28 @@ export default function FileManagement() {
 
     const confirmImport = async () => {
         if (!previewFile) return;
+        const importStart = Date.now();
+        let nextImportResult: RecipeImportResponse | null = null;
         try {
             setUploading(true);
             setError(null);
-            const result = await importRecipes(previewFile, (prog) => setProgress(prog));
-            setImportResult(result);
-            await loadFiles();
+            setImportResult(null);
+            nextImportResult = await importRecipes(previewFile, (prog) => setProgress(prog));
             setShowPreview(false);
             setPreviewData(null);
             setPreviewFile(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Import failed');
         } finally {
+            const elapsed = Date.now() - importStart;
+            if (elapsed < MIN_PROGRESS_VISIBLE_MS) {
+                await wait(MIN_PROGRESS_VISIBLE_MS - elapsed);
+            }
+            if (nextImportResult) {
+                setImportResult(nextImportResult);
+            }
             setUploading(false);
             setProgress(null);
-        }
-    };
-
-    const handleDelete = async (filename: string) => {
-        try {
-            await deleteFile(filename);
-            await loadFiles();
-            setError(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to delete file');
         }
     };
 
@@ -243,15 +230,21 @@ export default function FileManagement() {
             </Card>
 
             {/* Upload Progress */}
-            {progress && (
+            {(uploading || progress) && (
                 <Box sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                         <CircularProgress size={20} sx={{ mr: 1 }} />
                         <Typography variant="body2">
-                            Uploading: {Math.round(progress.percentage)}%
+                            {progress
+                                ? `Uploading: ${Math.round(progress.percentage)}%`
+                                : 'Processing file...'}
                         </Typography>
                     </Box>
-                    <LinearProgress variant="determinate" value={progress.percentage} />
+                    {progress ? (
+                        <LinearProgress variant="determinate" value={progress.percentage} />
+                    ) : (
+                        <LinearProgress />
+                    )}
                 </Box>
             )}
 
@@ -309,56 +302,6 @@ export default function FileManagement() {
                 </DialogActions>
             </Dialog>
 
-            {/* Files List */}
-            <Typography variant="h6" sx={{ mb: 2 }}>
-                📂 Recent Files
-            </Typography>
-
-            {loading ? (
-                <CircularProgress />
-            ) : files.length === 0 ? (
-                <Typography variant="body2" color="textSecondary">
-                    No files uploaded yet
-                </Typography>
-            ) : (
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                <TableCell>Filename</TableCell>
-                                <TableCell>Type</TableCell>
-                                <TableCell>Size</TableCell>
-                                <TableCell>Uploaded</TableCell>
-                                <TableCell align="right">Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {files.map((file) => (
-                                <TableRow key={file.filename}>
-                                    <TableCell>{file.filename}</TableCell>
-                                    <TableCell>
-                                        {file.type === 'csv' ? '📄 CSV' : file.type === 'json' ? '📋 JSON' : '🖼️ Image'}
-                                    </TableCell>
-                                    <TableCell>{(file.size / 1024).toFixed(2)} KB</TableCell>
-                                    <TableCell>
-                                        {new Date(file.uploadedAt).toLocaleDateString()}
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        <Button
-                                            size="small"
-                                            startIcon={<DeleteIcon />}
-                                            onClick={() => handleDelete(file.filename)}
-                                            color="error"
-                                        >
-                                            Delete
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            )}
         </Box>
     );
 }

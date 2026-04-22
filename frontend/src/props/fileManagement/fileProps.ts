@@ -22,7 +22,11 @@ export type FileListResponse = {
 
 export type RecipeImportResult = {
     name: string;
-    ingredients: any[];
+    ingredients: Array<{
+        name: string;
+        unit?: string;
+        quantity?: number;
+    }>;
     diet: string;
     cost?: number;
     portions?: number;
