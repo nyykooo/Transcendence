@@ -18,11 +18,12 @@ redisClient.connect().catch(err => {
 // Middleware de rate limit por userId
 // Limite: 10 requests por minuto (60 segundos)
 async function rateLimit(req, res, next) {
+    if (!req.user)
+        console.log('Warning: rateLimit called without req.user set');
     const userId = req.user.sub ?? req.user.id;
     if (!userId) {
         return res.status(401).json({ error: 'User not authenticated' });
     }
-
     const userRole = req.user.role;
     if (userRole === 'admin') {
         return next(); // Admin sem limite

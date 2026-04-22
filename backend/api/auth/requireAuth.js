@@ -8,7 +8,13 @@ function requireAuth(req, res, next) {
         return res.status(401).json({error: "Missing token"});
     try {
         req.user = jwt.verify(token, process.env.JWT_SECRET);
+        if (req.user?.purpose) {
+            return res.status(401).json({error: "Invalid token type"});
+        }
         req.userId = req.user.sub ?? req.user.id;
+        if (!req.userId) {
+            return res.status(401).json({error: "Invalid token payload"});
+        }
         req.userRole = req.user.role;
         next();
     }
@@ -20,9 +26,9 @@ function requireAuth(req, res, next) {
 // Middleware que combina auth + rate limit
 async function requireAuthWithRateLimit(req, res, next) {
     // Primeiro autentica
-    requireAuth(req, res, () => {
+    return requireAuth(req, res, () => {
         // Depois aplica rate limit
-        rateLimit(req, res, next);
+        return rateLimit(req, res, next);
     });
 }
 
