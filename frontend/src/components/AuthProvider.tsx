@@ -84,7 +84,11 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
                 }
 
                 if (res.id && res.token) {
-                    const nextUser = { id: res.id, token: res.token, role: res.role || 'user' };
+                    const nextUser = { 
+                        id: res.id, 
+                        token: res.token, 
+                        role: res.role
+                         || 'user' };
                     storeUser(nextUser);
                     setUser(nextUser);
                     return res;
