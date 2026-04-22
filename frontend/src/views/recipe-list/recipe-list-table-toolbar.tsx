@@ -14,6 +14,12 @@ type RecipeListTableToolbarProps = {
 };
 
 export default function RecipeListTableToolbar({ defaultFilters, handleSearch }: RecipeListTableToolbarProps) {
+    const safeCostMax = Number.isFinite(defaultFilters.cost?.max)
+        ? Math.max(1, defaultFilters.cost.max)
+        : 10;
+    const safeServingMax = Number.isFinite(defaultFilters.servings?.max)
+        ? Math.max(1, defaultFilters.servings.max)
+        : 10;
 
     // SelectedFilters
     const [selectedFilters, setSelectedFilters] = useState<RecipeListFiltersProps | null>();
@@ -44,15 +50,14 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
 
 
     // ### Cost ###
-    const [selectedCost, setSelectedCost] = useState<number[]>([0, defaultFilters.cost?.max ?? 10]);
+    const [selectedCost, setSelectedCost] = useState<number[]>([0, safeCostMax]);
 
     useEffect(() => {
-        if (defaultFilters.cost && defaultFilters.cost.max > 0) {
-            setSelectedCost([0, defaultFilters.cost.max]);
-        }
-    }, [defaultFilters.cost]);
+        setSelectedCost([0, safeCostMax]);
+    }, [safeCostMax]);
 
-    const handleChangeselectedCost = (event: Event, newValue: number[], activeThumb: number) => {
+    const handleChangeselectedCost = (event: Event, newValue: number | number[], activeThumb: number) => {
+        if (!Array.isArray(newValue)) return;
         if (activeThumb === 0) {
             setSelectedCost([Math.min(newValue[0], selectedCost[1] - 0.1), selectedCost[1]]);
         } else {
@@ -62,15 +67,14 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
     };
 
     // ### Serving ###
-    const [selectedServing, setSelectedServing] = useState<number[]>([0, defaultFilters.servings?.max ?? 10]);
+    const [selectedServing, setSelectedServing] = useState<number[]>([0, safeServingMax]);
 
     useEffect(() => {
-        if (defaultFilters.servings && defaultFilters.servings.max > 0) {
-            setSelectedServing([0, defaultFilters.servings.max]);
-        }
-    }, [defaultFilters.servings]);
+        setSelectedServing([0, safeServingMax]);
+    }, [safeServingMax]);
 
-    const handleChangeSelectedServing = (event: Event, newValue: number[], activeThumb: number) => {
+    const handleChangeSelectedServing = (event: Event, newValue: number | number[], activeThumb: number) => {
+        if (!Array.isArray(newValue)) return;
         if (activeThumb === 0) {
             setSelectedServing([Math.min(newValue[0], selectedServing[1] - 1), selectedServing[1]]);
         } else {
@@ -113,8 +117,8 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
 
     const handleCleanFilters = () =>
     {
-        setSelectedCost([0, defaultFilters.cost?.max ?? 10]);
-        setSelectedServing([0, defaultFilters.servings?.max ?? 10]);
+        setSelectedCost([0, safeCostMax]);
+        setSelectedServing([0, safeServingMax]);
         setSelectedRecipes([]);
         setSelectedDiets([]);
         setSelectedIngredients([]);
@@ -122,9 +126,9 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
     }
 
     useEffect (() => {
-        setSelectedCost(defaultFilters.cost ? [0, defaultFilters.cost.max ?? 10] : [0, 10]);
-        setSelectedServing(defaultFilters.servings ? [0, defaultFilters.servings.max ?? 10] : [0, 10]);
-    }, [defaultFilters]);
+        setSelectedCost([0, safeCostMax]);
+        setSelectedServing([0, safeServingMax]);
+    }, [safeCostMax, safeServingMax]);
 
     return (
         <Box sx={{width: '100%', height: '20%'}}>
@@ -158,7 +162,7 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
                         valueText="€"
                         onChange={handleChangeselectedCost}
                         min={0}
-                        max={defaultFilters.cost?.max ?? 10}
+                        max={safeCostMax}
                         name='selectedCost'
                         step={0.1}
                     />
@@ -168,7 +172,7 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
                         valueText="units"
                         onChange={handleChangeSelectedServing}
                         min={0}
-                        max={defaultFilters.servings?.max ?? 10}
+                        max={safeServingMax}
                         name='selectedServing'
                         step={1}
                     />
