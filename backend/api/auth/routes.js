@@ -1328,7 +1328,7 @@ router.get('/auth/github/callback', async (req, res) => {
   }
 });
 
-router.get('/users', requireAuthWithRateLimit, async (req, res) => {
+router.get('/admin/users', requireAuthWithRateLimit, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT id, email, name, avatar, role, is_active
