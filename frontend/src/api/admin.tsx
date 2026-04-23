@@ -45,4 +45,17 @@ export async function deleteUser(token: string, userId: number): Promise<void> {
 
     if (!response.ok)
         throw new Error('Failed to delete user');
-}   
+}
+
+export async function updateUserRole(token: string, userId: number, role: string): Promise<void> {
+  const response = await fetch(`${api.updateUserRole}/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ role }),
+  });
+
+  if (!response.ok) throw new Error('Failed to update user role');
+}

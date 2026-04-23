@@ -11,6 +11,7 @@ export const api = {
     pendingRecipes: `${API_BASE_URL}/pending/recipes/`,
     allUsers: `${API_BASE_URL}/admin/users`,
     deleteUser: `${API_BASE_URL}/admin/users`,
+    updateUserRole: `${API_BASE_URL}/admin/users`,
     profile: `${API_BASE_URL}/profile`,
     profileAvatar: `${API_BASE_URL}/profile/avatar`,
     profileAvatarDelete: `${API_BASE_URL}/profile/avatar`,
