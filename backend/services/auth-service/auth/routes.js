@@ -1393,7 +1393,7 @@ router.post('/profile/files', requireAuthWithRateLimit, upload.single('file'), a
       return res.status(400).json({error: 'No file uploaded'});
     }
 
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+    const fileUrl = `/uploads/avatars/${file.filename}`;
     
     return res.status(200).json({
       message: 'File uploaded successfully',

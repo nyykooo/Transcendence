@@ -11,7 +11,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const AUTH_STORAGE_KEY = 'auth';
 
+const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+
 function readStoredUser(): User | null {
+    if (!isBrowser) {
+        return null;
+    }
     try {
         const raw = localStorage.getItem(AUTH_STORAGE_KEY);
         if (!raw)
@@ -35,6 +40,9 @@ function readStoredUser(): User | null {
 }
 
 function storeUser(user: User | null) {
+    if (!isBrowser) {
+        return;
+    }
     try {
         if (user === null) {
             localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -115,6 +123,10 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
     };
 
     const signOut = () => {
+        if (!isBrowser) {
+            setUser(null);
+            return;
+        }
         localStorage.removeItem('auth');
         storeUser(null);
         setUser(null);
