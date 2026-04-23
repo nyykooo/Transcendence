@@ -251,14 +251,15 @@ assert_code "${BAD_ROUTE[-1]}" "404" "Invalid route"
 echo ""
 
 step "[14] Optional avatar upload test..."
-if [[ -f "test.png" ]]; then
+AVATAR_FIXTURE="../../../frontend/public/assets/image/icons/brunchio_logo.png"
+if [[ -f "$AVATAR_FIXTURE" ]]; then
     mapfile -t AVATAR_UPLOAD < <(request_with_code -X POST "${BASE_URL}/profile/avatar" \
       -H "Authorization: Bearer $TOKEN1" \
-      -F "avatar=@test.png")
+      -F "avatar=@${AVATAR_FIXTURE}")
     print_json_or_raw "${AVATAR_UPLOAD[0]}"
     assert_code "${AVATAR_UPLOAD[-1]}" "200" "Avatar upload"
 else
-    echo -e "${YELLOW}Skipping avatar upload: test.png not found in current directory${NC}"
+    echo -e "${YELLOW}Skipping avatar upload: ${AVATAR_FIXTURE} not found${NC}"
 fi
 echo ""
 

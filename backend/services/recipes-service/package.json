@@ -1,10 +1,9 @@
 {
-  "name": "api",
+  "name": "recipes-service",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
-    "install": "npm install pg",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
@@ -12,19 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.13.6",
-    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
-    "csv-parse": "^5.4.1",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "multer": "^2.1.1",
     "pg": "^8.20.0",
-    "qrcode": "^1.5.1",
-    "redis": "^4.6.0",
-    "sharp": "^0.34.5",
-    "speakeasy": "^2.0.0",
-    "uuid": "^13.0.0"
+    "redis": "^4.6.0"
   }
 }

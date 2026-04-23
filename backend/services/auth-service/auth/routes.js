@@ -309,7 +309,7 @@ function toAvatarDiskPath(avatarValue) {
   const fileName = path.basename(pathname); // strips traversal attempts
   if (!fileName || fileName === 'test.webp') return null;
 
-  // uploadDir should be backend/api/uploads/avatars
+  // uploadDir resolves inside backend/services/auth-service/uploads/avatars
   const absolutePath = path.resolve(uploadDir, fileName);
   const avatarsRoot = path.resolve(uploadDir) + path.sep;
 
@@ -961,7 +961,7 @@ router.post('/profile/avatar', requireAuthWithRateLimit, upload.single('avatar')
     if (!userId)
       return res.status(401).json({error: 'Unauthorized'});
     
-    const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${file.filename}`;
+    const avatarUrl = `/uploads/avatars/${file.filename}`;
 
     try {
 

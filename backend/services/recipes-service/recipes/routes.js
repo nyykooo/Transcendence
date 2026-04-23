@@ -42,7 +42,7 @@ function serializeRecipeRow(row) {
     };
 }
 
-router.get(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
+router.get(['/recipes', '/recipes/', '/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
     const query = `
         SELECT
             r.name,
@@ -67,7 +67,7 @@ router.get(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, (req, res)
         });
 });
 
-router.get(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
+router.get(['/pending/recipes', '/pending/recipes/', '/pending/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
     if (!req.userId) {
         return res.status(401).json({error: 'Unauthorized'});
     }

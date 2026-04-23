@@ -35,7 +35,7 @@ applicable;
 - Secrets:
     - Store credentials in an .env file
 
-## Backend (Auth + Recipes) containers
+## Backend microservices containers
 
 Run only the backend services (without frontend/database):
 
@@ -43,16 +43,23 @@ Run only the backend services (without frontend/database):
 - Stop + remove volumes: `make -C backend docker_down`
 - Logs: `make -C backend docker_logs`
 
-Ports:
+Services:
 
-- Auth (HTTPS): https://localhost:3443
-- Recipes (HTTPS): https://localhost:3443
+- API Gateway (HTTPS): https://localhost:3443
+- Auth service (internal HTTP): http://auth-service:3001
+- Recipes service (internal HTTP): http://recipes-service:3002
+
+Public API entrypoint:
+
+- Through frontend nginx: https://localhost/api
+- Direct gateway access: https://localhost:3443/api
 
 ## API documentation
 
 ### Base URL
 
-- `https://localhost:3443`
+- `https://localhost/api` (recommended)
+- `https://localhost:3443/api` (direct gateway)
 
 ### Authentication
 
