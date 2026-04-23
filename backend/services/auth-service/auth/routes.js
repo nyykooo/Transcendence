@@ -1345,6 +1345,72 @@ router.get('/admin/users', requireAuthWithRateLimit, async (req, res) => {
   }
 });
 
+router.delete('/admin/users/:id', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const userId = req.params.id;
+    const result = await pool.query(
+      `DELETE FROM dev_dba.users
+       WHERE id = $1
+       RETURNING id`,
+      [userId]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    return res.status(200).json({ message: 'User deleted', userId: result.rows[0].id });
+  } catch (error) {
+    console.log(`[DELETE /admin/users/:${userId}] unexpected error:`, error);
+    return res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
+router.put('/admin/users/:id', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const userId = req.params.id;
+
+    const userResult = await pool.query(
+      `SELECT id
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+       [userId]
+    );
+    
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found teste1' });
+    }
+
+    const { role } = req.body;
+
+    if (role === undefined) {
+      return res.status(400).json({ error: 'No role in req body to update' });
+    }
+
+    const result = await pool.query(
+      `UPDATE dev_dba.users
+       SET role = $1
+       WHERE id = $2
+       RETURNING id, email, name, avatar, role, is_active`,
+      [role, userId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found teste2' });
+    }
+
+    return res.status(200).json({ message: 'User updated', user: result.rows[0] });
+  } catch (error) {
+    console.log(`[PUT /admin/users/:${userId}] unexpected error:`, error);
+    return res.status(500).json({ error: 'Failed to update user' });
+  }
+});
+
 // ========== FILE MANAGEMENT ENDPOINTS ==========
 
 router.get('/profile/files', requireAuthWithRateLimit, async (req, res) => {

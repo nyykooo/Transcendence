@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, CircularProgress, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useAuth } from '../../components/AuthProvider';
 import { RoleBaseGuard, ErrorPage } from '../../components/components';
-import { getPendingRecipes, getAllUsers } from '../../api/admin';
+import { getPendingRecipes, getAllUsers, deleteUser, updateUserRole } from '../../api/admin';
 import { type PendingRecipe, type PendingRecipesResponse } from '../../props/recipe-list';
 import { type UserRows, type AllUsersResponse } from '../../props/userProps';
 
@@ -15,8 +15,54 @@ export default function AdminView()
 
     const [usersRows, setUsersRows] = useState<UserRows[]>([]);
 
+    const ROLE_OPTIONS = ['user', 'admin'];
+
+    const [editedRoles, setEditedRoles] = useState<Record<number, string>>({});
+
+    const handleRoleChange = (userId: number) => (event: SelectChangeEvent<string>) => {
+        setEditedRoles(prev => ({ ...prev, [userId]: event.target.value }));
+    };
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const loadPendingRecipesAsync = async () => {
+        if (!user?.token) {
+            setError('Missing authentication token. Please sign in again.');
+            setPendingRecipesRows([]);
+            return;
+        }
+        const responsePendingRecipes: PendingRecipesResponse = await getPendingRecipes(user.token);
+        const mappedRows: PendingRecipe[] = responsePendingRecipes.recipes.map((recipe: PendingRecipe) => ({
+            recipe_name: recipe.recipe_name,
+            ingredient_name: recipe.ingredient_name,
+            diet: recipe.diet,
+            author: recipe.author,
+            status: recipe.status,
+            submission_date: recipe.submission_date,
+        }));
+
+        setPendingRecipesRows(mappedRows);
+    };
+
+    const loadUsers = async () => {
+        if (!user?.token) {
+            setError('Missing authentication token. Please sign in again.');
+            setUsersRows([]);
+            return;
+        }
+
+        const responseUsers: AllUsersResponse = await getAllUsers(user.token);
+        const mappedUsersRows: UserRows[] = responseUsers.users.map((user: UserRows) => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            is_active: user.is_active,
+            token: user.token,
+        }));
+        setUsersRows(mappedUsersRows);
+    };
 
     useEffect(() => {
         const loadPendingRecipes = async () => {
@@ -31,28 +77,8 @@ export default function AdminView()
             setError(null);
 
             try {
-                const responsePendingRecipes: PendingRecipesResponse = await getPendingRecipes(user.token);
-                const mappedRows: PendingRecipe[] = responsePendingRecipes.recipes.map((recipe: PendingRecipe) => ({
-                    recipe_name: recipe.recipe_name,
-                    ingredient_name: recipe.ingredient_name,
-                    diet: recipe.diet,
-                    author: recipe.author,
-                    status: recipe.status,
-                    submission_date: recipe.submission_date,
-                }));
-
-                setPendingRecipesRows(mappedRows);
-
-                const responseUsers: AllUsersResponse = await getAllUsers(user.token);
-                const mappedUsersRows: UserRows[] = responseUsers.users.map((user: UserRows) => ({
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    is_active: user.is_active,
-                    token: user.token,
-                }));
-                setUsersRows(mappedUsersRows);
+                await loadPendingRecipesAsync();
+                await loadUsers();
             } catch (err) {
                 const message = err instanceof Error ? err.message : 'Failed to load recipes';
                 setError(message);
@@ -64,6 +90,63 @@ export default function AdminView()
 
         loadPendingRecipes();
     }, [user?.token]);
+
+    function handleDeleteUser(userId: number) {
+        const deleteUserAsync = async () => {
+            try
+            {
+                if (!user?.token) {
+                    setError('Missing authentication token. Please sign in again.');
+                    return;
+                }
+
+                setIsLoading(true);
+                setError(null);
+
+                await deleteUser(user.token, userId);
+                await loadUsers();
+            }
+            catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to load recipes';
+                setError(message);
+                setPendingRecipesRows([]);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        deleteUserAsync();
+        setUsersRows(prev => prev.filter(user => user.id !== userId));
+    }
+
+    const handleUpdateUserRole = async (userId: number) => {
+        const row = usersRows.find(row => row.id === userId);
+        if (!row) return;
+
+        const newRole = editedRoles[userId] ?? row.role;
+        if (newRole === row.role) return;
+
+        if (!user?.token) {
+            setError('Missing authentication token. Please sign in again.');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            setError(null);
+            await updateUserRole(user.token, userId, newRole);
+            await loadUsers();
+            setEditedRoles(prev => {
+            const next = { ...prev };
+            delete next[userId];
+            return next;
+            });
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to update user role');
+        } finally {
+            setIsLoading(false);
+        }
+    };
     
     const pendingRecipesColumns: GridColDef<PendingRecipe>[] = [
         {
@@ -113,6 +196,22 @@ export default function AdminView()
             field: 'role',
             headerName: 'Role',
             flex: 1,
+            renderCell: (params) => {
+            const currentRole = (editedRoles[params.row.id] ?? params.row.role) as string;
+            return (
+                <Select
+                value={currentRole}
+                onChange={handleRoleChange(params.row.id)}
+                size="small"
+                >
+                {ROLE_OPTIONS.map((role) => (
+                    <MenuItem key={role} value={role}>
+                    {role}
+                    </MenuItem>
+                ))}
+                </Select>
+            );
+            },
         },
         {
             field: 'is_active',
@@ -124,6 +223,35 @@ export default function AdminView()
                 </Typography>
             ),
         },
+        {
+            headerName: 'Actions',
+            field: 'actions',
+            flex: 1,
+            renderCell: (params) => {
+                const selectedRole = editedRoles[params.row.id] ?? params.row.role;
+                const isChanged = selectedRole !== params.row.role;
+
+                return (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                        variant="contained"
+                        size="small"
+                        disabled={!isChanged}
+                        onClick={() => handleUpdateUserRole(params.row.id)}
+                    >
+                        Update
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleDeleteUser(params.row.id)}
+                    >
+                        Delete
+                    </Button>
+                    </Box>
+                );
+            },
+        }
     ];
 
     return (
@@ -149,12 +277,12 @@ export default function AdminView()
                         loading={isLoading}
                         slots={{
                             loadingOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
                                     <CircularProgress size={28} />
                                 </Box>
                             ),
                             noRowsOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
                                     <Typography variant='body2'>No recipes available.</Typography>
                                 </Box>
                             ),

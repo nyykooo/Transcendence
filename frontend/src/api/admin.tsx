@@ -33,3 +33,29 @@ export async function getAllUsers(token: string): Promise<AllUsersResponse> {
     const data: AllUsersResponse = await response.json();
     return data;
 }
+
+export async function deleteUser(token: string, userId: number): Promise<void> {
+    const response = await fetch(`${api.deleteUser}/${userId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok)
+        throw new Error('Failed to delete user');
+}
+
+export async function updateUserRole(token: string, userId: number, role: string): Promise<void> {
+  const response = await fetch(`${api.updateUserRole}/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ role }),
+  });
+
+  if (!response.ok) throw new Error('Failed to update user role');
+}
