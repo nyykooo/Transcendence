@@ -1,12 +1,12 @@
 
 all: build
-	npm install --prefix ./api
+	@echo "Backend services are managed under backend/services via docker compose"
 
 build:
 	./check_install.sh
 
 clean:
-	rm -rf ./api/node_modules
+	rm -rf ./services/auth-service/node_modules ./services/recipes-service/node_modules ./services/api-gateway/node_modules
 
 docker_build:
 	docker compose -f docker-compose.yml build

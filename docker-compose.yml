@@ -18,26 +18,67 @@ services:
     networks:
       - transcendence
   api:
-    image: transcendence-api:1.0
-    container_name: transcendence_api
+    image: transcendence-api-gateway:1.0
+    container_name: transcendence_api_gateway
     depends_on:
-      - postgres
-      - redis
+      - auth-service
+      - recipes-service
     build:
-      context: ./backend/api
+      context: ./backend/services/api-gateway
       dockerfile: Dockerfile 
     restart: always
     env_file:
       - .env
     environment:
-      - POSTGRES_HOST=postgres
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - PORT=3443
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - RECIPES_SERVICE_URL=http://recipes-service:3002
     ports:
       - "3443:3443"
     volumes:
       - ./frontend/tools/certs:/etc/ssl/certs:ro
+    networks:
+      - transcendence
+
+  auth-service:
+    image: transcendence-auth-service:1.0
+    container_name: transcendence_auth_service
+    depends_on:
+      - postgres
+      - redis
+    build:
+      context: ./backend/services/auth-service
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - PORT=3001
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
       - uploads_data:/app/uploads
+    networks:
+      - transcendence
+
+  recipes-service:
+    image: transcendence-recipes-service:1.0
+    container_name: transcendence_recipes_service
+    depends_on:
+      - postgres
+      - redis
+    build:
+      context: ./backend/services/recipes-service
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - PORT=3002
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     networks:
       - transcendence
 

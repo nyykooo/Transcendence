@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
-const https = require('https');
 
 const app = express();
 require('dotenv').config();
@@ -15,37 +13,21 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads', express.static('uploads'));
 const { authRouter } = require('./auth/routes');
-const { recipesRouter } = require('./recipes/routes');
 
 app.use(authRouter);
-app.use(recipesRouter);
+app.get('/health', (_req, res) => res.status(200).json({ status: 'ok', service: 'auth-service' }));
 
-const HTTPS_PORT = Number(process.env.PORT);
-const SSL_CERT_PATH = '/etc/ssl/certs/server.crt';
-const SSL_KEY_PATH = '/etc/ssl/certs/server.key';
+const PORT = Number(process.env.PORT || 3001);
 
-function startHttpsServer() {
-	if (!fs.existsSync(SSL_CERT_PATH) || !fs.existsSync(SSL_KEY_PATH)) {
-		throw new Error(
-			`HTTPS cert/key missing at ${SSL_CERT_PATH} and/or ${SSL_KEY_PATH}`,
-		);
-	}
-
-	const tlsOptions = {
-		cert: fs.readFileSync(SSL_CERT_PATH),
-		key: fs.readFileSync(SSL_KEY_PATH),
-	};
-
-	https
-		.createServer(tlsOptions, app)
-		.listen(HTTPS_PORT, () => console.log(`HTTPS server listening on ${HTTPS_PORT}`));
+function startHttpServer() {
+	app.listen(PORT, () => console.log(`Auth service listening on ${PORT}`));
 }
 
 async function startServer() {
 	try {
 		await pool.query('SELECT 1');
 		console.log('Connected to PostgreSQL');
-		startHttpsServer();
+		startHttpServer();
 	} catch (error) {
 		console.log('Failed to connect to PostgreSQL:', error.message);
 		process.exit(1);
