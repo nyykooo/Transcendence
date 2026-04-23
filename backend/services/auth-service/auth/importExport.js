@@ -1,5 +1,50 @@
 const csv = require('csv-parse/sync');
 
+function capitalizeWords(value) {
+    return String(value || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+}
+
+function normalizeUnit(value) {
+    const raw = String(value || '').trim();
+    return raw || 'g';
+}
+
+function normalizeQuantity(value) {
+    if (value === null || value === undefined || value === '') return 0;
+    const parsed = Number(value);
+    return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
+}
+
+function normalizeIngredient(ingredient, defaultQuantity, defaultUnit) {
+    if (typeof ingredient === 'string') {
+        const name = capitalizeWords(ingredient);
+        return name
+            ? {
+                name,
+                quantity: normalizeQuantity(defaultQuantity),
+                unit: normalizeUnit(defaultUnit),
+            }
+            : null;
+    }
+
+    if (ingredient && typeof ingredient === 'object') {
+        const name = capitalizeWords(ingredient.name || ingredient.ingredient_name);
+        if (!name) return null;
+        return {
+            name,
+            quantity: normalizeQuantity(ingredient.quantity ?? defaultQuantity),
+            unit: normalizeUnit(ingredient.unit ?? defaultUnit),
+        };
+    }
+
+    return null;
+}
+
 /**
  * Validate required recipe fields for import
  */
@@ -10,9 +55,27 @@ function validateRecipeFields(recipe) {
         errors.push('name is required');
     }
     
-    // ingredients can be array or comma-separated string
-    if (!recipe.ingredients) {
+    if (!Array.isArray(recipe.ingredients) || recipe.ingredients.length === 0) {
         errors.push('ingredients is required');
+    } else {
+        recipe.ingredients.forEach((ingredient, index) => {
+            if (!ingredient || typeof ingredient !== 'object') {
+                errors.push(`ingredients[${index}] must be an object`);
+                return;
+            }
+
+            if (!ingredient.name || typeof ingredient.name !== 'string') {
+                errors.push(`ingredients[${index}].name is required`);
+            }
+
+            if (ingredient.quantity !== undefined && (isNaN(Number(ingredient.quantity)) || Number(ingredient.quantity) < 0)) {
+                errors.push(`ingredients[${index}].quantity must be a non-negative number`);
+            }
+
+            if (ingredient.unit !== undefined && typeof ingredient.unit !== 'string') {
+                errors.push(`ingredients[${index}].unit must be a string`);
+            }
+        });
     }
     
     // diet is optional, defaults to 'Vegan'
@@ -46,12 +109,9 @@ function validateRecipeFields(recipe) {
  */
 function parseIngredients(ingredientsInput) {
     if (Array.isArray(ingredientsInput)) {
-        return ingredientsInput.map(ing => {
-            if (typeof ing === 'string') {
-                return { name: ing.trim() };
-            }
-            return ing;
-        });
+        return ingredientsInput
+            .map(ing => normalizeIngredient(ing))
+            .filter(Boolean);
     }
     
     if (typeof ingredientsInput === 'string') {
@@ -59,11 +119,16 @@ function parseIngredients(ingredientsInput) {
             // Try to parse as JSON first
             const parsed = JSON.parse(ingredientsInput);
             if (Array.isArray(parsed)) {
-                return parsed.map(ing => (typeof ing === 'string' ? { name: ing.trim() } : ing));
+                return parsed
+                    .map(ing => normalizeIngredient(ing))
+                    .filter(Boolean);
             }
         } catch {
             // Fall back to comma-separated
-            return ingredientsInput.split(',').map(ing => ({ name: ing.trim() })).filter(ing => ing.name);
+            return ingredientsInput
+                .split(',')
+                .map(ing => normalizeIngredient(ing))
+                .filter(Boolean);
         }
     }
     
@@ -83,6 +148,49 @@ function parseCSV(csvContent) {
             relax_quotes: true,
             relax_column_count: true,
         });
+
+        if (records.length === 0) {
+            return [];
+        }
+
+        const groupedByRecipeRows = records.some(record => record.recipe_name && record.ingredient_name);
+
+        if (groupedByRecipeRows) {
+            const recipeMap = new Map();
+
+            records.forEach(record => {
+                const recipeName = String(record.recipe_name || '').trim();
+                if (!recipeName) return;
+
+                if (!recipeMap.has(recipeName)) {
+                    recipeMap.set(recipeName, {
+                        name: recipeName,
+                        ingredients: [],
+                        diet: record.diet || 'Vegan',
+                        cost: record.cost ? Number(record.cost) : 0,
+                        portions: record.portions ? Number(record.portions) : 1,
+                        prep_time: record.prep_time ? Number(record.prep_time) : null,
+                        cooking_time: record.cooking_time ? Number(record.cooking_time) : null,
+                        instructions: record.instructions || null,
+                        url: record.url || null,
+                        author: record.author || null,
+                    });
+                }
+
+                const recipe = recipeMap.get(recipeName);
+                const ingredient = normalizeIngredient(
+                    { name: record.ingredient_name, quantity: record.quantity, unit: record.unit },
+                    record.quantity,
+                    record.unit,
+                );
+
+                if (ingredient) {
+                    recipe.ingredients.push(ingredient);
+                }
+            });
+
+            return Array.from(recipeMap.values());
+        }
         
         return records.map(record => {
             const recipe = {
