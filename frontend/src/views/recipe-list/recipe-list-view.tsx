@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Alert, Box, CircularProgress, Typography } from '@mui/material';
+import { Alert, Box, CircularProgress, Link, Typography } from '@mui/material';
 
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
@@ -145,6 +145,11 @@ export default function RecipeListView() {
             field: 'recipe_name',
             headerName: 'Recipe Name',
             flex: 1,
+            renderCell: (params) => (
+                <Link href={`/recipe/${encodeURIComponent(params.value)}`} underline="hover" color="primary">
+                    {params.value}
+                </Link>
+            ),
         },
         {
             field: 'ingredient_name',
