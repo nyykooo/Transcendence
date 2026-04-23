@@ -89,5 +89,12 @@ echo ""
 
 
 echo ""
+echo "Updating urls..."
+echo ""
+"${SQL_RUNNER}" "${SQL_DIR}AddUrls.sql"
+
+
+
+echo ""
 echo "Database setup completed successfully!"
 echo ""
