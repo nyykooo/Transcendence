@@ -18,21 +18,24 @@ export default function NavigationMenu()
 
     return (
         <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'end'}}>
-            {pages.map((item, ) => (
-                item.label === "Admin Panel" ? (
-                    <RoleBaseGuard role={user?.role} 
-                        children={
-                            <Button key={item.label} onClick={() => updatePage(item)}>
-                                {item.label}
-                            </Button>
-                        }
-                        protection={null}
-                    />
-                ) : (
-                    <Button key={item.label} onClick={() => updatePage(item)}>
-                        {item.label}
-                    </Button>
-                )
+            {pages.map((item) => (
+                <Box key={item.label}>
+                    {item.label === "Admin Panel" ? (
+                        <RoleBaseGuard
+                            role={user?.role}
+                            children={
+                                <Button onClick={() => updatePage(item)}>
+                                    {item.label}
+                                </Button>
+                            }
+                            protection={null}
+                        />
+                    ) : (
+                        <Button onClick={() => updatePage(item)}>
+                            {item.label}
+                        </Button>
+                    )}
+                </Box>
             ))}
         </Box>
     );

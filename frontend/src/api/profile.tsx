@@ -22,15 +22,43 @@ const PROFILE_FRIENDS_ENDPOINT = api.profileFriends;
 const PROFILE_FRIEND_REQUESTS_ENDPOINT = api.profileFriendRequests;
 const PROFILE_FRIEND_REQUESTS_ACCEPT_ENDPOINT = api.profileFriendRequestsAccept;
 
+function normalizeMediaUrl(value?: string | null): string | null {
+    if (!value) {
+        return null;
+    }
+
+    if (value.startsWith('/uploads/')) {
+        return value;
+    }
+
+    const uploadsIndex = value.indexOf('/uploads/');
+    if (uploadsIndex >= 0) {
+        return value.slice(uploadsIndex);
+    }
+
+    return value;
+}
+
+function normalizeFriend(friend: any) {
+    if (!friend || typeof friend !== 'object') {
+        return friend;
+    }
+
+    return {
+        ...friend,
+        avatar: normalizeMediaUrl(friend.avatar ?? null),
+    };
+}
+
 function normalizeUser(payload?: ProfilePayload | null, fallback?: ProfileUser): ProfileUser {
     const payloadWithAliases = payload as (ProfilePayload & { two_factor_enabled?: boolean }) | undefined;
     return {
         name: payload?.name || fallback?.name || 'Test User',
         email: payload?.email || fallback?.email || '',
-        avatar: payload?.avatar ?? fallback?.avatar ?? null,
+        avatar: normalizeMediaUrl(payload?.avatar ?? fallback?.avatar ?? null),
         twoFactorEnabled: payload?.twoFactorEnabled ?? payloadWithAliases?.two_factor_enabled ?? fallback?.twoFactorEnabled ?? false,
-        friends: payload?.friends ?? fallback?.friends ?? [],
-        friendRequests: payload?.friendRequests ?? fallback?.friendRequests ?? [],
+        friends: (payload?.friends ?? fallback?.friends ?? []).map(normalizeFriend),
+        friendRequests: (payload?.friendRequests ?? fallback?.friendRequests ?? []).map(normalizeFriend),
     };
 }
 

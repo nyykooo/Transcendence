@@ -11,10 +11,16 @@ services:
       - "443:443"
     env_file:
       - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=443
+      - SSL_CERT_PATH=/etc/ssl/certs/server.crt
+      - SSL_KEY_PATH=/etc/ssl/certs/server.key
+      - FRONTEND_API_TARGET=https://api:3443
     depends_on:
       - api
     volumes:
-      - ./frontend/tools/certs:/etc/ssl/certs
+      - ./frontend/tools/certs:/etc/ssl/certs:ro
     networks:
       - transcendence
   api:
@@ -158,6 +164,7 @@ volumes:
     pgadmin_data:
     grafana_data:
     uploads_data:
+      name: transcendence_uploads_data
 
 networks:
   transcendence:

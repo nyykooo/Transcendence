@@ -7,10 +7,10 @@ RUN npm ci --omit=dev
 
 COPY . .
 
-# Ensure uploads directory exists (test.webp bundled from COPY .)
-RUN mkdir -p /app/uploads/avatars
+# Keep a copy of the default avatar outside /app/uploads (which is a mounted volume).
+RUN mkdir -p /app/default-assets && cp /app/uploads/avatars/test.webp /app/default-assets/test.webp
 
 ENV NODE_ENV=production
 EXPOSE 3443
 
-CMD ["npm", "start"]
+CMD ["sh", "-c", "mkdir -p /app/uploads/avatars && [ -f /app/uploads/avatars/test.webp ] || cp /app/default-assets/test.webp /app/uploads/avatars/test.webp; npm start"]
