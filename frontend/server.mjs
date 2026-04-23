@@ -25,7 +25,7 @@ async function createServer() {
       target: apiTarget,
       changeOrigin: true,
       secure: false,
-      pathRewrite: { '^/api': '' },
+      pathRewrite: (path) => `/api${path}`,
       xfwd: true,
     })
   );
