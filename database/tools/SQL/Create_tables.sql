@@ -111,7 +111,7 @@ CREATE TABLE public.pending_recipes
 	id bigserial NOT NULL,
 	author TEXT,
 	name TEXT NOT NULL,
-	ingredients JSONB NOT NULL,
+	ingredients JSONB NOT NULL DEFAULT '{}'::JSONB,
 	diet TEXT NOT NULL DEFAULT 'Vegan',
 	instructions TEXT DEFAULT NULL,
 	url TEXT DEFAULT NULL,
