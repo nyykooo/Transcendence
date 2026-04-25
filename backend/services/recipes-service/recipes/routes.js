@@ -285,12 +285,12 @@ router.post(['/pending/recipes', '/Pending/RecipeListView'], requireAuthWithRate
 });
 
 router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
-    const name = decodeURIComponent(req.params.name); // search normalized values?
+    const name = req.params.name; // search normalized values?
 
     try {
         const result = await pool.query(`
             SELECT * FROM public.all_recipes
-            WHERE name = $1
+            WHERE LOWER(name) = LOWER($1)
             LIMIT 1
         `, [name]);
 
