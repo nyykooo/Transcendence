@@ -13,6 +13,8 @@ const SSL_CERT_PATH = '/etc/ssl/certs/server.crt';
 const SSL_KEY_PATH = '/etc/ssl/certs/server.key';
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://auth-service:3001';
 const RECIPES_SERVICE_URL = process.env.RECIPES_SERVICE_URL || 'http://recipes-service:3002';
+const PROXY_CONNECT_TIMEOUT_MS = Number(process.env.PROXY_CONNECT_TIMEOUT_MS || 3000);
+const PROXY_RESPONSE_TIMEOUT_MS = Number(process.env.PROXY_RESPONSE_TIMEOUT_MS || 5000);
 
 const recipePrefixes = [
   '/recipes',
@@ -44,7 +46,23 @@ function createProxy(target) {
     changeOrigin: false,
     secure: false,
     xfwd: true,
+    timeout: PROXY_CONNECT_TIMEOUT_MS,
+    proxyTimeout: PROXY_RESPONSE_TIMEOUT_MS,
     pathRewrite: (path, req) => stripApiPrefix(req.originalUrl || path),
+    on: {
+      error: (err, req, res) => {
+        if (res.headersSent) {
+          return;
+        }
+
+        return res.status(504).json({
+          error: 'Upstream service unavailable or timeout',
+          target,
+          details: err?.message || 'proxy error',
+          path: req.originalUrl || req.url,
+        });
+      },
+    },
   });
 }
 
@@ -67,7 +85,23 @@ app.use('/uploads', createProxyMiddleware({
   changeOrigin: false,
   secure: false,
   xfwd: true,
+  timeout: PROXY_CONNECT_TIMEOUT_MS,
+  proxyTimeout: PROXY_RESPONSE_TIMEOUT_MS,
   pathRewrite: (_path, req) => req.originalUrl,
+  on: {
+    error: (err, req, res) => {
+      if (res.headersSent) {
+        return;
+      }
+
+      return res.status(504).json({
+        error: 'Upstream service unavailable or timeout',
+        target: AUTH_SERVICE_URL,
+        details: err?.message || 'proxy error',
+        path: req.originalUrl || req.url,
+      });
+    },
+  },
 }));
 
 const recipesProxy = createProxy(RECIPES_SERVICE_URL);

@@ -94,6 +94,11 @@ echo ""
 "${SQL_RUNNER}" "${SQL_DIR}AddUrls.sql"
 
 
+echo ""
+echo "Fixing sequences..."
+echo ""
+"${SQL_RUNNER}" "${SQL_DIR}FixSequences.sql"
+
 
 echo ""
 echo "Database setup completed successfully!"

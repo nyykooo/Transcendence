@@ -39,6 +39,8 @@ services:
       - PORT=3443
       - AUTH_SERVICE_URL=http://auth-service:3001
       - RECIPES_SERVICE_URL=http://recipes-service:3002
+      - PROXY_CONNECT_TIMEOUT_MS=3000
+      - PROXY_RESPONSE_TIMEOUT_MS=5000
     ports:
       - "3443:3443"
     volumes:
