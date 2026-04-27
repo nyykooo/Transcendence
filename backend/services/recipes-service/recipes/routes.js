@@ -67,7 +67,7 @@ router.get(['/recipes', '/recipes/', '/RecipeListView'], requireAuthWithRateLimi
         });
 });
 
-router.get(['/pending/recipes', '/pending/recipes/', '/pending/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
+router.get(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
     if (!req.userId) {
         return res.status(401).json({error: 'Unauthorized'});
     }
@@ -93,6 +93,25 @@ router.get(['/pending/recipes', '/pending/recipes/', '/pending/RecipeListView'],
         .catch((error) => {
             return res.status(500).json({ error: 'Failed to fetch recipes', details: error.message });
         });
+});
+
+router.post(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (!req.userId) {
+        return res.status(401).json({error: 'Unauthorized'});
+    }
+    const body = req.body || {};
+    if (!body.name)
+        return res.status(400).json({error: 'name is required'});
+    
+    
+
+    // the idea here is to create a recipe and insert in dev_dba.all_recipes
+    // and delete it from pending recipes
+
+
 });
 
 router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (req, res) => {
