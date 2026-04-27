@@ -67,7 +67,7 @@ router.get(['/recipes', '/recipes/', '/RecipeListView'], requireAuthWithRateLimi
         });
 });
 
-router.get(['/pending/recipes', '/pending/recipes/', '/pending/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
+router.get(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
     if (!req.userId) {
         return res.status(401).json({error: 'Unauthorized'});
     }
@@ -93,6 +93,103 @@ router.get(['/pending/recipes', '/pending/recipes/', '/pending/RecipeListView'],
         .catch((error) => {
             return res.status(500).json({ error: 'Failed to fetch recipes', details: error.message });
         });
+});
+
+router.delete(['/pending/recipes/reprove/:name', '/pending/RecipeListView/reprove/:name'], requireAuthWithRateLimit, (req, res) => {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (!req.userId) {
+        return res.status(401).json({error: 'Unauthorized'});
+    }
+
+    const name = decodeURIComponent(req.params.name);
+    pool.query(
+        `DELETE FROM public.pending_recipes
+         WHERE name = $1`,
+        [name],
+    )
+    .then(() => {
+        return res.status(204).send();
+    })
+    .catch((error) => {
+        return res.status(500).json({ error: `Failed to delete recipe ${name}`, details: error.message });
+    });
+});
+
+router.post(['/pending/recipes/approve/:name', '/pending/RecipeListView/approve/:name'], requireAuthWithRateLimit, async (req, res) => {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (!req.userId) {
+        return res.status(401).json({error: 'Unauthorized'});
+    }
+    const name = decodeURIComponent(req.params.name);
+    try {
+        await pool.query('BEGIN');
+
+        const pendingResult = await pool.query(
+            `SELECT *
+             FROM public.pending_recipes
+             WHERE name = $1
+             LIMIT 1`,
+            [name],
+        );
+
+        if (pendingResult.rowCount === 0) {
+            await pool.query('ROLLBACK');
+            return res.status(404).json({ error: `Pending recipe ${name} not found` });
+        }
+
+        const pendingRecipe = pendingResult.rows[0];
+        // ✅ VALIDAR E SANITIZAR ingredients
+        const ingredients = pendingRecipe.ingredients && typeof pendingRecipe.ingredients === 'object'
+            ? pendingRecipe.ingredients
+            : {};
+
+        const insertResult = await pool.query(`
+            INSERT INTO public.all_recipes (
+                author,
+                name,
+                ingredients,
+                diet,
+                instructions,
+                url,
+                cost,
+                portions,
+                prep_time,
+                cooking_time,
+                is_public,
+                liked,
+                viewed
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            RETURNING id, author, name, ingredients, diet, instructions, url, cost, portions, prep_time, cooking_time
+        `, [
+            pendingRecipe.author,
+            pendingRecipe.name,
+            JSON.stringify(ingredients),  // ✅ Garantir string JSON válida
+            pendingRecipe.diet,
+            pendingRecipe.instructions,
+            pendingRecipe.url,
+            pendingRecipe.cost,
+            pendingRecipe.portions,
+            pendingRecipe.prep_time,
+            pendingRecipe.cooking_time,
+            false,  // is_public padrão
+            0,      // liked padrão
+            0       // viewed padrão
+        ]);
+        await pool.query(
+            `DELETE FROM public.pending_recipes
+             WHERE name = $1`,
+            [name],
+        );
+        await pool.query('COMMIT');
+        return res.status(201).json(insertResult.rows[0]);
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        return res.status(500).json({ error: `Failed to approve recipe ${name}`, details: error.message });
+    }
 });
 
 router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (req, res) => {

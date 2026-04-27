@@ -3,7 +3,7 @@ import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChan
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useAuth } from '../../components/AuthProvider';
 import { RoleBaseGuard, ErrorPage } from '../../components/components';
-import { getPendingRecipes, getAllUsers, deleteUser, updateUserRole } from '../../api/admin';
+import { getPendingRecipes, getAllUsers, deleteUser, updateUserRole, aprovePendingRecipe, reprovePendingRecipe } from '../../api/admin';
 import { type PendingRecipe, type PendingRecipesResponse } from '../../props/recipe-list';
 import { type UserRows, type AllUsersResponse } from '../../props/userProps';
 
@@ -147,6 +147,63 @@ export default function AdminView()
             setIsLoading(false);
         }
     };
+
+
+    function handleAprovePendingRecipe(name: string) {
+        const aprovePendingRecipeAsync = async () => {
+            try
+            {
+                if (!user?.token) {
+                    setError('Missing authentication token. Please sign in again.');
+                    return;
+                }
+
+                setIsLoading(true);
+                setError(null);
+
+                await aprovePendingRecipe(user.token, name);
+                await loadUsers();
+            }
+            catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to load recipes';
+                setError(message);
+                setPendingRecipesRows([]);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        aprovePendingRecipeAsync();
+        setPendingRecipesRows(prev => prev.filter(recipe => recipe.recipe_name !== name));
+    };
+
+    function handleReprovePendingRecipe(name: string) {
+        const reprovePendingRecipeAsync = async () => {
+            try
+            {
+                if (!user?.token) {
+                    setError('Missing authentication token. Please sign in again.');
+                    return;
+                }
+
+                setIsLoading(true);
+                setError(null);
+
+                await reprovePendingRecipe(user.token, name);
+                await loadUsers();
+            }
+            catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to load recipes';
+                setError(message);
+                setPendingRecipesRows([]);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        reprovePendingRecipeAsync();
+        setPendingRecipesRows(prev => prev.filter(recipe => recipe.recipe_name !== name));
+    }
     
     const pendingRecipesColumns: GridColDef<PendingRecipe>[] = [
         {
@@ -179,6 +236,31 @@ export default function AdminView()
             headerName: 'Status',
             flex: 1,
         },
+        {
+            headerName: 'Actions',
+            field: 'actions',
+            flex: 1,
+            renderCell: (params) => {
+                return (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
+                    >
+                        Aprove
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
+                    >
+                        Reprove
+                    </Button>
+                    </Box>
+                );
+            },
+        }
     ];
 
     const usersColumns: GridColDef<UserRows>[] = [
@@ -271,6 +353,7 @@ export default function AdminView()
                         {`Pending Recipes`}
                     </Typography>
                     <DataGrid
+                        sx={{ width: '100%', flex: 1 }}
                         rows={pendingRecipesRows}
                         columns={pendingRecipesColumns}
                         getRowId={(row: PendingRecipe) => `${row.recipe_name}-${row.ingredient_name}`}
