@@ -8,7 +8,11 @@ export const api = {
     githubAuth: `${API_BASE_URL}/auth/github`,
     register: `${API_BASE_URL}/register`,
     recipe: `${API_BASE_URL}/recipes/`,
-    pendingRecipes: `${API_BASE_URL}/pending/recipes/`,
+    pendingRecipes: {
+        getAll: `${API_BASE_URL}/pending/recipes/`,
+        approve: `${API_BASE_URL}/pending/recipes/approve/`,
+        reprove: `${API_BASE_URL}/pending/recipes/reprove/`,
+    },
     allUsers: `${API_BASE_URL}/admin/users`,
     deleteUser: `${API_BASE_URL}/admin/users`,
     updateUserRole: `${API_BASE_URL}/admin/users`,

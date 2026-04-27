@@ -353,6 +353,7 @@ export default function AdminView()
                         {`Pending Recipes`}
                     </Typography>
                     <DataGrid
+                        sx={{ width: '100%', flex: 1 }}
                         rows={pendingRecipesRows}
                         columns={pendingRecipesColumns}
                         getRowId={(row: PendingRecipe) => `${row.recipe_name}-${row.ingredient_name}`}

@@ -47,7 +47,7 @@ export async function updateUserRole(token: string, userId: number, role: string
 // PENDING RECIPES
 
 export async function getPendingRecipes(token: string): Promise<PendingRecipesResponse> {
-    const response = await fetch(api.pendingRecipes, {
+    const response = await fetch(api.pendingRecipes.getAll, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -63,12 +63,13 @@ export async function getPendingRecipes(token: string): Promise<PendingRecipesRe
 }
 
 export async function aprovePendingRecipe(token: string, recipeName: string): Promise<void> {
-    const response = await fetch(`${api.pendingRecipes}/${recipeName}`, {
+    const response = await fetch(`${api.pendingRecipes.approve}/${recipeName}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify({}),  // ✅ ADICIONAR ISTO
     });
 
     if (!response.ok)
@@ -76,7 +77,7 @@ export async function aprovePendingRecipe(token: string, recipeName: string): Pr
 }
 
 export async function reprovePendingRecipe(token: string, recipeName: string): Promise<void> {
-    const response = await fetch(`${api.pendingRecipes}/${recipeName}`, {
+    const response = await fetch(`${api.pendingRecipes.reprove}/${recipeName}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
