@@ -401,6 +401,8 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
             name: raw_recipe.name,
             ingredients: raw_recipe.ingredients,
             instructions: raw_recipe.instructions,
+            image: raw_recipe.image,
+            url: raw_recipe.url,
             prep_time: raw_recipe.prep_time,
             cook_time: raw_recipe.cooking_time,
             portions: raw_recipe.portions,

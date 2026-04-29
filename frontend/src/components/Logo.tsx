@@ -22,7 +22,7 @@ export default function Logo({ path, size, sx }: LogoProps) {
                 style={{
                     width: '100%',
                     height: '100%',
-                    objectFit: 'contain',
+                    objectFit: 'cover',
                 }}
             />
         </Icon>

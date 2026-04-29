@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { Box, Chip, Divider, Paper, Stack, Typography } from '@mui/material';
+import { Box, Chip, Divider, Link, Paper, Stack, Typography } from '@mui/material';
 
 import { Logo } from '../components/components';
 
@@ -12,17 +12,35 @@ import { getRecipe } from '../api/recipe';
 
 import '../assets/style.css';
 
+const pageShellSx = {
+    minHeight: '100%',
+    width: '100%',
+    background:
+        'radial-gradient(circle at 12% 10%, rgba(203, 107, 61, 0.2), transparent 34%), radial-gradient(circle at 88% 20%, rgba(16, 122, 108, 0.15), transparent 32%), linear-gradient(170deg, #fff8f1 0%, #fdfaf7 45%, #f6fbfb 100%)',
+    p: { xs: 2, md: 4 },
+};
+
+const sectionPaperSx = {
+    p: { xs: 2, md: 2.5 },
+    borderRadius: 5,
+    border: '1px solid rgba(15, 23, 42, 0.08)',
+};
+
+const headingSx = {
+    fontFamily: '"Fraunces", "Georgia", serif',
+    fontWeight: 650,
+};
+
 export default function RecipeView() {
     const { name } = useParams<{name: string}>();
 
     const [recipe, setRecipe] = useState<Recipe | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const instructionSteps = useMemo(() => {
-        const raw = recipe?.instructions || '';
-        return raw
+    const instructionSteps = useMemo<string[]>(() => {
+        return (recipe?.instructions || '')
             .split('\n')
-            .map((line) => line.trim())
+            .map((line: string) => line.trim())
             .filter(Boolean);
     }, [recipe?.instructions]);
 
@@ -50,17 +68,7 @@ export default function RecipeView() {
 
     if (loading) {
         return (
-            <Box
-                sx={{
-                    minHeight: '100%',
-                    width: '100%',
-                    display: 'grid',
-                    placeItems: 'center',
-                    background:
-                        'radial-gradient(circle at 12% 10%, rgba(203, 107, 61, 0.2), transparent 34%), radial-gradient(circle at 88% 20%, rgba(16, 122, 108, 0.15), transparent 32%), linear-gradient(170deg, #fff8f1 0%, #fdfaf7 45%, #f6fbfb 100%)',
-                    p: 3,
-                }}
-            >
+            <Box sx={{ ...pageShellSx, display: 'grid', placeItems: 'center' }}>
                 <Paper elevation={0} sx={{ p: 4, borderRadius: 4, border: '1px solid rgba(15, 23, 42, 0.1)' }}>
                     <Typography sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif', letterSpacing: 0.4 }}>
                         Plating your recipe view...
@@ -72,17 +80,7 @@ export default function RecipeView() {
 
     if (!recipe) {
         return (
-            <Box
-                sx={{
-                    minHeight: '100%',
-                    width: '100%',
-                    display: 'grid',
-                    placeItems: 'center',
-                    background:
-                        'radial-gradient(circle at 12% 10%, rgba(203, 107, 61, 0.2), transparent 34%), radial-gradient(circle at 88% 20%, rgba(16, 122, 108, 0.15), transparent 32%), linear-gradient(170deg, #fff8f1 0%, #fdfaf7 45%, #f6fbfb 100%)',
-                    p: 3,
-                }}
-            >
+            <Box sx={{ ...pageShellSx, display: 'grid', placeItems: 'center' }}>
                 <Paper
                     elevation={0}
                     sx={{
@@ -106,15 +104,7 @@ export default function RecipeView() {
 
     return (
         <Box
-            sx={{
-                minHeight: '100%',
-                width: '100%',
-                position: 'relative',
-                overflow: 'auto',
-                background:
-                    'radial-gradient(circle at 12% 10%, rgba(203, 107, 61, 0.2), transparent 34%), radial-gradient(circle at 88% 20%, rgba(16, 122, 108, 0.15), transparent 32%), linear-gradient(170deg, #fff8f1 0%, #fdfaf7 45%, #f6fbfb 100%)',
-                p: { xs: 2, md: 4 },
-            }}
+            sx={{ ...pageShellSx, position: 'relative', overflow: 'auto' }}
         >
             <Box
                 sx={{
@@ -183,32 +173,30 @@ export default function RecipeView() {
                             <Paper
                                 elevation={0}
                                 sx={{
-                                    p: { xs: 2, md: 2.5 },
+                                    ...sectionPaperSx,
                                     borderRadius: 5,
-                                    border: '1px solid rgba(15, 23, 42, 0.08)',
-                                    flex: { xs: '1 1 auto', lg: '0 0 420px' },
+                                    flex: { xs: '1 1 auto', lg: '0 0 520px' },
                                     background: 'linear-gradient(180deg, #fff 0%, #fff8f2 100%)',
                                 }}
                             >
                                 <Box
                                     sx={{
+                                        aspectRatio: '1 / 1',
                                         borderRadius: 4,
                                         overflow: 'hidden',
                                         border: '1px solid rgba(15, 23, 42, 0.06)',
                                         boxShadow: '0 18px 36px rgba(15, 23, 42, 0.12)',
                                     }}
                                 >
-                                    <Logo size={420} path={recipe.image || ''} />
+                                    <Logo size={520} path={recipe.image || ''} />
                                 </Box>
                             </Paper>
 
-                            <Stack spacing={3} sx={{ flex: 1 }}>
+                            <Stack spacing={3} sx={{ flex: { xs: 1, lg: '0 0 420px' }, minWidth: 0 }}>
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: { xs: 2, md: 2.5 },
-                                        borderRadius: 5,
-                                        border: '1px solid rgba(15, 23, 42, 0.08)',
+                                        ...sectionPaperSx,
                                         background: '#ffffff',
                                     }}
                                 >
@@ -216,14 +204,30 @@ export default function RecipeView() {
                                         variant="h4"
                                         sx={{
                                             mb: 1.5,
-                                            fontFamily: '"Fraunces", "Georgia", serif',
-                                            fontWeight: 650,
+                                            ...headingSx,
                                             fontSize: { xs: '1.5rem', md: '2rem' },
                                         }}
                                     >
                                         Ingredients
                                     </Typography>
                                     <Divider sx={{ mb: 2 }} />
+
+                                    {recipe.url && (
+                                        <Link
+                                            href={recipe.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            underline="hover"
+                                            sx={{
+                                                display: 'inline-flex',
+                                                mb: 2,
+                                                fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            Watch recipe video
+                                        </Link>
+                                    )}
 
                                     <Stack spacing={1.25}>
                                         {(recipe.ingredients || []).length === 0 && (
@@ -232,7 +236,7 @@ export default function RecipeView() {
                                             </Typography>
                                         )}
 
-                                        {(recipe.ingredients || []).map((ingredient, index) => (
+                                        {recipe.ingredients.map((ingredient: { name: string; quantity: number; unit: string }, index: number) => (
                                             <Stack
                                                 key={`${ingredient.name}-${index}`}
                                                 direction="row"
@@ -265,9 +269,7 @@ export default function RecipeView() {
                                 <Paper
                                     elevation={0}
                                     sx={{
-                                        p: { xs: 2, md: 2.5 },
-                                        borderRadius: 5,
-                                        border: '1px solid rgba(15, 23, 42, 0.08)',
+                                        ...sectionPaperSx,
                                         background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)',
                                     }}
                                 >
@@ -275,8 +277,7 @@ export default function RecipeView() {
                                         variant="h4"
                                         sx={{
                                             mb: 1.5,
-                                            fontFamily: '"Fraunces", "Georgia", serif',
-                                            fontWeight: 650,
+                                            ...headingSx,
                                             fontSize: { xs: '1.5rem', md: '2rem' },
                                         }}
                                     >
@@ -291,7 +292,7 @@ export default function RecipeView() {
                                             </Typography>
                                         )}
 
-                                        {instructionSteps.map((step, index) => (
+                                        {instructionSteps.map((step: string, index: number) => (
                                             <Stack key={`${step}-${index}`} direction="row" spacing={1.5} alignItems="flex-start">
                                                 <Box
                                                     sx={{

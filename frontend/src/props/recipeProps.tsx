@@ -6,7 +6,8 @@ type ingredient = {
 
 export type Recipe = {
     name: string;
-    ingredients: ingredient[] | null;
-    instructions: string | null;
+    ingredients: ingredient[];
+    instructions: string;
     image: string | null;
+    url: string | null;
 }
