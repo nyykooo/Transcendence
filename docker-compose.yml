@@ -153,6 +153,8 @@ services:
       - .env
     ports:
       - "9187:9187"
+    command:
+    - --web.config.file=/etc/postgres_exporter/web.yml
     volumes:
       - ./monitoring/postgres-exporter-web.yml:/etc/postgres_exporter/web.yml:ro
       - ./monitoring/tools/certs/postgres_exporter/postgres_exporter.crt:/etc/postgres_exporter/certs/postgres_exporter.crt:ro

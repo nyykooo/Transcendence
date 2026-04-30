@@ -17,3 +17,11 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
       server_name: postgres_exporter
+
+  - job_name: 'api_gateway'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+      server_name: api
+    static_configs:
+      - targets: ['api:3443']
