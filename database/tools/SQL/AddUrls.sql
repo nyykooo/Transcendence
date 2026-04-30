@@ -2,6 +2,10 @@ UPDATE dev_dba.all_recipes
 SET url = 'https://youtu.be/SjCkW-oAFQ8?si=v9Qbr-baRJAgQBK1&t=31'
 WHERE name = 'Shakshuka';
 
+UPDATE dev_dba.all_recipes
+SET image = '/uploads/images/shakshuka.webp'
+WHERE name = 'Shakshuka';
+
 
 UPDATE dev_dba.all_recipes
 SET url = 'https://youtu.be/W8df3s3xo70?si=H-kxbmssehU9wO1O&t=18'

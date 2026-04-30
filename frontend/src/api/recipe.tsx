@@ -3,6 +3,23 @@ import { type Recipe } from '../props/recipeProps';
 import type { User } from '../props/userProps';
 
 
+function normalizeMediaUrl(value?: string | null): string | null {
+    if (!value) {
+        return null;
+    }
+
+    if (value.startsWith('/uploads/')) {
+        return value;
+    }
+
+    const uploadsIndex = value.indexOf('/uploads/');
+    if (uploadsIndex >= 0) {
+        return value.slice(uploadsIndex);
+    }
+
+    return value;
+}
+
 
 export async function getRecipe(name: string): Promise<Recipe | null>
 {
@@ -30,9 +47,10 @@ export async function getRecipe(name: string): Promise<Recipe | null>
         // Map the backend response to Recipe type
         const recipe: Recipe = {
             name: data.name,
-            ingredients: data.ingredients ? data.ingredients : [],
+            ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
             instructions: data.instructions ? data.instructions : '',
-            image: data.image ? data.image : ''
+            image: normalizeMediaUrl(data.image ?? null),
+            url: data.url ?? null,
         };
 
         return recipe;
