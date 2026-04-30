@@ -8,7 +8,7 @@ BACKEND_DIR := $(ROOT_DIR)/backend
 FRONTEND_DIR := $(ROOT_DIR)/frontend
 
 
-.PHONY: all build up start down stop restart dev_frontend
+.PHONY: all build up start down stop restart dev-frontend-local dev-frontend-run
 
 all: build up submakes
 
@@ -49,8 +49,15 @@ re: fclean all
 logs:
 	cd srcs && docker-compose logs
 
-dev_frontend: dev submakes
-
 dev:
-	docker-compose -f ./docker-compose.yml build api postgres pgadmin
-	docker-compose -f ./docker-compose.yml up -d api postgres pgadmin
+	docker-compose -f ./docker-compose.yml up -d api auth-service recipes-service postgres redis pgadmin
+
+build_dev: certs
+	docker-compose -p brunchio -f ./docker-compose.yml build api auth-service recipes-service postgres redis pgadmin
+
+# Frontend local development mode
+# Runs backend services in containers, frontend locally on port 3000
+dev-frontend-local: down build_dev dev submakes dev-frontend-run
+
+dev-frontend-run:
+	cd $(FRONTEND_DIR) && PORT=3000 npm run dev:ssr

@@ -1,4 +1,3 @@
-export { default as DomeGallery } from './DomeGallery';
 export { default as Header } from './Header';
 export { default as Footer } from './Footer';
 export { default as Logo } from './Logo';
@@ -10,3 +9,4 @@ export { default as MultipleAutoComplete } from './MultipleAutoComplete';
 export { default as ProtectedRoute } from './ProtectedRoute';
 export { default as RoleBaseGuard } from './RoleBaseGuard';
 export { default as ErrorPage } from './errorPage';
+export { theme } from './Theme';
