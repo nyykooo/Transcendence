@@ -188,7 +188,7 @@ services:
 
   grafana:
     container_name: brunchio_grafana
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.0.1
     env_file:
       - .env
     ports:
@@ -196,6 +196,7 @@ services:
     volumes:
     - grafana_data:/var/lib/grafana
     - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     - ./monitoring/tools/certs/grafana/grafana.crt:/etc/grafana/certs/grafana.crt:ro
     - ./monitoring/tools/certs/grafana/grafana.key:/etc/grafana/certs/grafana.key:ro
     depends_on:
