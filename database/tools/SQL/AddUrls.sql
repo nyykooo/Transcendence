@@ -7,23 +7,23 @@ SET image = '/uploads/images/shakshuka.webp'
 WHERE name = 'Shakshuka';
 
 UPDATE dev_dba.all_recipes
-SET instructions = $$1. **Prepare ingredients**:
-    Finely dice all ingredients, really small cuts
-2. **Sauté aromatics**:
+SET instructions = $$**Prepare ingredients**:
+    - Finely dice all ingredients, really small cuts
+    **Sauté aromatics**:
     - Heat olive oil in a large pan
     - Brown the garlic, onion and the pepper
     - Add the tomato and season, let it in low heat until the sauce is thickened
 
-3. **Add tomatoes and spices**:
+    **Add tomatoes and spices**:
     - Add the tomato and season
     - Salt to taste
     - Simmer for 15-20 minutes until thickened
 
-4. **Add eggs**:
+    **Add eggs**:
     - Make wells in the sauce and crack eggs
     - Cover and cook until eggs are set (5-7 minutes)
 
-5. **Serve**:
+    **Serve**:
     - Serve hot with Saloia bread (100g) on the side
     - Garnish with fresh herbs if desired$$
 WHERE name = 'Shakshuka';

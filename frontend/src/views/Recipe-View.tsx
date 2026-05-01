@@ -16,7 +16,7 @@ const pageShellSx = {
     minHeight: '100%',
     width: '100%',
     background:
-        'radial-gradient(circle at 12% 10%, rgba(203, 107, 61, 0.2), transparent 34%), radial-gradient(circle at 88% 20%, rgba(16, 122, 108, 0.15), transparent 32%), linear-gradient(170deg, #fff8f1 0%, #fdfaf7 45%, #f6fbfb 100%)',
+        'radial-gradient(circle at 12% 10%, rgba(171, 57, 3, 0.2), transparent 34%), radial-gradient(circle at 88% 20%, rgba(16, 122, 108, 0.15), transparent 32%), linear-gradient(170deg, #fff8f1 0%, #fdfaf7 45%, #f6fbfb 100%)',
     p: { xs: 2, md: 4 },
 };
 
@@ -131,7 +131,7 @@ export default function RecipeView() {
                         backdropFilter: 'blur(3px)',
                     }}
                 >
-                    <Stack spacing={3}>
+                    <Stack spacing={3} direction="column">
                         <Stack spacing={1}>
                             <Chip
                                 label="Recipe Studio"
@@ -169,7 +169,7 @@ export default function RecipeView() {
                             </Stack>
                         </Stack>
 
-                        <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} alignItems="stretch">
+                        <Stack direction={{ xs: 'column', lg: 'row',  }}  spacing={3} alignItems="stretch"  >
                             <Paper
                                 elevation={0}
                                 sx={{
@@ -177,6 +177,7 @@ export default function RecipeView() {
                                     borderRadius: 5,
                                     flex: { xs: '1 1 auto', lg: '0 0 520px' },
                                     background: 'linear-gradient(180deg, #fff 0%, #fff8f2 100%)',
+                                    height: "fit-content" 
                                 }}
                             >
                                 <Box
@@ -265,12 +266,15 @@ export default function RecipeView() {
                                         ))}
                                     </Stack>
                                 </Paper>
-
-                                <Paper
+                            </Stack>
+                        </Stack>
+                            <Paper
                                     elevation={0}
                                     sx={{
                                         ...sectionPaperSx,
                                         background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)',
+                                        width: '86%',
+                                        alignContent: 'center'
                                     }}
                                 >
                                     <Typography
@@ -284,42 +288,80 @@ export default function RecipeView() {
                                         Instructions
                                     </Typography>
                                     <Divider sx={{ mb: 2 }} />
-
                                     <Stack spacing={1.75}>
-                                        {instructionSteps.length === 0 && (
-                                            <Typography color="text.secondary" sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
-                                                No instructions provided for this recipe.
-                                            </Typography>
-                                        )}
+                                      {instructionSteps.length === 0 && (
+                                        <Typography color="text.secondary" sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
+                                          No instructions provided for this recipe.
+                                        </Typography>
+                                      )}
 
-                                        {instructionSteps.map((step: string, index: number) => (
-                                            <Stack key={`${step}-${index}`} direction="row" spacing={1.5} alignItems="flex-start">
-                                                <Box
-                                                    sx={{
-                                                        flexShrink: 0,
-                                                        width: 28,
-                                                        height: 28,
-                                                        borderRadius: '50%',
-                                                        display: 'grid',
-                                                        placeItems: 'center',
-                                                        fontWeight: 700,
-                                                        fontSize: 13,
-                                                        bgcolor: 'rgba(203, 107, 61, 0.18)',
-                                                        color: '#8c3e1f',
-                                                        fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
-                                                    }}
-                                                >
-                                                    {index + 1}
-                                                </Box>
-                                                <Typography sx={{ pt: 0.35, fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
-                                                    {step}
-                                                </Typography>
+                                      {(() => {
+                                        const groupedSteps: { title: string; subSteps: string[] }[] = [];
+
+                                        instructionSteps.forEach((step: string) => {
+                                          if (step.startsWith('-')) {
+                                            if (groupedSteps.length > 0) {
+                                              groupedSteps[groupedSteps.length - 1].subSteps.push(step.substring(1).trim());
+                                            }
+                                          } else {
+                                            groupedSteps.push({ title: step, subSteps: [] });
+                                          }
+                                        });
+                                    
+                                        return groupedSteps.map((group, groupIndex) => (
+                                          <Box key={groupIndex} sx={{ mb: 1 }}>
+                                            {/* Section header with numbered circle */}
+                                            <Stack direction="row" spacing={1.5} alignItems="flex-start" sx={{ mb: 1.5 }}>
+                                              <Box
+                                                sx={{
+                                                  width: 28,
+                                                  height: 28,
+                                                  borderRadius: '50%',
+                                                  display: 'grid',
+                                                  placeItems: 'center',
+                                                  fontWeight: 700,
+                                                  fontSize: 13,
+                                                  bgcolor: 'rgba(203, 107, 61, 0.18)',
+                                                  color: '#8c3e1f',
+                                                  fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
+                                                }}
+                                              >
+                                                {groupIndex + 1}
+                                              </Box>
+                                              <Typography sx={{ pt: 0.35, fontWeight: 600, fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
+                                                {group.title}
+                                              </Typography>
                                             </Stack>
-                                        ))}
+                                            
+                                            {/* Bullet points for sub-steps */}
+                                            <Stack spacing={1} sx={{ pl: 4 }}>
+                                              {group.subSteps.map((subStep, subIndex) => (
+                                                <Stack key={subIndex} direction="row" spacing={1.5} alignItems="cen">
+                                                  <Box
+                                                    sx={{
+                                                      flexShrink: 0,
+                                                      width: 20,
+                                                      height: 20,
+                                                      display: 'grid',
+                                                      placeItems: 'center',
+                                                      color: '#8c3e1f',
+                                                      fontSize: 18,
+                                                      lineHeight: 1,
+                                                    }}
+                                                  >
+                                                    •
+                                                  </Box>
+                                                  <Typography sx={{ pt: 0.35, fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
+                                                    {subStep}
+                                                  </Typography>
+                                                </Stack>
+                                              ))}
+                                            </Stack>
+                                          </Box>
+                                        ));
+                                      })()}
                                     </Stack>
                                 </Paper>
-                            </Stack>
-                        </Stack>
                     </Stack>
                 </Paper>
             </Box>
