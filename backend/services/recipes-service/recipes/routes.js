@@ -396,11 +396,17 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
         }
 
         const raw_recipe = result.rows[0];
+        const instructions = Array.isArray(raw_recipe.instructions)
+            ? raw_recipe.instructions
+                .map((step) => String(step || '').trim())
+                .filter(Boolean)
+                .join('\n')
+            : String(raw_recipe.instructions ?? '');
 
         const recipe = {
             name: raw_recipe.name,
             ingredients: raw_recipe.ingredients,
-            instructions: raw_recipe.instructions,
+            instructions,
             image: raw_recipe.image,
             url: raw_recipe.url,
             prep_time: raw_recipe.prep_time,
@@ -411,7 +417,6 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
             liked: raw_recipe.liked,
             viewed: raw_recipe.viewed+1,
         };
-        recipes.instructions = raw_recipe.instructions.split('\n').filter(line => line.trim() !== '');
         return res.json(recipe);
     } catch (error) {
         console.log('Error fetching recipe:', error);

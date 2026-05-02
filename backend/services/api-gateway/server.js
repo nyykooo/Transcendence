@@ -170,6 +170,9 @@ app.use('/uploads', createProxyMiddleware({
 const recipesProxy = createProxy(RECIPES_SERVICE_URL);
 const authProxy = createProxy(AUTH_SERVICE_URL);
 
+// Recipe CSV import is handled by auth-service because it creates pending rows owned by the submitting user.
+app.use(['/api/recipes/import', '/recipes/import'], authProxy);
+
 app.use(['/pending/recipes', '/pending/recipes/', '/pending/RecipeListView', '/Pending/RecipeListView', '/recipes', '/recipes/', '/RecipeListView'], recipesProxy);
 app.use(['/api/recipes', '/api/recipes/', '/api/pending/recipes', '/api/pending/recipes/', '/api/RecipeListView', '/api/Pending/RecipeListView'], recipesProxy);
 app.use(['/api', '/register', '/login', '/logout', '/auth', '/profile', '/users', '/recipes', '/pending', '/RecipeListView', '/Pending/RecipeListView'], authProxy);
