@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const https = require('https');
+const client = require('prom-client');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 require('dotenv').config();
@@ -40,6 +41,62 @@ function stripApiPrefix(pathname) {
   return pathname.startsWith('/api') ? pathname.replace(/^\/api/, '') || '/' : pathname;
 }
 
+function normalizeRoute(pathname) {
+  return pathname
+    .replace(/\/\d+/g, '/:id')
+    .replace(/\/[a-f0-9-]{36}/gi, '/:uuid');
+}
+
+function getTargetService(pathname) {
+  if (pathname === '/metrics') {
+    return 'prometheus';
+  }
+
+  if (pathname === '/health') {
+    return 'gateway';
+  }
+
+  if (pathname.startsWith('/uploads')) {
+    return 'auth';
+  }
+
+  if (isRecipesRoute(stripApiPrefix(pathname))) {
+    return 'recipes';
+  }
+
+  return 'auth';
+}
+
+client.collectDefaultMetrics({
+  prefix: 'api_gateway_',
+});
+
+const httpRequestDuration = new client.Histogram({
+  name: 'api_gateway_http_request_duration_seconds',
+  help: 'API Gateway HTTP request duration in seconds',
+  labelNames: ['method', 'route', 'status_code', 'target_service'],
+  buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+});
+
+function prometheusMiddleware(req, res, next) {
+  if (req.path === '/metrics') {
+    return next();
+  }
+
+  const end = httpRequestDuration.startTimer();
+
+  res.on('finish', () => {
+    end({
+      method: req.method,
+      route: normalizeRoute(req.path),
+      status_code: String(res.statusCode),
+      target_service: getTargetService(req.path),
+    });
+  });
+
+  return next();
+}
+
 function createProxy(target) {
   return createProxyMiddleware({
     target,
@@ -68,6 +125,12 @@ function createProxy(target) {
 
 app.set('trust proxy', 1);
 app.use(cors());
+app.use(prometheusMiddleware);
+
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 app.get('/health', (_req, res) => {
   res.status(200).json({

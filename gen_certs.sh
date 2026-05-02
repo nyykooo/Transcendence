@@ -104,6 +104,7 @@ else
     -addext "subjectAltName = DNS:prometheus, DNS:localhost, IP:127.0.0.1"
   chmod 644 "${DEVOPS_DIR}/tools/certs/prometheus/prometheus.key"
   chmod 644 "${DEVOPS_DIR}/tools/certs/prometheus/prometheus.crt"
+  sudo chown -R 65534:65534 "${DEVOPS_DIR}/tools/certs/prometheus" 2>/dev/null || true
 fi
 
 if [ -f "${DEVOPS_DIR}/tools/certs/grafana/grafana.crt" ] && [ -f "${DEVOPS_DIR}/tools/certs/grafana/grafana.key" ]; then
@@ -120,6 +121,7 @@ else
     -addext "subjectAltName = DNS:grafana, DNS:localhost, IP:127.0.0.1"
   chmod 644 "${DEVOPS_DIR}/tools/certs/grafana/grafana.key"
   chmod 644 "${DEVOPS_DIR}/tools/certs/grafana/grafana.crt"
+  sudo chown -R 472:472 "${DEVOPS_DIR}/tools/certs/grafana" 2>/dev/null || true
 fi
 
 if [ -f "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.crt" ] && [ -f "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.key" ]; then
@@ -136,6 +138,7 @@ else
     -addext "subjectAltName = DNS:postgres_exporter, DNS:localhost, IP:127.0.0.1"
   chmod 644 "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.key"
   chmod 644 "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.crt"
+  sudo chown -R 65534:65534 "${DEVOPS_DIR}/tools/certs/postgres_exporter" 2>/dev/null || true
 fi
 
 echo ""
