@@ -1,7 +1,4 @@
 name,diet,ingredients,instructions,image_path,video_url,cost,portions
-"Recipe Name","Vegetarian|Vegan|Gluten-Free|Meat-Based|etc","Ingredient 1 (quantity unit); Ingredient 2 (quantity unit); Ingredient 3 (quantity unit)","Step 1. Description of step 1
-Step 2. Description of step 2
-Step 3. Description of step 3","path/to/image.webp","https://youtu.be/video_id",0.00,1
 "Shakshupa","Vegetarian","Basil (5g); Chili Pepper (10g); Cumin (4g); Eggs (2 units); Garlic (13g); Onion (70g); Red Bell Pepper (80g); Rosemary (2g); Saloia Bread (100g); Sweet Paprika (10g); Thyme (3g); Tomato (385g); Tomato Paste (50g)","1. Prepare ingredients: Finely dice all ingredients with small cuts
 2. Sauté aromatics: Heat olive oil in a large pan and brown the garlic, onion and pepper
 3. Add tomatoes and spices: Add the tomato and season with salt to taste, simmer for 15-20 minutes until thickened

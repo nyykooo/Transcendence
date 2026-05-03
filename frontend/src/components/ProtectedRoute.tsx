@@ -5,10 +5,14 @@ import { useEffect } from "react";
 import { checkToken } from "../api/login";
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-    const { user } = useAuth();
+    const { user, authReady } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!authReady) {
+            return;
+        }
+
         const verifyToken = async () => {
             // console.log('ProtectedRoute: checking auth status', { user });
             try {
@@ -23,7 +27,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         };
 
         verifyToken();
-    }, [navigate, user]);
+    }, [authReady, navigate, user]);
 
     return children;
 }

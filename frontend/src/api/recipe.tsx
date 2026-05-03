@@ -1,5 +1,5 @@
 import { api } from '../configs/api';
-import { type Recipe } from '../props/recipeProps';
+import { type Recipe, type InstructionGroup } from '../props/recipeProps';
 import type { User } from '../props/userProps';
 
 
@@ -48,7 +48,9 @@ export async function getRecipe(name: string): Promise<Recipe | null>
         const recipe: Recipe = {
             name: data.name,
             ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
-            instructions: data.instructions ? data.instructions : '',
+            instructions: Array.isArray(data.instructions)
+                ? data.instructions.filter((group: any): group is InstructionGroup => Boolean(group && typeof group.title === 'string'))
+                : [],
             image: normalizeMediaUrl(data.image ?? null),
             url: data.url ?? null,
         };
