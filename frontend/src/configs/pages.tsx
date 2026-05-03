@@ -2,10 +2,6 @@ import { type PageProps } from '../props/PageProps';
 
 export const pages: PageProps[] = [
     {
-        route: 'home',
-        label: 'Home' 
-    },
-    {
         route: 'recipesList',
         label: 'Recipes List' 
     },
@@ -13,4 +9,12 @@ export const pages: PageProps[] = [
         route: 'admin',
         label: 'Admin Panel' 
     },
+    {
+        route: 'profile',
+        label: 'Profile'
+    },
+    {
+        route: 'fileManagement',
+        label: 'File Management'
+    }
 ]

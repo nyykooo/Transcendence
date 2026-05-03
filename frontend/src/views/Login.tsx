@@ -96,6 +96,7 @@ export default function Login()
                 <TextField 
                     label="Email"
                     onChange={handleUpdateEmail}
+                    color='secondary'
                 />
                 <TextField 
                     id="outlined-password-input"
@@ -113,6 +114,7 @@ export default function Login()
                 )}
                 <Button
                     onClick={handleSubmitLogin}
+                    color='secondary'
                 >
                     {requiresTwoFactor ? 'Verify 2FA' : 'Submit'}
                 </Button>
