@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import  { BottomNavigation, BottomNavigationAction, Box } from "@mui/material";
+import  { BottomNavigation, BottomNavigationAction } from "@mui/material";
 
 import { paths } from '../configs/routes';
 
