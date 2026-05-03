@@ -30,5 +30,13 @@ export const paths = {
     admin: {
       path: '/admin',
       name: 'Admin Panel'
+    },
+    profile: {
+      path: '/profile',
+      name: 'Profile'
+    },
+    fileManagement: {
+      path: '/file-management',
+      name: 'File Management'
     }
 }

@@ -243,20 +243,22 @@ export default function AdminView()
             renderCell: (params) => {
                 return (
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button
-                        variant="contained"
-                        size="small"
-                        onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
-                    >
-                        Aprove
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
-                    >
-                        Reprove
-                    </Button>
+                        <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
+                            color='success'
+                        >
+                            Aprove
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
+                            color='error'
+                        >
+                            Reprove
+                        </Button>
                     </Box>
                 );
             },
@@ -320,6 +322,7 @@ export default function AdminView()
                         size="small"
                         disabled={!isChanged}
                         onClick={() => handleUpdateUserRole(params.row.id)}
+                        color='success'
                     >
                         Update
                     </Button>
@@ -327,6 +330,7 @@ export default function AdminView()
                         variant="outlined"
                         size="small"
                         onClick={() => handleDeleteUser(params.row.id)}
+                        color='error'
                     >
                         Delete
                     </Button>
@@ -340,16 +344,16 @@ export default function AdminView()
         <RoleBaseGuard role={user?.role} 
             children={
                 <Box sx={{height: '100%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
-                    <h1>Admin View</h1>
-                    <p>Only admin users can access this view.</p>
-                    <h2>Pending Recipes</h2>
-                    <p>Here you can review and approve or reject pending recipes submitted by users.</p>
+                    <Typography variant="h2" color='primary'>Admin View</Typography>
+                    <Typography variant="body1" color='info'>Only admin users can access this view.</Typography>
+                    <Typography variant="h3" color='primary'>Pending Recipes</Typography>
+                    <Typography variant="body1" color='info'>Here you can review and approve or reject pending recipes submitted by users.</Typography>
                     {error && (
                         <Alert severity='error' sx={{ width: '100%' }}>
                             {error}
                         </Alert>
                     )}
-                    <Typography variant='body2' color='textSecondary'>
+                    <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
                         {`Pending Recipes`}
                     </Typography>
                     <DataGrid
@@ -380,10 +384,11 @@ export default function AdminView()
                         pageSizeOptions={[5, 10, 20, 50, 100]}
                         disableRowSelectionOnClick
                     />
-                    <Typography variant='body2' color='textSecondary'>
+                    <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
                         {`Users`}
                     </Typography>
                     <DataGrid
+                        sx={{ width: '100%', flex: 1 }}
                         rows={usersRows}
                         columns={usersColumns}
                         getRowId={(row: UserRows) => `${row.id}`}

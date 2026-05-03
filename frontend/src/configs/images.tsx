@@ -6,7 +6,7 @@ const assetsPath = "/assets";
 export const images = {
     icons: {
         logo: `${assetsPath}/image/icons/brunchio_logo.png`,
-        settings: `${assetsPath}/image/icons/setting_icon.png`,
+        settings: `${assetsPath}/image/icons/settings.png`,
         search: `${assetsPath}/image/icons/search.png`,
         trash: `${assetsPath}/image/icons/trash.png`
     },

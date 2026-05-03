@@ -34,6 +34,7 @@ export default function SliderSelector({ min, max, value, valueText = '', name, 
         min={safeMin}
         max={safeMax}
         step={safeStep}
+        color="secondary"
       />
     </Box>
   );
