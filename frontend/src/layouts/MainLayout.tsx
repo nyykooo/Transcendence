@@ -12,7 +12,9 @@ export default function MainLayout() {
             paddingBottom: { xs: 7, md: 0 }  // Espaço para footer em mobile
         }}>
             <Header />
-            <Outlet />
+            <Box sx={{ flexGrow: 1 }}>
+                <Outlet />
+            </Box>
             <Footer />
         </Box>
     );
