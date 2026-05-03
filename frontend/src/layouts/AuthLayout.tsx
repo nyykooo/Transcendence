@@ -4,7 +4,12 @@ import { Footer } from '../components/components';
 
 export default function AuthLayout() {
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
+        <Box sx={{ 
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
+            width: '100%' 
+        }}>
             <Outlet />
             <Footer />
         </Box>
