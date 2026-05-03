@@ -10,7 +10,7 @@ export default function Logo({ path, size, sx }: LogoProps) {
             sx={{
                 fontSize: responsiveSize,
                 lineHeight: 1,
-                display: 'inline-flex',
+                display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 ...sx,

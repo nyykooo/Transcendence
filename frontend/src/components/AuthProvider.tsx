@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 import { type User } from '../props/userProps'
 import { type AuthProviderProps } from '../props/authProviderProps';
@@ -55,7 +55,17 @@ function storeUser(user: User | null) {
 }
 
 export default function AuthProvider ({ children } : AuthProviderProps) {
-    const [user, setUser] = useState<User | null>(() => readStoredUser());
+    const [user, setUser] = useState<User | null>(null);
+    const [authReady, setAuthReady] = useState<boolean>(!isBrowser);
+
+    useEffect(() => {
+        if (!isBrowser) {
+            return;
+        }
+
+        setUser(readStoredUser());
+        setAuthReady(true);
+    }, []);
 
     const getAuthToken = (): string | null => {
         if (user?.token) {
@@ -132,7 +142,7 @@ export default function AuthProvider ({ children } : AuthProviderProps) {
         setUser(null);
     };
 
-    return <AuthContext.Provider value={{ user, signIn, completeTwoFactorSignIn, signOut, getAuthToken, getAuthRole }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ user, authReady, signIn, completeTwoFactorSignIn, signOut, getAuthToken, getAuthRole }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {

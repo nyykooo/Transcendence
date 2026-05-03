@@ -42,6 +42,30 @@ function serializeRecipeRow(row) {
     };
 }
 
+function groupRecipeInstructions(instructions) {
+    const groupedSteps = [];
+
+    const lines = Array.isArray(instructions)
+        ? instructions.map((step) => String(step || '').trim()).filter(Boolean)
+        : String(instructions ?? '')
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean);
+
+    lines.forEach((step) => {
+        if (step.startsWith('-')) {
+            if (groupedSteps.length > 0) {
+                groupedSteps[groupedSteps.length - 1].subSteps.push(step.substring(1).trim());
+            }
+            return;
+        }
+
+        groupedSteps.push({ title: step, subSteps: [] });
+    });
+
+    return groupedSteps;
+}
+
 router.get(['/recipes', '/recipes/', '/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
     const query = `
         SELECT
@@ -396,11 +420,12 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
         }
 
         const raw_recipe = result.rows[0];
+        const instructions = groupRecipeInstructions(raw_recipe.instructions);
 
         const recipe = {
             name: raw_recipe.name,
             ingredients: raw_recipe.ingredients,
-            instructions: raw_recipe.instructions,
+            instructions,
             image: raw_recipe.image,
             url: raw_recipe.url,
             prep_time: raw_recipe.prep_time,

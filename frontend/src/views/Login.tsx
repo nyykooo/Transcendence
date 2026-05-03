@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { Box, Stack, TextField, Button } from '@mui/material'
+import { Box, Stack, TextField, Button} from '@mui/material'
 
 import { Logo } from '../components/components'
 
@@ -92,43 +92,48 @@ export default function Login()
     return (
         <Box sx={{height: '100%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
             <Logo size={300} path={images.icons.logo}/>
-            <Stack sx={{border: "black", borderRadius: "12px", display: "flex", flexDirection: "column"}}>
-                <TextField 
-                    label="Email"
-                    onChange={handleUpdateEmail}
-                    color='secondary'
-                />
-                <TextField 
-                    id="outlined-password-input"
-                    label="Password"
-                    type="password"
-                    autoComplete="current-password"
-                    onChange={handleUpdatePass}
-                />
-                {requiresTwoFactor && (
-                    <TextField
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmitLogin(); }}>
+                <Stack sx={{border: "black", borderRadius: "12px", display: "flex", flexDirection: "column"}}>
+                    <TextField 
+                        label="Email"
+                        onChange={handleUpdateEmail}
+                        color='secondary'
+                    />
+                    <TextField 
+                        id="outlined-password-input"
+                        label="Password"
+                        type="password"
+                        autoComplete="current-password"
+                        onChange={handleUpdatePass}
+                        color='secondary'
+                    />
+                    {requiresTwoFactor && (
+                        <TextField
                         label="2FA Code"
                         onChange={handleUpdateOtp}
+                        color='secondary'
                         value={otp}
-                    />
-                )}
-                <Button
-                    onClick={handleSubmitLogin}
-                    color='secondary'
-                >
-                    {requiresTwoFactor ? 'Verify 2FA' : 'Submit'}
-                </Button>
-                <Button
-                    onClick={handleGithubLogin}
-                >
-                    Login using Github
-                </Button>
-                <Button
-                    onClick={handleRegister}
-                >
-                    Register
-                </Button>
-            </Stack>
+                        />
+                    )}
+                    <Button type="submit">
+                        {requiresTwoFactor ? 'Verify 2FA' : 'Submit'}
+                    </Button>
+                    <Button
+                        onClick={handleGithubLogin}
+                        color='secondary'
+                        >
+                        Login using Github
+                    </Button>
+                    <Button
+                        onClick={handleRegister}
+                        color='secondary'
+                        >
+                        Register
+                    </Button>
+                </Stack>
+        </form>
         </Box>
     );
 }

@@ -1,28 +1,17 @@
 import { useState, useCallback } from 'react';
 import {
     Box,
-    Button,
     Card,
     LinearProgress,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     Typography,
     Alert,
     CircularProgress,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Paper,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 import { uploadFile, importRecipes } from '../api/fileManagement';
 import type { FileUploadProgress, RecipeImportResponse, RecipeImportResult } from '../props/fileManagement/fileProps';
+import CSVRecipePreview from './CSVRecipePreview';
 
 const MIN_PROGRESS_VISIBLE_MS = 1000;
 
@@ -104,17 +93,8 @@ export default function FileManagement() {
             let recipes: RecipeImportResult[] = [];
 
             if (file.type === 'text/csv') {
-                // Simple CSV parsing
-                const lines = content.split('\n').filter(line => line.trim());
-                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                recipes = lines.slice(1).map(line => {
-                    const values = line.split(',').map(v => v.trim());
-                    const recipe: any = {};
-                    headers.forEach((h, i) => {
-                        recipe[h] = values[i];
-                    });
-                    return recipe;
-                });
+                // Parse CSV with proper handling of quoted fields
+                recipes = parseCSV(content);
             } else {
                 // JSON parsing
                 recipes = JSON.parse(content);
@@ -129,6 +109,99 @@ export default function FileManagement() {
         } catch (err) {
             setError('Failed to parse file: ' + (err instanceof Error ? err.message : 'Unknown error'));
         }
+    };
+
+    const parseCSV = (content: string): RecipeImportResult[] => {
+        const rows = parseCSVRows(content);
+        if (rows.length < 2) return [];
+
+        const headers = rows[0].map(header => header.toLowerCase().trim());
+        const recipes: RecipeImportResult[] = [];
+
+        for (let i = 1; i < rows.length; i++) {
+            const values = rows[i];
+            if (!values.length) continue;
+
+            const recipe: Record<string, string> = {};
+
+            headers.forEach((header, index) => {
+                recipe[header] = values[index] || '';
+            });
+
+            recipes.push(recipe as unknown as RecipeImportResult);
+        }
+
+        return recipes;
+    };
+
+    const parseCSVRows = (content: string): string[][] => {
+        const rows: string[][] = [];
+        let currentRow = '';
+        let insideQuotes = false;
+
+        for (let i = 0; i < content.length; i++) {
+            const char = content[i];
+            const nextChar = content[i + 1];
+
+            if (char === '"') {
+                if (insideQuotes && nextChar === '"') {
+                    currentRow += '"';
+                    i += 1;
+                } else {
+                    insideQuotes = !insideQuotes;
+                    currentRow += char;
+                }
+                continue;
+            }
+
+            if ((char === '\n' || char === '\r') && !insideQuotes) {
+                if (char === '\r' && nextChar === '\n') {
+                    i += 1;
+                }
+
+                if (currentRow.trim()) {
+                    rows.push(parseCSVLine(currentRow));
+                }
+                currentRow = '';
+                continue;
+            }
+
+            currentRow += char;
+        }
+
+        if (currentRow.trim()) {
+            rows.push(parseCSVLine(currentRow));
+        }
+
+        return rows;
+    };
+
+    const parseCSVLine = (line: string): string[] => {
+        const result: string[] = [];
+        let current = '';
+        let insideQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const nextChar = line[i + 1];
+
+            if (char === '"') {
+                if (insideQuotes && nextChar === '"') {
+                    current += '"';
+                    i++; // Skip next quote
+                } else {
+                    insideQuotes = !insideQuotes;
+                }
+            } else if (char === ',' && !insideQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+
+        result.push(current.trim());
+        return result;
     };
 
     const confirmImport = async () => {
@@ -158,7 +231,7 @@ export default function FileManagement() {
         }
     };
 
-    return (
+        return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
                 📁 File Management
@@ -222,6 +295,9 @@ export default function FileManagement() {
                     <Typography variant="h6">
                         Drag & drop files here or click to select
                     </Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                        📋 <strong>Recipe CSV:</strong> Upload multiple recipes at once with our template
+                    </Typography>
                     <Typography variant="caption" color="textSecondary">
                         Supported: CSV, JSON (for recipes), JPEG, PNG, GIF, WebP (max 5MB)
                     </Typography>
@@ -248,58 +324,13 @@ export default function FileManagement() {
             )}
 
             {/* Preview Dialog */}
-            <Dialog open={showPreview} onClose={() => setShowPreview(false)} maxWidth="md" fullWidth>
-                <DialogTitle>
-                    Preview Recipe Data
-                </DialogTitle>
-                <DialogContent>
-                    {previewData && previewData.length > 0 && (
-                        <TableContainer component={Paper} sx={{ mt: 2 }}>
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell>Ingredients</TableCell>
-                                        <TableCell>Diet</TableCell>
-                                        <TableCell>Cost</TableCell>
-                                        <TableCell>Portions</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {previewData.slice(0, 5).map((recipe, i) => (
-                                        <TableRow key={i}>
-                                            <TableCell>{recipe.name}</TableCell>
-                                            <TableCell>
-                                                {Array.isArray(recipe.ingredients)
-                                                    ? recipe.ingredients.map((ing: any) => ing.name || ing).join(', ')
-                                                    : String(recipe.ingredients)}
-                                            </TableCell>
-                                            <TableCell>{recipe.diet}</TableCell>
-                                            <TableCell>{recipe.cost || '-'}</TableCell>
-                                            <TableCell>{recipe.portions || '-'}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                    {previewData && previewData.length > 5 && (
-                        <Typography variant="caption" sx={{ mt: 1, display: 'block' }}>
-                            ... and {previewData.length - 5} more recipes
-                        </Typography>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setShowPreview(false)}>Cancel</Button>
-                    <Button
-                        onClick={confirmImport}
-                        variant="contained"
-                        disabled={uploading}
-                    >
-                        {uploading ? <CircularProgress size={20} /> : 'Import'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <CSVRecipePreview
+                open={showPreview}
+                recipes={previewData}
+                onConfirm={confirmImport}
+                onCancel={() => setShowPreview(false)}
+                uploading={uploading}
+            />
 
         </Box>
     );

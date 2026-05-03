@@ -3,6 +3,7 @@ import { type LoginProps, type LoginResponse } from './loginProps';
 
 export type AuthContextType = {
   user: User | null;
+  authReady: boolean;
   signIn: (login?: LoginProps, option?: string) => Promise<LoginResponse | void>;
   completeTwoFactorSignIn: (twoFactorToken: string, otp: string) => Promise<LoginResponse>;
   signOut: () => void;
