@@ -1,6 +1,7 @@
-import { paths } from '../configs/routes';
-
 export type PageProps = {
-    route: keyof typeof paths;
+    route: {
+        path: string;
+        name: string;
+    }
     label: string;
 }

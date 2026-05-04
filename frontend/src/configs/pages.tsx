@@ -2,19 +2,35 @@ import { type PageProps } from '../props/PageProps';
 
 export const pages: PageProps[] = [
     {
-        route: 'recipesList',
+        route: 
+        {
+            path: '/recipe-list-view',
+            name: 'Recipes List'
+        },
         label: 'Recipes List' 
     },
     {
-        route: 'admin',
-        label: 'Admin Panel' 
+        route: 
+        {
+            path: '/admin',
+            name: 'Admin Panel'
+        },
+        label: 'Admin Panel'
     },
     {
-        route: 'profile',
+        route: 
+        {
+            path: '/profile',
+            name: 'Profile'
+        },
         label: 'Profile'
     },
     {
-        route: 'fileManagement',
+        route: 
+        {
+            path: '/file-management',
+            name: 'File Management'
+        },
         label: 'File Management'
     }
 ]

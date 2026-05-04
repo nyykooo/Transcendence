@@ -37,7 +37,7 @@ export default function Settings() {
         .filter((page) => page.route !== 'admin' || isAdmin)
         .map((page) => ({
           name: page.label,
-          function: () => navigate(page.route),
+          function: () => navigate(page.route.path),
         }))
     : [];
 
