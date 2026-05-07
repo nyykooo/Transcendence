@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { Box, Button, useTheme, useMediaQuery } from '@mui/material';
-import { paths } from '../configs/routes';
 import { pages } from '../configs/pages';
 import { type PageProps } from '../props/PageProps';
 import RoleBaseGuard from './RoleBaseGuard';
@@ -14,7 +13,7 @@ export default function NavigationMenu() {
   const isSmallOrMedium = useMediaQuery(theme.breakpoints.down('lg'));
 
   function updatePage(item: PageProps) {
-    navigate(paths[item.route].path);
+    navigate(item.route.path);
   }
 
   if (isSmallOrMedium) return null;

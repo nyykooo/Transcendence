@@ -34,7 +34,7 @@ export default function Settings() {
 
   const navButtons = isSmallOrMedium
     ? navPages
-        .filter((page) => page.route !== 'admin' || isAdmin)
+        .filter((page) => page.route.path !== '/admin' || isAdmin)
         .map((page) => ({
           name: page.label,
           function: () => navigate(page.route.path),
