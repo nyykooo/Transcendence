@@ -9,4 +9,5 @@ export { default as MultipleAutoComplete } from './MultipleAutoComplete';
 export { default as ProtectedRoute } from './ProtectedRoute';
 export { default as RoleBaseGuard } from './RoleBaseGuard';
 export { default as ErrorPage } from './errorPage';
+export { default as InputText } from './InputText';
 export { theme } from './Theme';

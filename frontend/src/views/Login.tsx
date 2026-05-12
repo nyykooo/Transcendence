@@ -2,15 +2,14 @@ import { useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { Box, Stack, TextField, Button} from '@mui/material'
+import { Box, Stack, Button} from '@mui/material'
 
-import { Logo } from '../components/components'
+import { Logo, InputText } from '../components/components'
 
 import { useAuth } from '../components/AuthProvider';
 
 import { images } from '../configs/images'
 import type { LoginProps } from '../props/loginProps';
-
 
 export default function Login()
 {
@@ -96,12 +95,15 @@ export default function Login()
                 e.preventDefault();
                 handleSubmitLogin(); }}>
                 <Stack sx={{border: "black", borderRadius: "12px", display: "flex", flexDirection: "column"}}>
-                    <TextField 
+
+                    <InputText
                         label="Email"
                         onChange={handleUpdateEmail}
+                        id="email-input"
                         color='secondary'
                     />
-                    <TextField 
+                    
+                    <InputText
                         id="outlined-password-input"
                         label="Password"
                         type="password"
@@ -109,12 +111,13 @@ export default function Login()
                         onChange={handleUpdatePass}
                         color='secondary'
                     />
+
                     {requiresTwoFactor && (
-                        <TextField
-                        label="2FA Code"
-                        onChange={handleUpdateOtp}
-                        color='secondary'
-                        value={otp}
+                        <InputText
+                            label="2FA Code"
+                            onChange={handleUpdateOtp}
+                            id="otp-input"
+                            color='secondary'
                         />
                     )}
                     <Button type="submit">

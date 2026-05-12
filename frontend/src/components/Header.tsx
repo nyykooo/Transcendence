@@ -40,16 +40,17 @@ export default function Header() {
             <Stack sx={{
                 display: 'flex',
                 flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: { xs: 'auto', md: 'auto' },
+                alignItems: 'center',
+                flex: 1,
                 paddingX: { xs: 1, md: 5 },
                 marginTop: { xs: 1, md: 0 }
             }}>
                 <Typography 
                     variant="h1" 
                     sx={{ 
-                        alignSelf: 'end',
-                        fontSize: { xs: '1.5rem', md: '2rem' }
+                    alignSelf: 'center',
+                    fontSize: { xs: '1.5rem', md: '2rem' },
+                    flex: 1
                     }}
                 >
                     {getLocationName()}

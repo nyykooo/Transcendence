@@ -178,13 +178,13 @@ export default function RecipeListView() {
             <RecipeListTableToolbar 
                 defaultFilters={defaultFilters}
                 handleSearch={handleSearch}
-            /> {/*passar a updateFilters como prop (callback)*/}
+            />
             {error && (
                 <Alert severity='error' sx={{ width: '100%' }}>
                     {error}
                 </Alert>
             )}
-            <Box sx={{ height: 400, width: '100%' }}>
+            <Box sx={{ height: 400, width: '90vw' }}>
                 <DataGrid
                     rows={filteredRows}
                     columns={columns}
@@ -211,6 +211,10 @@ export default function RecipeListView() {
                     }}
                     pageSizeOptions={[5, 10, 20, 50, 100]}
                     disableRowSelectionOnClick
+                    sx={{
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                    }}
                 />
             </Box>
         </Box>
