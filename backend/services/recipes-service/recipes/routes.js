@@ -315,6 +315,46 @@ router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (re
     }
 });
 
+router.post('/recipes/:name/like_add', requireAuthWithRateLimit, async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    try {
+        const result = await pool.query(`
+            UPDATE public.all_recipes
+            SET liked = COALESCE(liked, 0) + 1
+            WHERE name = $1
+            RETURNING liked
+        `, [name]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: `Recipe ${name} not found` });
+        }
+
+        return res.json({ liked: result.rows[0].liked });
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to like recipe', details: error.message });
+    }
+});
+
+router.post('/recipes/:name/like_remove', requireAuthWithRateLimit, async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    try {
+        const result = await pool.query(`
+            UPDATE public.all_recipes
+            SET liked = GREATEST(COALESCE(liked, 0) - 1, 0)
+            WHERE name = $1
+            RETURNING liked
+        `, [name]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: `Recipe ${name} not found` });
+        }
+
+        return res.json({ liked: result.rows[0].liked });
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to unlike recipe', details: error.message });
+    }
+});
+
 router.post(['/pending/recipes', '/Pending/RecipeListView'], requireAuthWithRateLimit, async (req, res) => {
     const body = req.body || {};
     if (!body.name)
@@ -437,8 +477,16 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
             diet: raw_recipe.diet,
             cost: raw_recipe.cost,
             liked: raw_recipe.liked,
-            viewed: raw_recipe.viewed+1,
+            viewed: raw_recipe.viewed,
         };
+        const updatedViewed = (raw_recipe.viewed || 0) + 1;
+        await pool.query(
+            `UPDATE public.all_recipes
+             SET viewed = $1
+             WHERE id = $2`,
+            [updatedViewed, raw_recipe.id],
+        );
+        recipe.viewed = updatedViewed;
         return res.json(recipe);
     } catch (error) {
         console.log('Error fetching recipe:', error);

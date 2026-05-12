@@ -15,4 +15,6 @@ export type Recipe = {
     instructions: InstructionGroup[];
     image: string | null;
     url: string | null;
+    liked: number;
+    viewed: number;
 }

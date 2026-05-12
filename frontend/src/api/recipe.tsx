@@ -53,6 +53,8 @@ export async function getRecipe(name: string): Promise<Recipe | null>
                 : [],
             image: normalizeMediaUrl(data.image ?? null),
             url: data.url ?? null,
+            liked: Number(data.liked ?? 0),
+            viewed: Number(data.viewed ?? 0),
         };
 
         return recipe;

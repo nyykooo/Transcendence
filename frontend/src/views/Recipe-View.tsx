@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { Box, Chip, Divider, Link, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Chip, Divider, Link, Paper, Stack, Typography } from '@mui/material';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { Logo } from '../components/components';
 
@@ -39,6 +41,8 @@ export default function RecipeView() {
 
     const [recipe, setRecipe] = useState<Recipe | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isLiked, setIsLiked] = useState(false);
+    const [liking, setLiking] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -61,6 +65,41 @@ export default function RecipeView() {
             cancelled = true;
         };
     }, [name]);
+
+    const handleLikeClick = async () => {
+        if (!recipe || !name || liking) return;
+
+        setLiking(true);
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth') || 'null');
+            if (!auth?.token) {
+                console.error('No auth token found');
+                setLiking(false);
+                return;
+            }
+
+            const endpoint = isLiked ? 'like_remove' : 'like_add';
+            const response = await fetch(`/api/recipes/${encodeURIComponent(name)}/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${auth.token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update like');
+            }
+
+            const data = await response.json();
+            setRecipe({ ...recipe, liked: data.liked });
+            setIsLiked(!isLiked);
+        } catch (error) {
+            console.error('Error updating like:', error);
+        } finally {
+            setLiking(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -162,6 +201,26 @@ export default function RecipeView() {
                                     variant="outlined"
                                     sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}
                                 />
+                                <Chip
+                                    label={`${recipe.viewed ?? 0} Views`}
+                                    variant="outlined"
+                                    sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}
+                                />
+                                <Button
+                                    variant={isLiked ? 'contained' : 'outlined'}
+                                    color="error"
+                                    size="small"
+                                    startIcon={isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                                    onClick={handleLikeClick}
+                                    disabled={liking}
+                                    sx={{
+                                        fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
+                                        textTransform: 'none',
+                                        fontWeight: 600,
+                                    }}
+                                >
+                                    {recipe.liked ?? 0} Like{(recipe.liked ?? 0) !== 1 ? 's' : ''}
+                                </Button>
                             </Stack>
                         </Stack>
 
