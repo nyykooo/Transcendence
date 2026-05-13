@@ -49,5 +49,5 @@ export type PendingRecipe = {
     diet: string;
     author: string;
     status: string;
-    submission_date: string;
+    created_at: string;
 };

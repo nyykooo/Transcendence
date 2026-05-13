@@ -92,7 +92,7 @@ function normalizeRecipeName(value) {
 }
 
 function normalizeRecipeImage(recipe) {
-  return normalizeRecipeName(recipe?.image_path || recipe?.image);
+  return normalizeRecipeName(recipe?.image || recipe?.image);
 }
 
 function normalizeRecipeUrl(recipe) {
@@ -1779,9 +1779,9 @@ router.post('/recipes/:recipeId/image', requireAuthWithRateLimit, upload.single(
       // Update recipe with image path
       const updated = await pool.query(
         `UPDATE public.pending_recipes
-         SET image_path = $1
+         SET image = $1
          WHERE id = $2
-         RETURNING id, name, image_path`,
+         RETURNING id, name, image`,
         [imageUrl, recipeId]
       );
 
@@ -1789,9 +1789,9 @@ router.post('/recipes/:recipeId/image', requireAuthWithRateLimit, upload.single(
       if (updated.rowCount === 0) {
         const updatedApproved = await pool.query(
           `UPDATE public.all_recipes
-           SET image_path = $1
+           SET image = $1
            WHERE id = $2
-           RETURNING id, name, image_path`,
+           RETURNING id, name, image`,
           [imageUrl, recipeId]
         );
 
@@ -1836,13 +1836,13 @@ router.delete('/recipes/:recipeId/image', requireAuthWithRateLimit, async (req, 
 
     // Fetch recipe to get current image
     let recipe = await pool.query(
-      `SELECT id, image_path FROM public.pending_recipes WHERE id = $1`,
+      `SELECT id, image FROM public.pending_recipes WHERE id = $1`,
       [recipeId]
     );
 
     if (recipe.rowCount === 0) {
       recipe = await pool.query(
-        `SELECT id, image_path FROM public.all_recipes WHERE id = $1`,
+        `SELECT id, image FROM public.all_recipes WHERE id = $1`,
         [recipeId]
       );
     }
@@ -1851,24 +1851,24 @@ router.delete('/recipes/:recipeId/image', requireAuthWithRateLimit, async (req, 
       return res.status(404).json({ error: 'Recipe not found' });
     }
 
-    const imagePath = recipe.rows[0].image_path;
+    const imagePath = recipe.rows[0].image;
     const diskPath = imagePath ? toAvatarDiskPath(imagePath) : null;
 
     // Update recipe to remove image
     const updated = await pool.query(
       `UPDATE public.pending_recipes
-       SET image_path = NULL
+       SET image = NULL
        WHERE id = $1
-       RETURNING id, name, image_path`,
+       RETURNING id, name, image`,
       [recipeId]
     );
 
     if (updated.rowCount === 0) {
       await pool.query(
         `UPDATE public.all_recipes
-         SET image_path = NULL
+         SET image = NULL
          WHERE id = $1
-         RETURNING id, name, image_path`,
+         RETURNING id, name, image`,
         [recipeId]
       );
     }
@@ -1948,7 +1948,7 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
         await upsertIngredientCatalog(recipe.ingredients, recipe.diet);
 
         const insertResult = await pool.query(
-          `INSERT INTO public.pending_recipes (name, ingredients, diet, cost, portions, prep_time, cooking_time, instructions, url, author, status, image_path)
+          `INSERT INTO public.pending_recipes (name, ingredients, diet, cost, portions, prep_time, cooking_time, instructions, url, author, status, image)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending', $11)
            RETURNING id, name, author, status, created_at`,
           [

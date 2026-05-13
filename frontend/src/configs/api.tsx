@@ -9,7 +9,7 @@ export const api = {
     register: `${API_BASE_URL}/register`,
     recipe: `${API_BASE_URL}/recipes/`,
     pendingRecipes: {
-        getAll: `${API_BASE_URL}/pending/recipes/`,
+        getAll: `${API_BASE_URL}/pending/recipes`,
         approve: `${API_BASE_URL}/pending/recipes/approve/`,
         reprove: `${API_BASE_URL}/pending/recipes/reprove/`,
     },

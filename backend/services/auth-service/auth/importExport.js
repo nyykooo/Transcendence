@@ -175,7 +175,7 @@ function parseIngredients(ingredientsInput) {
 
 /**
  * Parse CSV file content into recipe objects
- * Expected headers: name, diet, ingredients, instructions, image_path, video_url, cost, portions
+ * Expected headers: name, diet, ingredients, instructions, image, video_url, cost, portions
  */
 function parseCSV(csvContent) {
     try {
@@ -210,7 +210,7 @@ function parseCSV(csvContent) {
                         prep_time: normalizeOptionalNumber(record.prep_time),
                         cooking_time: normalizeOptionalNumber(record.cooking_time),
                         instructions: normalizeText(record.instructions),
-                        image_path: normalizeText(record.image_path || record.image),
+                        image: normalizeText(record.image || record.image),
                         video_url: normalizeText(record.video_url || record.url),
                         author: normalizeText(record.author),
                     });
@@ -241,7 +241,7 @@ function parseCSV(csvContent) {
                 prep_time: normalizeOptionalNumber(record.prep_time),
                 cooking_time: normalizeOptionalNumber(record.cooking_time),
                 instructions: normalizeText(record.instructions),
-                image_path: normalizeText(record.image_path || record.image),
+                image: normalizeText(record.image || record.image),
                 video_url: normalizeText(record.video_url || record.url),
                 author: normalizeText(record.author),
             };
@@ -273,7 +273,7 @@ function parseJSON(jsonContent) {
             prep_time: normalizeOptionalNumber(recipe.prep_time),
             cooking_time: normalizeOptionalNumber(recipe.cooking_time),
             instructions: normalizeText(recipe.instructions),
-            image_path: normalizeText(recipe.image_path || recipe.image),
+            image: normalizeText(recipe.image || recipe.image),
             video_url: normalizeText(recipe.video_url || recipe.url),
             author: normalizeText(recipe.author),
         }));

@@ -35,6 +35,8 @@ export type RecipeImportResult = {
     instructions?: string;
     url?: string;
     author?: string;
+    image_path?: string;
+    image?: string;
 };
 
 export type RecipeImportResponse = {
@@ -95,7 +97,7 @@ export type RecipeImageResponse = {
     recipe: {
         id: number;
         name: string;
-        image_path: string | null;
+        image: string | null;
     };
     imageUrl?: string;
 };

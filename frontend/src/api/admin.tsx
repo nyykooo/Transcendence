@@ -58,7 +58,9 @@ export async function getPendingRecipes(token: string): Promise<PendingRecipesRe
     if (!response.ok)
         throw new Error('Failed to fetch recipes');
 
+    
     const data: PendingRecipesResponse = await response.json();
+    console.log(data);
     return data;
 }
 
