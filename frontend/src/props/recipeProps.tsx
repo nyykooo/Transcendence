@@ -17,4 +17,5 @@ export type Recipe = {
     url: string | null;
     liked: number;
     viewed: number;
+    likedByUser?: boolean;
 }

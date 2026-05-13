@@ -55,6 +55,7 @@ export async function getRecipe(name: string): Promise<Recipe | null>
             url: data.url ?? null,
             liked: Number(data.liked ?? 0),
             viewed: Number(data.viewed ?? 0),
+            likedByUser: Boolean(data.liked_by_user),
         };
 
         return recipe;

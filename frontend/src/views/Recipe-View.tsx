@@ -56,6 +56,7 @@ export default function RecipeView() {
             }
 
             setRecipe(res);
+            setIsLiked(Boolean(res?.likedByUser));
             setLoading(false);
         };
 
@@ -92,8 +93,8 @@ export default function RecipeView() {
             }
 
             const data = await response.json();
-            setRecipe({ ...recipe, liked: data.liked });
-            setIsLiked(!isLiked);
+            setRecipe({ ...recipe, liked: data.liked, likedByUser: Boolean(data.likedByUser) });
+            setIsLiked(Boolean(data.likedByUser));
         } catch (error) {
             console.error('Error updating like:', error);
         } finally {
