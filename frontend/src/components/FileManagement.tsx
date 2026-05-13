@@ -6,10 +6,17 @@ import {
     Typography,
     Alert,
     CircularProgress,
+    Button,
+    List,
+    ListItem,
+    ListItemText,
+    Chip,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-import { uploadFile, importRecipes } from '../api/fileManagement';
+import { uploadFile, importRecipes, uploadRecipeImage, deleteRecipeImage } from '../api/fileManagement';
 import type { FileUploadProgress, RecipeImportResponse, RecipeImportResult } from '../props/fileManagement/fileProps';
 import CSVRecipePreview from './CSVRecipePreview';
 
@@ -27,6 +34,8 @@ export default function FileManagement() {
     const [showPreview, setShowPreview] = useState(false);
     const [importResult, setImportResult] = useState<RecipeImportResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [imageUploadLoading, setImageUploadLoading] = useState(false);
+    const [imageDeleteLoading, setImageDeleteLoading] = useState<number | null>(null);
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -37,54 +46,57 @@ export default function FileManagement() {
         e.preventDefault();
         e.stopPropagation();
 
-        const files = Array.from(e.dataTransfer.files);
+        const files = (e.dataTransfer.files);
         if (files.length > 0) {
-            await handleFileUpload(files[0]);
+            await handleFileUpload(files);
         }
     }, []);
 
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            handleFileUpload(e.target.files[0]);
+            handleFileUpload(e.target.files);
+            
         }
     };
 
-    const handleFileUpload = async (file: File) => {
+    const handleFileUpload = async (file: FileList) => {
         const uploadStart = Date.now();
         const validTypes = ['text/csv', 'application/json', 'application/vnd.ms-excel', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         
-        if (!validTypes.includes(file.type)) {
-            setError('Invalid file type. Supported: CSV, JSON, images (JPEG, PNG, GIF, WebP)');
-            return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            setError('File too large. Maximum size: 5MB');
-            return;
-        }
-
-        try {
-            setUploading(true);
-            setError(null);
-            setProgress(null);
-
-            // If it's a recipe document, preview first
-            if (file.type === 'text/csv' || file.type === 'application/json') {
-                await previewRecipeFile(file);
-            } else {
-                // For images, just upload directly
-                await uploadFile(file, (prog) => setProgress(prog));
+        for (var i = 0; i < file.length; i++)
+        {
+            if (!validTypes.includes(file[i].type)) {
+                setError('Invalid file type. Supported: CSV, JSON, images (JPEG, PNG, GIF, WebP)');
+                return;
             }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Upload failed');
-        } finally {
-            const elapsed = Date.now() - uploadStart;
-            if (elapsed < MIN_PROGRESS_VISIBLE_MS) {
-                await wait(MIN_PROGRESS_VISIBLE_MS - elapsed);
+            if (file[i].size > 5 * 1024 * 1024) {
+                setError('File too large. Maximum size: 5MB');
+                return;
             }
-            setUploading(false);
-            setProgress(null);
+            try {
+                setUploading(true);
+                setError(null);
+                setProgress(null);
+    
+                // If it's a recipe document, preview first
+                if (file[i].type === 'text/csv' || file[i].type === 'application/json') {
+                    await previewRecipeFile(file[i]);
+                } else {
+                    // For images, just upload directly
+                    await uploadFile(file[i], (prog) => setProgress(prog));
+                }
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Upload failed');
+            } finally {
+                const elapsed = Date.now() - uploadStart;
+                if (elapsed < MIN_PROGRESS_VISIBLE_MS) {
+                    await wait(MIN_PROGRESS_VISIBLE_MS - elapsed);
+                }
+                setUploading(false);
+                setProgress(null);
+            }
         }
+
     };
 
     const previewRecipeFile = async (file: File) => {
@@ -231,6 +243,54 @@ export default function FileManagement() {
         }
     };
 
+    const handleRecipeImageUpload = async (recipeId: number, file: File) => {
+        if (!file.type.startsWith('image/')) {
+            setError('Please select an image file');
+            return;
+        }
+
+        try {
+            setImageUploadLoading(true);
+            setError(null);
+            await uploadRecipeImage(recipeId, file);
+            // Success message shown by updating the UI
+            if (importResult) {
+                const updatedRecipes = importResult.importedRecipes.map((r) =>
+                    r.id === recipeId ? { ...r, imageUrl: `/uploads/avatars/${file.name}` } : r
+                );
+                setImportResult({
+                    ...importResult,
+                    importedRecipes: updatedRecipes,
+                });
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to upload image');
+        } finally {
+            setImageUploadLoading(false);
+        }
+    };
+
+    const handleRecipeImageDelete = async (recipeId: number) => {
+        try {
+            setImageDeleteLoading(recipeId);
+            setError(null);
+            await deleteRecipeImage(recipeId);
+            if (importResult) {
+                const updatedRecipes = importResult.importedRecipes.map((r) =>
+                    r.id === recipeId ? { ...r, imageUrl: null } : r
+                );
+                setImportResult({
+                    ...importResult,
+                    importedRecipes: updatedRecipes,
+                });
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete image');
+        } finally {
+            setImageDeleteLoading(null);
+        }
+    };
+
         return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
@@ -244,30 +304,118 @@ export default function FileManagement() {
             )}
 
             {importResult && (
-                <Alert severity={importResult.stats.failed === 0 ? 'success' : 'warning'} sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                        {importResult.message}
-                    </Typography>
-                    <Typography variant="body2">
-                        Imported: {importResult.stats.imported} | Failed: {importResult.stats.failed} | Total: {importResult.stats.total}
-                    </Typography>
-                    {importResult.failures.invalid.length > 0 && (
-                        <Box sx={{ mt: 1 }}>
-                            <Typography variant="caption">Failed entries:</Typography>
-                            {importResult.failures.invalid.map((fail, i) => (
-                                <Typography key={i} variant="caption" display="block" sx={{ ml: 2 }}>
-                                    • {fail.recipe}: {fail.errors.join(', ')}
-                                </Typography>
-                            ))}
-                        </Box>
+                <>
+                    <Alert severity={importResult.stats.failed === 0 ? 'success' : 'warning'} sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                            {importResult.message}
+                        </Typography>
+                        <Typography variant="body2">
+                            Imported: {importResult.stats.imported} | Failed: {importResult.stats.failed} | Total:{' '}
+                            {importResult.stats.total}
+                        </Typography>
+                        {importResult.failures.invalid.length > 0 && (
+                            <Box sx={{ mt: 1 }}>
+                                <Typography variant="caption">Failed entries:</Typography>
+                                {importResult.failures.invalid.map((fail, i) => (
+                                    <Typography key={i} variant="caption" display="block" sx={{ ml: 2 }}>
+                                        • {fail.recipe}: {fail.errors.join(', ')}
+                                    </Typography>
+                                ))}
+                            </Box>
+                        )}
+                    </Alert>
+
+                    {/* Imported Recipes Section */}
+                    {importResult.importedRecipes && importResult.importedRecipes.length > 0 && (
+                        <Card sx={{ mb: 3, p: 2 }}>
+                            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                                📷 Imported Recipes - Add Images
+                            </Typography>
+                            <List>
+                                {importResult.importedRecipes.map((recipe) => (
+                                    <ListItem
+                                        key={recipe.id}
+                                        secondaryAction={
+                                            <>
+                                                <input
+                                                    type="file"
+                                                    id={`image-upload-${recipe.id}`}
+                                                    hidden
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        if (e.target.files && e.target.files[0]) {
+                                                            handleRecipeImageUpload(recipe.id, e.target.files[0]);
+                                                        }
+                                                    }}
+                                                    disabled={imageUploadLoading}
+                                                />
+                                                <label htmlFor={`image-upload-${recipe.id}`}>
+                                                    <Button
+                                                        component="span"
+                                                        size="small"
+                                                        variant={recipe.imageUrl ? 'outlined' : 'contained'}
+                                                        color={recipe.imageUrl ? 'success' : 'primary'}
+                                                        startIcon={<AddPhotoAlternateIcon />}
+                                                        disabled={imageUploadLoading}
+                                                        sx={{ mr: 1 }}
+                                                    >
+                                                        {recipe.imageUrl ? 'Change' : 'Add Image'}
+                                                    </Button>
+                                                </label>
+                                                {recipe.imageUrl && (
+                                                    <Button
+                                                        size="small"
+                                                        color="error"
+                                                        startIcon={<DeleteIcon />}
+                                                        onClick={() => handleRecipeImageDelete(recipe.id)}
+                                                        disabled={imageDeleteLoading === recipe.id}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                )}
+                                            </>
+                                        }
+                                        sx={{ borderBottom: '1px solid #eee', mb: 1 }}
+                                    >
+                                        <ListItemText
+                                            primary={recipe.name}
+                                            secondary={
+                                                <>
+                                                    <Typography variant="caption" display="block">
+                                                        Author: {recipe.author}
+                                                    </Typography>
+                                                    <Typography variant="caption">
+                                                        Status:{' '}
+                                                        <Chip
+                                                            label={recipe.status}
+                                                            size="small"
+                                                            color={
+                                                                recipe.status === 'pending' ? 'warning' : 'success'
+                                                            }
+                                                            variant="outlined"
+                                                        />
+                                                    </Typography>
+                                                    {recipe.imageUrl && (
+                                                        <Typography variant="caption" display="block" color="success">
+                                                            ✓ Image added
+                                                        </Typography>
+                                                    )}
+                                                </>
+                                            }
+                                        />
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </Card>
                     )}
-                </Alert>
+                </>
             )}
 
             {/* Upload Area */}
             <Card
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
+                onChange={handleFileInput}
                 sx={{
                     p: 3,
                     textAlign: 'center',
@@ -286,9 +434,7 @@ export default function FileManagement() {
                     type="file"
                     id="file-input"
                     hidden
-                    onChange={handleFileInput}
                     accept=".csv,.json,.jpg,.jpeg,.png,.gif,.webp"
-                    disabled={uploading}
                 />
                 <label htmlFor="file-input" style={{ cursor: 'pointer', width: '100%' }}>
                     <CloudUploadIcon sx={{ fontSize: 48, color: '#1976d2', mb: 1 }} />

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography, Tabs, Tab } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useAuth } from '../../components/AuthProvider';
 import { RoleBaseGuard, ErrorPage } from '../../components/components';
 import { getPendingRecipes, getAllUsers, deleteUser, updateUserRole, aprovePendingRecipe, reprovePendingRecipe } from '../../api/admin';
+import AdminFileManagement from '../../components/AdminFileManagement';
 import { type PendingRecipe, type PendingRecipesResponse } from '../../props/recipe-list';
 import { type UserRows, type AllUsersResponse } from '../../props/userProps';
 
@@ -14,6 +15,8 @@ export default function AdminView()
     const [pendingRecipesRows, setPendingRecipesRows] = useState<PendingRecipe[]>([]);
 
     const [usersRows, setUsersRows] = useState<UserRows[]>([]);
+    
+    const [tabValue, setTabValue] = useState(0);
 
     const ROLE_OPTIONS = ['user', 'admin'];
 
@@ -21,6 +24,10 @@ export default function AdminView()
 
     const handleRoleChange = (userId: number) => (event: SelectChangeEvent<string>) => {
         setEditedRoles(prev => ({ ...prev, [userId]: event.target.value }));
+    };
+
+    const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
     };
 
     const [isLoading, setIsLoading] = useState(true);
@@ -349,8 +356,21 @@ export default function AdminView()
                             {error}
                         </Alert>
                     )}
-                    <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
-                        {`Pending Recipes`}
+                    
+                    {/* Tabs */}
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, width: '100%' }}>
+                        <Tabs value={tabValue} onChange={handleTabChange}>
+                            <Tab label="📋 Pending Recipes" />
+                            <Tab label="👥 Users" />
+                            <Tab label="📁 File Management" />
+                        </Tabs>
+                    </Box>
+
+                    {/* Tab Content - Pending Recipes */}
+                    {tabValue === 0 && (
+                        <>
+                            <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
+                                {`Pending Recipes`}
                     </Typography>
                     <Box sx={{ width: '90vw' }}>
                         <DataGrid
@@ -386,8 +406,14 @@ export default function AdminView()
                             disableRowSelectionOnClick
                         />
                     </Box>
-                    <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
-                        {`Users`}
+                        </>
+                    )}
+
+                    {/* Tab Content - Users */}
+                    {tabValue === 1 && (
+                        <>
+                            <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
+                                {`Users`}
                     </Typography>
                     <Box sx={{ width: '90vw' }}>
                         <DataGrid
@@ -419,6 +445,13 @@ export default function AdminView()
                             disableRowSelectionOnClick
                         />
                     </Box>
+                        </>
+                    )}
+
+                    {/* Tab Content - File Management */}
+                    {tabValue === 2 && (
+                        <AdminFileManagement />
+                    )}
                 </Box>
             }
             protection={
