@@ -26,4 +26,6 @@ export const api = {
     profileFriends: `${API_BASE_URL}/profile/friends`,
     profileFriendRequests: `${API_BASE_URL}/profile/friends/requests`,
     profileFriendRequestsAccept: `${API_BASE_URL}/profile/friends/requests/accept`,
+    adminFiles: `${API_BASE_URL}/admin/files`,
+    recipeImage: `${API_BASE_URL}/recipes`,
 };

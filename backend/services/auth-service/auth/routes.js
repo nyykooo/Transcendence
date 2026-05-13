@@ -1270,9 +1270,8 @@ let githubOAuthState = null;
 
 router.get('/auth/github', (req, res) => {
   const clientId = process.env.GITHUB_CLIENT_ID;
-  const redirectUri = process.env.GITHUB_CALLBACK_URL;
 
-  if (!clientId || !redirectUri) {
+  if (!clientId) {
     return res.status(500).json({
       error: "Missing GITHUB_CLIENT_ID or GITHUB_CALLBACK_URL",
     });
@@ -1282,7 +1281,6 @@ router.get('/auth/github', (req, res) => {
 
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: redirectUri,
     scope: "user:email",
     state: githubOAuthState,
   });
@@ -1316,9 +1314,8 @@ router.get('/auth/github/callback', async (req, res) => {
 
     const clientId = process.env.GITHUB_CLIENT_ID;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-    const redirectUri = process.env.GITHUB_CALLBACK_URL;
 
-    if (!clientId || !clientSecret || !redirectUri) {
+    if (!clientId || !clientSecret) {
       return res.status(500).json({
         error: "Missing GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, or GITHUB_CALLBACK_URL",
       });
@@ -1331,7 +1328,6 @@ router.get('/auth/github/callback', async (req, res) => {
         client_id: clientId,
         client_secret: clientSecret,
         code: String(code),
-        redirect_uri: redirectUri,
       }).toString(),
       {
         headers: {
@@ -1515,7 +1511,7 @@ router.get('/profile/files', requireAuthWithRateLimit, async (req, res) => {
     // List files in uploads directory (documents only, not avatars)
     try {
       const files = await fs.readdir(uploadDir);
-      const docFiles = files.filter(f => f.endsWith('.csv') || f.endsWith('.json'));
+      const docFiles = files.filter(f => (f.endsWith('.csv') || f.endsWith('.json')) && !f.startsWith('avatar'));
       
       const fileStats = await Promise.all(
         docFiles.map(async (filename) => {
@@ -1597,6 +1593,301 @@ router.delete('/profile/files/:filename', requireAuthWithRateLimit, async (req, 
   }
 });
 
+// ========== ADMIN FILE MANAGEMENT ENDPOINTS ==========
+
+router.get('/admin/files', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    // List all uploaded files with metadata
+    try {
+      const files = await fs.readdir(uploadDir);
+      
+      // Include all files except avatar files used by users
+      const managedFiles = files.filter(f => {
+        const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f);
+        const isData = /\.(csv|json)$/.test(f);
+        const isNotUserAvatar = !f.startsWith('test') && !f.startsWith('avatar_') || (isImage && f.includes('recipe'));
+        return (isImage || isData) && !f.startsWith('.');
+      });
+
+      const fileStats = await Promise.all(
+        managedFiles.map(async (filename) => {
+          const filePath = path.join(uploadDir, filename);
+          const stats = await fs.stat(filePath);
+          const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(filename);
+          const isData = /\.(csv|json)$/.test(filename);
+          
+          return {
+            filename,
+            size: stats.size,
+            uploadedAt: stats.birthtime,
+            modifiedAt: stats.mtime,
+            type: isImage ? 'image' : isData ? 'data' : 'unknown',
+            extension: path.extname(filename).toLowerCase(),
+            previewUrl: isImage ? `/uploads/avatars/${filename}` : null,
+            canDelete: true,
+          };
+        })
+      );
+
+      // Sort by upload date, newest first
+      fileStats.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+
+      return res.status(200).json({ 
+        files: fileStats,
+        total: fileStats.length,
+        storageUsed: fileStats.reduce((sum, f) => sum + f.size, 0),
+      });
+    } catch (err) {
+      console.error('Error reading files:', err);
+      return res.status(200).json({ files: [], total: 0, storageUsed: 0 });
+    }
+  } catch (error) {
+    console.error('[GET /admin/files] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to load files' });
+  }
+});
+
+router.delete('/admin/files/:filename', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const { filename } = req.params;
+
+    // Prevent directory traversal and protect system files
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\') || filename.startsWith('.')) {
+      return res.status(400).json({ error: 'Invalid filename' });
+    }
+
+    const filePath = path.join(uploadDir, filename);
+
+    // Ensure file is within uploadDir
+    if (!filePath.startsWith(path.resolve(uploadDir))) {
+      return res.status(400).json({ error: 'Invalid file path' });
+    }
+
+    try {
+      await fs.unlink(filePath);
+      return res.status(200).json({ message: 'File deleted successfully', filename });
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        return res.status(404).json({ error: 'File not found' });
+      }
+      throw err;
+    }
+  } catch (error) {
+    console.error('[DELETE /admin/files/:filename] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to delete file' });
+  }
+});
+
+router.get('/admin/files/:filename/preview', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const { filename } = req.params;
+
+    // Prevent directory traversal
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      return res.status(400).json({ error: 'Invalid filename' });
+    }
+
+    const filePath = path.join(uploadDir, filename);
+
+    // Ensure file is within uploadDir
+    if (!filePath.startsWith(path.resolve(uploadDir))) {
+      return res.status(400).json({ error: 'Invalid file path' });
+    }
+
+    try {
+      const stats = await fs.stat(filePath);
+      if (!stats.isFile()) {
+        return res.status(400).json({ error: 'Not a file' });
+      }
+
+      // Serve file for preview
+      const fileStream = fs.createReadStream(filePath);
+      const ext = path.extname(filename).toLowerCase();
+
+      // Set appropriate content type
+      const contentTypeMap = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.svg': 'image/svg+xml',
+        '.csv': 'text/csv',
+        '.json': 'application/json',
+      };
+
+      res.setHeader('Content-Type', contentTypeMap[ext] || 'application/octet-stream');
+      res.setHeader('Content-Length', stats.size);
+      fileStream.pipe(res);
+
+      fileStream.on('error', (err) => {
+        console.error('Stream error:', err);
+        res.status(500).json({ error: 'Failed to stream file' });
+      });
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        return res.status(404).json({ error: 'File not found' });
+      }
+      throw err;
+    }
+  } catch (error) {
+    console.error('[GET /admin/files/:filename/preview] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to get file preview' });
+  }
+});
+
+// ========== RECIPE IMAGE MANAGEMENT ENDPOINTS ==========
+
+router.post('/recipes/:recipeId/image', requireAuthWithRateLimit, upload.single('image'), async (req, res) => {
+  try {
+    const userId = req.userId ?? req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { recipeId } = req.params;
+    if (!recipeId) {
+      return res.status(400).json({ error: 'Recipe ID is required' });
+    }
+
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: 'No image uploaded' });
+    }
+
+    // Validate that it's an image
+    if (!file.mimetype.startsWith('image/')) {
+      await removeFileIfExists(file.path);
+      return res.status(400).json({ error: 'Only image files are supported' });
+    }
+
+    const imageUrl = `/uploads/avatars/${file.filename}`;
+
+    try {
+      // Update recipe with image path
+      const updated = await pool.query(
+        `UPDATE public.pending_recipes
+         SET image_path = $1
+         WHERE id = $2
+         RETURNING id, name, image_path`,
+        [imageUrl, recipeId]
+      );
+
+      // If not found in pending, try all_recipes
+      if (updated.rowCount === 0) {
+        const updatedApproved = await pool.query(
+          `UPDATE public.all_recipes
+           SET image_path = $1
+           WHERE id = $2
+           RETURNING id, name, image_path`,
+          [imageUrl, recipeId]
+        );
+
+        if (updatedApproved.rowCount === 0) {
+          await removeFileIfExists(file.path);
+          return res.status(404).json({ error: 'Recipe not found' });
+        }
+
+        return res.status(200).json({
+          message: 'Image added to recipe',
+          recipe: updatedApproved.rows[0],
+          imageUrl,
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Image added to recipe',
+        recipe: updated.rows[0],
+        imageUrl,
+      });
+    } catch (error) {
+      await removeFileIfExists(file.path);
+      throw error;
+    }
+  } catch (error) {
+    console.error('[POST /recipes/:recipeId/image] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to add image to recipe' });
+  }
+});
+
+router.delete('/recipes/:recipeId/image', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    const userId = req.userId ?? req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { recipeId } = req.params;
+    if (!recipeId) {
+      return res.status(400).json({ error: 'Recipe ID is required' });
+    }
+
+    // Fetch recipe to get current image
+    let recipe = await pool.query(
+      `SELECT id, image_path FROM public.pending_recipes WHERE id = $1`,
+      [recipeId]
+    );
+
+    if (recipe.rowCount === 0) {
+      recipe = await pool.query(
+        `SELECT id, image_path FROM public.all_recipes WHERE id = $1`,
+        [recipeId]
+      );
+    }
+
+    if (recipe.rowCount === 0) {
+      return res.status(404).json({ error: 'Recipe not found' });
+    }
+
+    const imagePath = recipe.rows[0].image_path;
+    const diskPath = imagePath ? toAvatarDiskPath(imagePath) : null;
+
+    // Update recipe to remove image
+    const updated = await pool.query(
+      `UPDATE public.pending_recipes
+       SET image_path = NULL
+       WHERE id = $1
+       RETURNING id, name, image_path`,
+      [recipeId]
+    );
+
+    if (updated.rowCount === 0) {
+      await pool.query(
+        `UPDATE public.all_recipes
+         SET image_path = NULL
+         WHERE id = $1
+         RETURNING id, name, image_path`,
+        [recipeId]
+      );
+    }
+
+    // Delete file from disk if it exists
+    if (diskPath) {
+      await removeFileIfExists(diskPath);
+    }
+
+    return res.status(200).json({
+      message: 'Image removed from recipe',
+      recipeId,
+    });
+  } catch (error) {
+    console.error('[DELETE /recipes/:recipeId/image] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to remove image from recipe' });
+  }
+});
+
 // ========== RECIPE IMPORT ENDPOINT ==========
 
 router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), async (req, res) => {
@@ -1644,6 +1935,7 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
 
     // Insert valid recipes into pending_recipes
     let insertedCount = 0;
+    let importedRecipes = [];
     const errors = [];
 
     for (const result of validRecipes) {
@@ -1655,9 +1947,10 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
 
         await upsertIngredientCatalog(recipe.ingredients, recipe.diet);
 
-        await pool.query(
-          `INSERT INTO public.pending_recipes (name, ingredients, diet, cost, portions, prep_time, cooking_time, instructions, url, author, status)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')`,
+        const insertResult = await pool.query(
+          `INSERT INTO public.pending_recipes (name, ingredients, diet, cost, portions, prep_time, cooking_time, instructions, url, author, status, image_path)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending', $11)
+           RETURNING id, name, author, status, created_at`,
           [
             normalizeRecipeName(recipe.name),
             JSON.stringify(recipe.ingredients),
@@ -1669,15 +1962,27 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
             normalizeRecipeName(recipe.instructions),
             url,
             author,
+            image || null,
           ]
         );
+        
+        importedRecipes.push(insertResult.rows[0]);
         insertedCount++;
       } catch (err) {
         errors.push(`Row ${result.index}: ${err.message}`);
       }
     }
 
-    // Clean up uploaded file
+    // Keep the import file for reference
+    const importFileName = `import_${Date.now()}_${file.originalname}`;
+    const importFilePath = path.join(uploadDir, importFileName);
+    try {
+      await fs.copyFile(file.path, importFilePath);
+    } catch (err) {
+      console.warn('Failed to backup import file:', err);
+    }
+
+    // Clean up uploaded temp file
     try {
       await fs.unlink(file.path);
     } catch {}
@@ -1689,7 +1994,20 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
         imported: insertedCount,
         failed: invalidRecipes.length + errors.length,
       },
-          failures: {
+      importedRecipes: importedRecipes.map(r => ({
+        id: r.id,
+        name: r.name,
+        author: r.author,
+        status: r.status,
+        createdAt: r.created_at,
+        imageUrl: null, // Can be added after visualization
+      })),
+      importFile: {
+        filename: importFileName,
+        originalName: file.originalname,
+        uploadedAt: new Date().toISOString(),
+      },
+      failures: {
         invalid: invalidRecipes.map(r => ({
           index: r.index,
           recipe: r.recipe.name,
