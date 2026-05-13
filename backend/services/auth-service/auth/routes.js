@@ -87,6 +87,98 @@ async function loadUserFriendRequests(userId) {
   return requestsResult.rows;
 }
 
+function normalizeRecipeName(value) {
+  return String(value || '').trim();
+}
+
+function normalizeRecipeImage(recipe) {
+  return normalizeRecipeName(recipe?.image_path || recipe?.image);
+}
+
+function normalizeRecipeUrl(recipe) {
+  return normalizeRecipeName(recipe?.video_url || recipe?.url);
+}
+
+async function getExistingRecipeNameSet(recipeNames) {
+  const uniqueNames = Array.from(
+    new Set(
+      recipeNames
+        .map((name) => normalizeRecipeName(name).toLowerCase())
+        .filter(Boolean)
+    )
+  );
+
+  if (uniqueNames.length === 0) {
+    return new Set();
+  }
+
+  const result = await pool.query(
+    `SELECT lower(name) AS name
+     FROM public.all_recipes
+     WHERE lower(name) = ANY($1::text[])
+     UNION
+     SELECT lower(name) AS name
+     FROM public.pending_recipes
+     WHERE lower(name) = ANY($1::text[])`,
+    [uniqueNames]
+  );
+
+  return new Set(result.rows.map((row) => row.name));
+}
+
+async function upsertIngredientCatalog(ingredients, recipeDiet) {
+  if (!Array.isArray(ingredients) || ingredients.length === 0) {
+    return;
+  }
+
+  for (const ingredient of ingredients) {
+    const name = normalizeRecipeName(ingredient?.name);
+    if (!name) {
+      continue;
+    }
+
+    const unit = normalizeRecipeName(ingredient?.unit) || 'g';
+    await pool.query(
+      `INSERT INTO dev_dba.ingredients (name, price_per_kg, diet_type, unit, last_update)
+       VALUES ($1, $2, $3, $4, CURRENT_DATE)
+       ON CONFLICT (name) DO UPDATE SET
+         diet_type = COALESCE(EXCLUDED.diet_type, dev_dba.ingredients.diet_type),
+         unit = COALESCE(EXCLUDED.unit, dev_dba.ingredients.unit),
+         last_update = CURRENT_DATE`,
+      [name, 0, recipeDiet || null, unit]
+    );
+  }
+}
+
+async function validateImportedRecipes(recipes) {
+  const validationResults = validateRecipes(recipes);
+  const existingNames = await getExistingRecipeNameSet(recipes.map((recipe) => recipe.name));
+  const seenNames = new Set();
+
+  return validationResults.map((result) => {
+    const recipeName = normalizeRecipeName(result.recipe?.name).toLowerCase();
+    const errors = [...result.errors];
+
+    if (recipeName) {
+      if (seenNames.has(recipeName)) {
+        errors.push('name is duplicated in the uploaded file');
+      }
+
+      if (existingNames.has(recipeName)) {
+        errors.push('recipe name already exists');
+      }
+
+      seenNames.add(recipeName);
+    }
+
+    return {
+      ...result,
+      valid: errors.length === 0,
+      errors,
+    };
+  });
+}
+
 let currentId = 1;
 const users = [];
 
@@ -1537,7 +1629,7 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
     
     // Parse based on file type
     let recipes = [];
-    if (file.mimetype === 'text/csv') {
+    if (file.mimetype === 'text/csv' || file.mimetype === 'application/vnd.ms-excel') {
       recipes = parseCSV(fileContent);
     } else if (file.mimetype === 'application/json') {
       recipes = parseJSON(fileContent);
@@ -1546,7 +1638,7 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
     }
 
     // Validate recipes
-    const validationResults = validateRecipes(recipes);
+    const validationResults = await validateImportedRecipes(recipes);
     const validRecipes = validationResults.filter(r => r.valid);
     const invalidRecipes = validationResults.filter(r => !r.valid);
 
@@ -1558,19 +1650,24 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
       try {
         const recipe = result.recipe;
         const author = currentUserName;
+        const image = normalizeRecipeImage(recipe);
+        const url = normalizeRecipeUrl(recipe);
+
+        await upsertIngredientCatalog(recipe.ingredients, recipe.diet);
+
         await pool.query(
           `INSERT INTO public.pending_recipes (name, ingredients, diet, cost, portions, prep_time, cooking_time, instructions, url, author, status)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')`,
           [
-            recipe.name,
+            normalizeRecipeName(recipe.name),
             JSON.stringify(recipe.ingredients),
-            recipe.diet || 'Vegan',
-            recipe.cost || 0,
-            recipe.portions || 1,
-            recipe.prep_time || null,
-            recipe.cooking_time || null,
-            recipe.instructions || null,
-            recipe.url || null,
+            normalizeRecipeName(recipe.diet),
+            recipe.cost ?? 0,
+            recipe.portions ?? 1,
+            recipe.prep_time ?? null,
+            recipe.cooking_time ?? null,
+            normalizeRecipeName(recipe.instructions),
+            url,
             author,
           ]
         );
@@ -1592,7 +1689,7 @@ router.post('/recipes/import', requireAuthWithRateLimit, upload.single('file'), 
         imported: insertedCount,
         failed: invalidRecipes.length + errors.length,
       },
-      failures: {
+          failures: {
         invalid: invalidRecipes.map(r => ({
           index: r.index,
           recipe: r.recipe.name,
