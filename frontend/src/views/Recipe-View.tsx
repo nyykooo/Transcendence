@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Box, Button, Chip, Divider, Link, Paper, Stack, Typography } from '@mui/material';
+import { Box, Chip, Divider, Paper, Stack, Typography } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
@@ -207,21 +207,40 @@ export default function RecipeView() {
                                     variant="outlined"
                                     sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}
                                 />
-                                <Button
-                                    variant={isLiked ? 'contained' : 'outlined'}
-                                    color="error"
-                                    size="small"
-                                    startIcon={isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                                <Box
+                                    component="button"
+                                    type="button"
                                     onClick={handleLikeClick}
                                     disabled={liking}
+                                    aria-pressed={isLiked}
                                     sx={{
+                                        appearance: 'none',
+                                        border: '1px solid',
+                                        borderColor: isLiked ? '#d32f2f' : 'rgba(211, 47, 47, 0.35)',
+                                        bgcolor: isLiked ? '#d32f2f' : 'transparent',
+                                        color: isLiked ? '#ffffff' : '#d32f2f',
+                                        borderRadius: 2,
+                                        px: 1.5,
+                                        py: 0.75,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 0.75,
                                         fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
-                                        textTransform: 'none',
                                         fontWeight: 600,
+                                        fontSize: '0.875rem',
+                                        cursor: liking ? 'wait' : 'pointer',
+                                        '&:disabled': {
+                                            opacity: 0.65,
+                                            cursor: 'not-allowed',
+                                        },
+                                        '&:hover:not(:disabled)': {
+                                            bgcolor: isLiked ? '#b71c1c' : 'rgba(211, 47, 47, 0.08)',
+                                        },
                                     }}
                                 >
+                                    {isLiked ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
                                     {recipe.liked ?? 0} Like{(recipe.liked ?? 0) !== 1 ? 's' : ''}
-                                </Button>
+                                </Box>
                             </Stack>
                         </Stack>
 
@@ -274,20 +293,25 @@ export default function RecipeView() {
                                     <Divider sx={{ mb: 2 }} />
 
                                     {recipe.url && (
-                                        <Link
+                                        <Box
+                                            component="a"
                                             href={recipe.url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            underline="hover"
                                             sx={{
                                                 display: 'inline-flex',
                                                 mb: 2,
                                                 fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
                                                 fontWeight: 600,
+                                                color: 'primary.main',
+                                                textDecoration: 'none',
+                                                '&:hover': {
+                                                    textDecoration: 'underline',
+                                                },
                                             }}
                                         >
                                             Watch recipe video
-                                        </Link>
+                                        </Box>
                                     )}
 
                                     <Stack spacing={1.25}>

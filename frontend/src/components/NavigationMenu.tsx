@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { Box, Button, useTheme, useMediaQuery } from '@mui/material';
+import { Box, useTheme, useMediaQuery } from '@mui/material';
+import UIButton from './UIButton';
 import { pages } from '../configs/pages';
 import { type PageProps } from '../props/PageProps';
 import RoleBaseGuard from './RoleBaseGuard';
@@ -31,16 +32,16 @@ export default function NavigationMenu() {
             <RoleBaseGuard
               role={user?.role}
               children={
-                <Button onClick={() => updatePage(item)}>
+                <UIButton onClick={() => updatePage(item)}>
                   {item.label}
-                </Button>
+                </UIButton>
               }
               protection={null}
             />
           ) : (
-            <Button onClick={() => updatePage(item)}>
+            <UIButton onClick={() => updatePage(item)}>
               {item.label}
-            </Button>
+            </UIButton>
           )}
         </Box>
       ))}

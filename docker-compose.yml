@@ -65,6 +65,7 @@ services:
       - POSTGRES_HOST=postgres
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - RATE_LIMIT_PER_MINUTE=50
     volumes:
       - uploads_data:/app/uploads
     networks:
@@ -87,6 +88,7 @@ services:
       - POSTGRES_HOST=postgres
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - RATE_LIMIT_PER_MINUTE=50
     networks:
       - transcendence
 
