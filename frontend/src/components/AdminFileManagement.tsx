@@ -112,7 +112,7 @@ export default function AdminFileManagement() {
     };
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 3, width: '90vw' }}>
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
                 📁 File Management
             </Typography>
