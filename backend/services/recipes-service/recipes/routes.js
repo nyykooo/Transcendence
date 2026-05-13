@@ -39,6 +39,9 @@ function serializeRecipeRow(row) {
         portions: row.portions ?? null,
         liked: row.liked ?? null,
         viewed: row.viewed ?? null,
+        author: row.author ?? null,
+        created_at: row.created_at ?? null,
+        status: row.status ?? null,
     };
 }
 
@@ -102,7 +105,7 @@ router.get(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateL
             r.ingredients,
             r.diet,
             r.status,
-            r.submitted_at
+            r.created_at
 
             FROM public.pending_recipes r
             ORDER BY r.name ASC
@@ -288,7 +291,7 @@ router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (re
             prep_time,
             cooking_time,
             status,
-            submitted_at
+            created_at
     `;
 
     const values = [
@@ -381,7 +384,7 @@ router.post(['/pending/recipes', '/Pending/RecipeListView'], requireAuthWithRate
             prep_time,
             cooking_time,
             status,
-            submitted_at
+            created_at
     `;
 
     const values = [
@@ -470,7 +473,7 @@ router.get(['/pending/recipes/:name', '/pending/RecipeView/:name'], requireAuthW
             prep_time: raw_recipe.prep_time,
             cook_time: raw_recipe.cooking_time,
             status: raw_recipe.status,
-            submitted_at: raw_recipe.submitted_at,
+            created_at: raw_recipe.created_at,
             url: raw_recipe.url
         };
         return res.json(recipe);
@@ -541,7 +544,7 @@ router.put(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
                 prep_time,
                 cooking_time,
                 status,
-                submitted_at
+                created_at
         `;
 
         const values = [
@@ -623,7 +626,7 @@ router.put(['/pending/recipes/:name', '/pending/RecipeView/:name'], requireAuthW
                 prep_time,
                 cooking_time,
                 status,
-                submitted_at
+                created_at
         `;
 
         const values = [

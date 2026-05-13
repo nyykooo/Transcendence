@@ -46,7 +46,7 @@ export default function AdminView()
             diet: recipe.diet,
             author: recipe.author,
             status: recipe.status,
-            submission_date: recipe.submission_date,
+            created_at: recipe.created_at,
         }));
 
         setPendingRecipesRows(mappedRows);
@@ -234,7 +234,7 @@ export default function AdminView()
             flex: 1,
         },
         {
-            field: 'submission_date',
+            field: 'created_at',
             headerName: 'Submission Date',
             flex: 1,
         },

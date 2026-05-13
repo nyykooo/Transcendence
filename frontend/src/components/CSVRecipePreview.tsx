@@ -17,6 +17,8 @@ import {
 } from '@mui/material';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import DeleteIcon from '@mui/icons-material/Delete';
 import type { RecipeImportResult } from '../props/fileManagement/fileProps';
 
 interface CSVRecipePreviewProps {
@@ -25,6 +27,8 @@ interface CSVRecipePreviewProps {
     onConfirm: () => void;
     onCancel: () => void;
     uploading: boolean;
+    recipeImages?: Record<number, File>;
+    onImageChange?: (index: number, file: File | undefined) => void;
 }
 
 const pageShellSx = {
@@ -51,6 +55,8 @@ export default function CSVRecipePreview({
     onConfirm,
     onCancel,
     uploading,
+    recipeImages = {},
+    onImageChange,
 }: CSVRecipePreviewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -124,17 +130,30 @@ export default function CSVRecipePreview({
         : Number.parseInt(String(currentRecipe.portions ?? ''), 10);
 
     return (
-        <Dialog open={open} onClose={onCancel} maxWidth="lg" fullWidth PaperProps={{ sx: { minHeight: '90vh' } }}>
-            <DialogTitle>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="h6">Recipe Preview ({currentIndex + 1} of {recipes.length})</Typography>
+        <Dialog 
+            open={open} 
+            onClose={onCancel} 
+            maxWidth="lg" 
+            fullWidth 
+            PaperProps={{ 
+                sx: { 
+                    minHeight: { xs: '95vh', sm: '90vh' },
+                    maxHeight: { xs: '100vh', sm: '90vh' },
+                    m: { xs: 1, sm: 2 },
+                    width: { xs: 'calc(100% - 16px)', sm: '100%' }
+                } 
+            }}
+        >
+            <DialogTitle sx={{ p: { xs: 1.5, sm: 2 } }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
+                    <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>Recipe Preview ({currentIndex + 1} of {recipes.length})</Typography>
                     <Typography variant="caption" color="textSecondary">
                         {uploading ? 'Validating...' : 'Ready to import'}
                     </Typography>
                 </Box>
             </DialogTitle>
 
-            <DialogContent sx={{ ...pageShellSx, pb: 2 }}>
+            <DialogContent sx={{ ...pageShellSx, pb: 2, px: { xs: 1.5, sm: 3 }, py: { xs: 1.5, sm: 2 } }}>
                 <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
                     <Paper
                         elevation={0}
@@ -203,7 +222,86 @@ export default function CSVRecipePreview({
                                 </Stack>
                             </Stack>
 
-                            {/* Ingredients Section */}
+                            {/* Image Section */}
+                            <Paper
+                                elevation={0}
+                                sx={{
+                                    ...sectionPaperSx,
+                                    background: 'rgba(16, 122, 108, 0.08)',
+                                    borderLeft: '4px solid #107a6c',
+                                    p: 2,
+                                }}
+                            >
+                                <Stack spacing={1.5}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography
+                                            variant="subtitle1"
+                                            sx={{
+                                                fontWeight: 700,
+                                                color: '#107a6c',
+                                            }}
+                                        >
+                                            📷 Recipe Image
+                                        </Typography>
+                                        {recipeImages && recipeImages[safeIndex] && (
+                                            <Chip
+                                                label="✓ Assigned"
+                                                size="small"
+                                                color="success"
+                                                variant="outlined"
+                                            />
+                                        )}
+                                        {(!recipeImages || !recipeImages[safeIndex]) && (
+                                            <Chip
+                                                label="✗ Missing"
+                                                size="small"
+                                                color="error"
+                                                variant="outlined"
+                                            />
+                                        )}
+                                    </Box>
+                                    <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                                        <input
+                                            type="file"
+                                            id={`preview-dialog-image-${safeIndex}`}
+                                            hidden
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                if (e.target.files && e.target.files[0] && onImageChange) {
+                                                    onImageChange(safeIndex, e.target.files[0]);
+                                                }
+                                            }}
+                                        />
+                                        <label htmlFor={`preview-dialog-image-${safeIndex}`}>
+                                            <Button
+                                                component="span"
+                                                size="small"
+                                                variant={recipeImages && recipeImages[safeIndex] ? 'outlined' : 'contained'}
+                                                color={recipeImages && recipeImages[safeIndex] ? 'success' : 'primary'}
+                                                startIcon={<AddPhotoAlternateIcon />}
+                                            >
+                                                {recipeImages && recipeImages[safeIndex] ? 'Change Image' : 'Add Image'}
+                                            </Button>
+                                        </label>
+                                        {recipeImages && recipeImages[safeIndex] && (
+                                            <>
+                                                <Typography variant="caption" sx={{ alignSelf: 'center', color: '#666' }}>
+                                                    {recipeImages[safeIndex]?.name}
+                                                </Typography>
+                                                <Button
+                                                    size="small"
+                                                    color="error"
+                                                    variant="text"
+                                                    startIcon={<DeleteIcon />}
+                                                    onClick={() => onImageChange && onImageChange(safeIndex, undefined)}
+                                                >
+                                                    Remove
+                                                </Button>
+                                            </>
+                                        )}
+                                    </Stack>
+                                </Stack>
+                            </Paper>\n\n                            {/* Ingredients Section */}
                             {ingredientList.length > 0 && (
                                 <Paper
                                     elevation={0}
@@ -342,29 +440,29 @@ export default function CSVRecipePreview({
             </DialogContent>
 
             {/* Navigation and Actions */}
-            <DialogActions sx={{ p: 2, borderTop: '1px solid rgba(15, 23, 42, 0.08)' }}>
-                <Stack direction="row" spacing={1} sx={{ width: '100%' }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <IconButton
-                            onClick={handlePrevious}
-                            disabled={currentIndex === 0 || uploading}
-                            size="small"
-                        >
-                            <NavigateBeforeIcon />
-                        </IconButton>
-                        <Typography variant="body2" sx={{ minWidth: '120px', textAlign: 'center' }}>
-                            {currentIndex + 1} / {recipes.length}
-                        </Typography>
-                        <IconButton
-                            onClick={handleNext}
-                            disabled={currentIndex === recipes.length - 1 || uploading}
-                            size="small"
-                        >
-                            <NavigateNextIcon />
-                        </IconButton>
-                    </Stack>
-                    <Box sx={{ flex: 1 }} />
-                    <Button onClick={onCancel} disabled={uploading}>
+            <DialogActions sx={{ p: { xs: 1.5, sm: 2 }, borderTop: '1px solid rgba(15, 23, 42, 0.08)', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ justifyContent: { xs: 'center', sm: 'flex-start' }, width: { xs: '100%', sm: 'auto' } }}>
+                    <IconButton
+                        onClick={handlePrevious}
+                        disabled={currentIndex === 0 || uploading}
+                        size="small"
+                    >
+                        <NavigateBeforeIcon />
+                    </IconButton>
+                    <Typography variant="body2" sx={{ minWidth: '120px', textAlign: 'center' }}>
+                        {currentIndex + 1} / {recipes.length}
+                    </Typography>
+                    <IconButton
+                        onClick={handleNext}
+                        disabled={currentIndex === recipes.length - 1 || uploading}
+                        size="small"
+                    >
+                        <NavigateNextIcon />
+                    </IconButton>
+                </Stack>
+                <Box sx={{ flex: 1, display: { xs: 'none', sm: 'block' } }} />
+                <Stack direction={{ xs: 'column-reverse', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', sm: 'auto' }, '& button': { width: { xs: '100%', sm: 'auto' } } }}>
+                    <Button onClick={onCancel} disabled={uploading} variant="outlined">
                         Cancel
                     </Button>
                     <Button

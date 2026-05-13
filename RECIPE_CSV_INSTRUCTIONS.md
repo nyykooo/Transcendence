@@ -8,7 +8,7 @@ This CSV template allows you to add multiple recipes to the platform at once. Do
 - **diet**: The dietary category (e.g., Vegetarian, Vegan, Gluten-Free, Meat-Based)
 - **ingredients**: List of ingredients with quantities and units
 - **instructions**: Step-by-step cooking instructions
-- **image_path**: Path to the recipe image
+- **image**: Path to the recipe image
 
 ## Optional Fields
 - **video_url**: YouTube or video link (include full URL with timestamp if desired)

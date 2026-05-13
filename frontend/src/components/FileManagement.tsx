@@ -36,6 +36,7 @@ export default function FileManagement() {
     const [error, setError] = useState<string | null>(null);
     const [imageUploadLoading, setImageUploadLoading] = useState(false);
     const [imageDeleteLoading, setImageDeleteLoading] = useState<number | null>(null);
+    const [recipeImages, setRecipeImages] = useState<Record<number, File>>({});
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -46,57 +47,52 @@ export default function FileManagement() {
         e.preventDefault();
         e.stopPropagation();
 
-        const files = (e.dataTransfer.files);
+        const files = Array.from(e.dataTransfer.files);
         if (files.length > 0) {
-            await handleFileUpload(files);
+            await handleFileUpload([files[0]]);
         }
     }, []);
 
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            handleFileUpload(e.target.files);
-            
+            handleFileUpload([e.target.files[0]]);
         }
     };
 
-    const handleFileUpload = async (file: FileList) => {
+    const handleFileUpload = async (files: File[]) => {
+        if (files.length === 0) return;
+
+        const file = files[0];
         const uploadStart = Date.now();
-        const validTypes = ['text/csv', 'application/json', 'application/vnd.ms-excel', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        
-        for (var i = 0; i < file.length; i++)
-        {
-            if (!validTypes.includes(file[i].type)) {
-                setError('Invalid file type. Supported: CSV, JSON, images (JPEG, PNG, GIF, WebP)');
-                return;
-            }
-            if (file[i].size > 5 * 1024 * 1024) {
-                setError('File too large. Maximum size: 5MB');
-                return;
-            }
-            try {
-                setUploading(true);
-                setError(null);
-                setProgress(null);
-    
-                // If it's a recipe document, preview first
-                if (file[i].type === 'text/csv' || file[i].type === 'application/json') {
-                    await previewRecipeFile(file[i]);
-                } else {
-                    // For images, just upload directly
-                    await uploadFile(file[i], (prog) => setProgress(prog));
-                }
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Upload failed');
-            } finally {
-                const elapsed = Date.now() - uploadStart;
-                if (elapsed < MIN_PROGRESS_VISIBLE_MS) {
-                    await wait(MIN_PROGRESS_VISIBLE_MS - elapsed);
-                }
-                setUploading(false);
-                setProgress(null);
-            }
+        const validTypes = ['text/csv', 'application/json', 'application/vnd.ms-excel'];
+
+        if (!validTypes.includes(file.type)) {
+            setError('Invalid file type. Supported: CSV, JSON files only');
+            return;
         }
 
+        if (file.size > 5 * 1024 * 1024) {
+            setError('File too large. Maximum size: 5MB');
+            return;
+        }
+
+        try {
+            setUploading(true);
+            setError(null);
+            setProgress(null);
+            setRecipeImages({});
+
+            await previewRecipeFile(file);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Upload failed');
+        } finally {
+            const elapsed = Date.now() - uploadStart;
+            if (elapsed < MIN_PROGRESS_VISIBLE_MS) {
+                await wait(MIN_PROGRESS_VISIBLE_MS - elapsed);
+            }
+            setUploading(false);
+            setProgress(null);
+        }
     };
 
     const previewRecipeFile = async (file: File) => {
@@ -115,11 +111,17 @@ export default function FileManagement() {
                 }
             }
 
+            console.log('[Preview] Parsed recipes from file:', recipes);
+            console.log('[Preview] Recipe count:', recipes.length);
+            recipes.forEach((r, i) => console.log(`[Preview] Recipe ${i}:`, { name: r.name, diet: r.diet, has_ingredients: !!r.ingredients, has_instructions: !!r.instructions }));
+            
             setPreviewData(recipes);
             setPreviewFile(file);
-            setShowPreview(true);
+            // Don't auto-open preview - let user add images first
         } catch (err) {
-            setError('Failed to parse file: ' + (err instanceof Error ? err.message : 'Unknown error'));
+            const errMsg = err instanceof Error ? err.message : 'Unknown error';
+            console.error('[Preview] Parse error:', errMsg);
+            setError('Failed to parse file: ' + errMsg);
         }
     };
 
@@ -218,18 +220,103 @@ export default function FileManagement() {
 
     const confirmImport = async () => {
         if (!previewFile) return;
+
+        // Check if all recipes have images before importing
+        if (!previewData || previewData.length === 0) {
+            setError('No recipes to import');
+            return;
+        }
+
+        // Check if all recipes have images assigned
+        const recipesWithoutImages = previewData.filter(
+            (_recipe, index) => !recipeImages[index]
+        );
+
+        if (recipesWithoutImages.length > 0) {
+            setError(
+                `Please add an image for each recipe. Missing images for: ${recipesWithoutImages
+                    .map((r) => r.name)
+                    .join(', ')}`
+            );
+            return;
+        }
+
         const importStart = Date.now();
         let nextImportResult: RecipeImportResponse | null = null;
         try {
             setUploading(true);
             setError(null);
             setImportResult(null);
-            nextImportResult = await importRecipes(previewFile, (prog) => setProgress(prog));
-            setShowPreview(false);
-            setPreviewData(null);
-            setPreviewFile(null);
+
+            // Step 1: Upload all images first
+            const imageFilenames: Record<number, string> = {};
+            for (let i = 0; i < previewData.length; i++) {
+                const imageFile = recipeImages[i];
+                if (imageFile) {
+                    try {
+                        const uploadResponse = await uploadFile(imageFile, (prog) => setProgress(prog));
+                        // Store the full path for the image
+                        imageFilenames[i] = uploadResponse.file.url;
+                        console.log(`[Image ${i}] Uploaded: ${uploadResponse.file.filename} → ${uploadResponse.file.url}`);
+                    } catch (err) {
+                        throw new Error(`Failed to upload image for ${previewData[i].name}: ${err instanceof Error ? err.message : String(err)}`);
+                    }
+                }
+            }
+
+            // Step 2: Create recipe data with image paths - add only the image field
+            const recipesWithImages = previewData.map((recipe, index) => {
+                const recipeWithImage = { ...recipe };
+                if (imageFilenames[index]) {
+                    recipeWithImage.image = imageFilenames[index];
+                }
+                return recipeWithImage;
+            });
+
+            console.log('[Import] Recipes with images:', JSON.stringify(recipesWithImages, null, 2));
+
+            // Step 3: Convert to JSON and send for import
+            const jsonContent = JSON.stringify(recipesWithImages, null, 2);
+            const jsonFile = new File(
+                [jsonContent],
+                `recipes_${Date.now()}.json`,
+                { type: 'application/json' }
+            );
+
+            // Step 4: Import the recipes with image paths included
+            nextImportResult = await importRecipes(jsonFile, (prog) => setProgress(prog));
+            
+            if (nextImportResult.stats.failed > 0) {
+                console.error('[Import] Import result:', nextImportResult);
+                
+                let errorDetails = '';
+                
+                // Check for validation errors
+                if (nextImportResult.failures.invalid && nextImportResult.failures.invalid.length > 0) {
+                    errorDetails = nextImportResult.failures.invalid
+                        .map(fail => `• ${fail.recipe}: ${fail.errors.join('; ')}`)
+                        .join('\n');
+                    console.error('[Import] Validation errors:', nextImportResult.failures.invalid);
+                }
+                
+                // Check for insert errors
+                if (nextImportResult.failures.insertErrors && nextImportResult.failures.insertErrors.length > 0) {
+                    const insertErrs = nextImportResult.failures.insertErrors.join('\n• ');
+                    errorDetails += (errorDetails ? '\n\n' : '') + `Insert errors:\n• ${insertErrs}`;
+                    console.error('[Import] Insert errors:', nextImportResult.failures.insertErrors);
+                }
+                
+                setError(errorDetails || `❌ Import failed: ${nextImportResult.stats.failed} recipe(s) rejected`);
+            } else {
+                setShowPreview(false);
+                setPreviewData(null);
+                setPreviewFile(null);
+                setRecipeImages({});
+            }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Import failed');
+            const errorMsg = err instanceof Error ? err.message : 'Import failed';
+            console.error('[Import] Error:', errorMsg);
+            setError(errorMsg);
         } finally {
             const elapsed = Date.now() - importStart;
             if (elapsed < MIN_PROGRESS_VISIBLE_MS) {
@@ -291,15 +378,17 @@ export default function FileManagement() {
         }
     };
 
-        return (
-        <Box sx={{ p: 3 }}>
+    return (
+        <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
                 📁 File Management
             </Typography>
 
             {error && (
-                <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-                    {error}
+                <Alert severity="error" sx={{ mb: 2, whiteSpace: 'pre-wrap' }} onClose={() => setError(null)}>
+                    <Box sx={{ fontFamily: 'monospace', fontSize: '0.875rem', lineHeight: 1.6 }}>
+                        {error}
+                    </Box>
                 </Alert>
             )}
 
@@ -415,9 +504,8 @@ export default function FileManagement() {
             <Card
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                onChange={handleFileInput}
                 sx={{
-                    p: 3,
+                    p: { xs: 2, sm: 3 },
                     textAlign: 'center',
                     border: '2px dashed #ccc',
                     borderRadius: 2,
@@ -428,24 +516,29 @@ export default function FileManagement() {
                         backgroundColor: '#f5f5f5',
                     },
                     mb: 3,
+                    minHeight: { xs: 150, sm: 200 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
                 }}
             >
                 <input
                     type="file"
                     id="file-input"
                     hidden
-                    accept=".csv,.json,.jpg,.jpeg,.png,.gif,.webp"
+                    accept=".csv,.json"
+                    onChange={handleFileInput}
                 />
                 <label htmlFor="file-input" style={{ cursor: 'pointer', width: '100%' }}>
-                    <CloudUploadIcon sx={{ fontSize: 48, color: '#1976d2', mb: 1 }} />
-                    <Typography variant="h6">
+                    <CloudUploadIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: '#1976d2', mb: 1 }} />
+                    <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                         Drag & drop files here or click to select
                     </Typography>
-                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                        📋 <strong>Recipe CSV:</strong> Upload multiple recipes at once with our template
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1, fontSize: { xs: '0.85rem', sm: '1rem' } }}>
+                        📋 <strong>Recipe File:</strong> Upload CSV or JSON with recipes, then add images for each
                     </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                        Supported: CSV, JSON (for recipes), JPEG, PNG, GIF, WebP (max 5MB)
+                    <Typography variant="caption" color="textSecondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        Supported: CSV, JSON formats (max 5MB)
                     </Typography>
                 </label>
             </Card>
@@ -469,12 +562,118 @@ export default function FileManagement() {
                 </Box>
             )}
 
+            {/* Image Upload Section - Always Visible After File Upload */}
+            {previewData && previewData.length > 0 && (
+                <Card sx={{ mb: 3, p: { xs: 2, sm: 3 }, backgroundColor: '#f9f9f9', borderRadius: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 2, gap: 2 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: { xs: 1, sm: 0 } }}>
+                            🖼️ Add Images to Recipes (Required)
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            color="info"
+                            onClick={() => setShowPreview(true)}
+                            sx={{ minWidth: 150 }}
+                        >
+                            👁️ View Preview
+                        </Button>
+                    </Box>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+                        Each recipe requires an image before importing. Click "Add Image" for each recipe below.
+                    </Typography>
+                    <List sx={{ '& .MuiListItem-root': { flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' } } }}>
+                        {previewData.map((recipe, index) => {
+                            const hasImage = Boolean(recipeImages[index]);
+                            return (
+                                <ListItem
+                                    key={index}
+                                    secondaryAction={
+                                        <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' }, mt: { xs: 2, sm: 0 }, width: { xs: '100%', sm: 'auto' } }}>
+                                            <input
+                                                type="file"
+                                                id={`preview-image-${index}`}
+                                                hidden
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        setRecipeImages({
+                                                            ...recipeImages,
+                                                            [index]: e.target.files[0],
+                                                        });
+                                                    }
+                                                }}
+                                            />
+                                            <label htmlFor={`preview-image-${index}`} style={{ flex: 'auto', minWidth: 0 }}>
+                                                <Button
+                                                    component="span"
+                                                    size="small"
+                                                    variant={hasImage ? 'outlined' : 'contained'}
+                                                    color={hasImage ? 'success' : 'primary'}
+                                                    startIcon={<AddPhotoAlternateIcon />}
+                                                    sx={{ 
+                                                        whiteSpace: 'nowrap', 
+                                                        overflow: 'hidden', 
+                                                        textOverflow: 'ellipsis',
+                                                        width: { xs: '100%', sm: 'auto' },
+                                                        minWidth: { xs: 0, sm: 120 }
+                                                    }}
+                                                    title={recipeImages[index]?.name || 'Add image for this recipe'}
+                                                >
+                                                    {hasImage ? recipeImages[index]?.name?.substring(0, 20) : 'Add Image'}
+                                                </Button>
+                                            </label>
+                                            {hasImage && (
+                                                <Button
+                                                    size="small"
+                                                    color="error"
+                                                    startIcon={<DeleteIcon />}
+                                                    sx={{ width: { xs: '100%', sm: 'auto' } }}
+                                                    onClick={() => {
+                                                        const updated = { ...recipeImages };
+                                                        delete updated[index];
+                                                        setRecipeImages(updated);
+                                                    }}
+                                                >
+                                                    Remove
+                                                </Button>
+                                            )}
+                                        </Box>
+                                    }
+                                    sx={{ borderBottom: '1px solid #eee', mb: 1, flexWrap: 'wrap' }}
+                                >
+                                    <ListItemText
+                                        primary={recipe.name || `Recipe ${index + 1}`}
+                                        secondary={hasImage ? '✅ Image ready' : '❌ Missing image'}
+                                        secondaryTypographyProps={{
+                                            color: hasImage ? 'success.main' : 'error.main',
+                                        }}
+                                        sx={{ mb: { xs: 1, sm: 0 }, minWidth: { xs: '100%', sm: 'auto' } }}
+                                    />
+                                </ListItem>
+                            );
+                        })}
+                    </List>
+                </Card>
+            )}
+
             {/* Preview Dialog */}
             <CSVRecipePreview
                 open={showPreview}
                 recipes={previewData}
+                recipeImages={recipeImages}
+                onImageChange={(index, file) => {
+                    if (file) {
+                        setRecipeImages({ ...recipeImages, [index]: file });
+                    } else {
+                        const updated = { ...recipeImages };
+                        delete updated[index];
+                        setRecipeImages(updated);
+                    }
+                }}
                 onConfirm={confirmImport}
-                onCancel={() => setShowPreview(false)}
+                onCancel={() => {
+                    setShowPreview(false);
+                }}
                 uploading={uploading}
             />
 
