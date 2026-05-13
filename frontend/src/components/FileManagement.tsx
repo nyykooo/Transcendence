@@ -55,6 +55,7 @@ export default function FileManagement() {
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             handleFileUpload(e.target.files);
+            
         }
     };
 
@@ -80,7 +81,6 @@ export default function FileManagement() {
                 // If it's a recipe document, preview first
                 if (file[i].type === 'text/csv' || file[i].type === 'application/json') {
                     await previewRecipeFile(file[i]);
-                    
                 } else {
                     // For images, just upload directly
                     await uploadFile(file[i], (prog) => setProgress(prog));
@@ -416,7 +416,6 @@ export default function FileManagement() {
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onChange={handleFileInput}
-                disabled={uploading}
                 sx={{
                     p: 3,
                     textAlign: 'center',
