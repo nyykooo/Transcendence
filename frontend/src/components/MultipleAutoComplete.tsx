@@ -6,62 +6,85 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material/styles';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
+import { FormControl } from '@mui/material';
 
-const Root = styled('div')(({ theme }) => ({
-  color: 'rgba(0,0,0,0.85)',
-  fontSize: '14px',
-  ...theme.applyStyles('dark', {
-    color: 'rgba(255,255,255,0.65)',
-  }),
+const Label = styled('label')(({ theme }) => ({
+  position: 'absolute',
+  top: '50%',
+  left: '14px',
+  transform: 'translateY(-50%)',
+  fontSize: '16px',
+  fontFamily: theme.typography.fontFamily,
+  color: theme.palette.text.secondary,
+  pointerEvents: 'none',
+  transition: 'all 0.2s ease',
+  backgroundColor: "transparent",
+  paddingInline: '4px',
+
+  '&.shrink': {
+    top: 0,
+    fontSize: '12px',
+    color: theme.palette.primary.main,
+  },
 }));
 
-const Label = styled('label')`
-  padding: 0 0 4px;
-  line-height: 1.5;
-  display: block;
-`;
-
 const InputWrapper = styled('div')(({ theme }) => ({
-  width: '300px',
-  border: '1px solid #d9d9d9',
-  backgroundColor: '#fff',
-  borderRadius: '4px',
-  padding: '1px',
+  position: 'relative',
+  padding: '16px 32px 16px 14px',
+  boxSizing: 'border-box',
+  backgroundColor: 'transparent',
   display: 'flex',
   flexWrap: 'wrap',
-  ...theme.applyStyles('dark', {
-    borderColor: '#434343',
-    backgroundColor: '#141414',
-  }),
-  '&:hover': {
-    borderColor: '#40a9ff',
-    ...theme.applyStyles('dark', {
-      borderColor: '#177ddc',
-    }),
+  alignItems: 'center',
+  gap: '4px',
+
+  '&:hover fieldset': {
+    borderColor: theme.palette.text.primary,
   },
-  '&.focused': {
-    borderColor: '#40a9ff',
-    boxShadow: '0 0 0 2px rgb(24 144 255 / 0.2)',
-    ...theme.applyStyles('dark', {
-      borderColor: '#177ddc',
-    }),
+  '&.focused fieldset': {
+    borderColor: theme.palette.primary.main,
+    borderWidth: '2px',
   },
   '& input': {
-    backgroundColor: '#fff',
-    color: 'rgba(0,0,0,.85)',
-    height: '30px',
+    font: 'inherit',
+    color: theme.palette.text.primary,
+    backgroundColor: 'transparent',
+    height: '24px',
     boxSizing: 'border-box',
-    padding: '4px 6px',
-    width: '0',
-    minWidth: '30px',
+    padding: '0',
+    minWidth: '80px',
     flexGrow: 1,
     border: 0,
     margin: 0,
     outline: 0,
-    ...theme.applyStyles('dark', {
-      color: 'rgba(255,255,255,0.65)',
-      backgroundColor: '#141414',
-    }),
+  },
+}));
+
+const StyledFieldset = styled('fieldset')(({ theme }) => ({
+  position: 'absolute',
+  inset: 0,
+  margin: 0,
+  padding: '0 8px',
+  pointerEvents: 'none',
+  borderRadius: theme.shape.borderRadius + 'px',
+  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.23)' : 'rgba(0,0,0,0.23)'}`,
+  overflow: 'hidden',
+  transition: 'border-color 0.2s',
+
+  '& legend': {
+    display: 'block',
+    visibility: 'hidden',
+    maxWidth: '0',
+    height: '11px',
+    fontSize: '12px',
+    padding: 0,
+    whiteSpace: 'nowrap',
+    transition: 'max-width 0.1s ease',
+
+    '&.expanded': {
+      maxWidth: '100%',
+      padding: '0 4px',
+    },
   },
 }));
 
@@ -83,57 +106,60 @@ const StyledItem = styled(Item)<ItemProps>(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   height: '24px',
-  margin: '2px',
-  lineHeight: '22px',
-  backgroundColor: '#fafafa',
-  border: `1px solid #e8e8e8`,
-  borderRadius: '2px',
+  lineHeight: '24px',
+  backgroundColor: theme.palette.mode === 'dark'
+    ? 'rgba(255,255,255,0.08)'
+    : theme.palette.grey[100],
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.shape.borderRadius + 'px',
   boxSizing: 'content-box',
   padding: '0 4px 0 10px',
   outline: 0,
   overflow: 'hidden',
-  ...theme.applyStyles('dark', {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderColor: '#303030',
-  }),
+
   '&:focus': {
-    borderColor: '#40a9ff',
-    backgroundColor: '#e6f7ff',
-    ...theme.applyStyles('dark', {
-      backgroundColor: '#003b57',
-      borderColor: '#177ddc',
-    }),
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.mode === 'dark'
+      ? 'rgba(25,118,210,0.15)'
+      : theme.palette.primary.light + '33',
   },
   '& span': {
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
+    fontSize: '13px',
   },
   '& svg': {
-    fontSize: '12px',
+    fontSize: '14px',
     cursor: 'pointer',
     padding: '4px',
+    color: theme.palette.text.secondary,
+    '&:hover': {
+      color: theme.palette.text.primary,
+    },
   },
 }));
 
 const Listbox = styled('ul')(({ theme }) => ({
-  width: '300px',
-  margin: '2px 0 0',
-  padding: 0,
+  width: '100%',
+  margin: '4px 0 0',
+  padding: '4px 0',
   position: 'absolute',
   listStyle: 'none',
-  backgroundColor: '#fff',
+  backgroundColor: theme.palette.background.paper,
   overflow: 'auto',
   maxHeight: '250px',
-  borderRadius: '4px',
-  boxShadow: '0 2px 8px rgb(0 0 0 / 0.15)',
-  zIndex: 1,
-  ...theme.applyStyles('dark', {
-    backgroundColor: '#141414',
-  }),
+  borderRadius: theme.shape.borderRadius + 'px',
+  boxShadow: theme.shadows[4],
+  zIndex: theme.zIndex.modal,
+  boxSizing: 'border-box',
+
   '& li': {
-    padding: '5px 12px',
+    padding: '6px 16px',
     display: 'flex',
+    alignItems: 'center',
+    fontSize: '16px',
+    fontFamily: theme.typography.fontFamily,
     '& span': {
       flexGrow: 1,
     },
@@ -142,23 +168,19 @@ const Listbox = styled('ul')(({ theme }) => ({
     },
   },
   "& li[aria-selected='true']": {
-    backgroundColor: '#fafafa',
+    backgroundColor: theme.palette.mode === 'dark'
+      ? 'rgba(25,118,210,0.2)'
+      : theme.palette.primary.light + '22',
     fontWeight: 600,
-    ...theme.applyStyles('dark', {
-      backgroundColor: '#2b2b2b',
-    }),
     '& svg': {
-      color: '#1890ff',
+      color: theme.palette.primary.main,
     },
   },
   [`& li.${autocompleteClasses.focused}`]: {
-    backgroundColor: '#e6f7ff',
+    backgroundColor: theme.palette.action.hover,
     cursor: 'pointer',
-    ...theme.applyStyles('dark', {
-      backgroundColor: '#003b57',
-    }),
     '& svg': {
-      color: 'currentColor',
+      color: theme.palette.text.secondary,
     },
   },
 }));
@@ -183,10 +205,17 @@ export default function MultipleAutoComplete<Value>(
   });
 
   return (
-    <Root>
+    <FormControl sx={{ m: 1, width: "90%" }}>
       <div {...getRootProps()}>
-        <Label {...getInputLabelProps()}>Names</Label>
         <InputWrapper ref={setAnchorEl} className={focused ? 'focused' : ''}>
+          <StyledFieldset>
+            <legend className={focused || value.length > 0 ? 'expanded' : ''}>
+              Names
+            </legend>
+          </StyledFieldset>
+          <Label {...getInputLabelProps()} className={focused || value.length > 0 ? 'shrink' : ''}>
+            Names
+          </Label>
           {value.map((option, index) => {
             const { key, ...itemProps } = getItemProps({ index });
             return (
@@ -199,20 +228,20 @@ export default function MultipleAutoComplete<Value>(
           })}
           <input {...getInputProps()} />
         </InputWrapper>
+        {groupedOptions.length > 0 ? (
+          <Listbox {...getListboxProps()}>
+            {groupedOptions.map((option, index) => {
+              const { key, ...optionProps } = getOptionProps({ option, index });
+              return (
+                <li key={key} {...optionProps}>
+                  <span>{props.getOptionLabel!(option)}</span>
+                  <CheckIcon fontSize="small" />
+                </li>
+              );
+            })}
+          </Listbox>
+        ) : null}
       </div>
-      {groupedOptions.length > 0 ? (
-        <Listbox {...getListboxProps()}>
-          {groupedOptions.map((option, index) => {
-            const { key, ...optionProps } = getOptionProps({ option, index });
-            return (
-              <li key={key} {...optionProps}>
-                <span>{props.getOptionLabel!(option)}</span>
-                <CheckIcon fontSize="small" />
-              </li>
-            );
-          })}
-        </Listbox>
-      ) : null}
-    </Root>
+    </FormControl>
   );
 }

@@ -4,9 +4,8 @@ import { type MultipleSelectProps } from '../props/multiple-select-props';
 
 
 export default function MultipleSelect({ name, options, selectedOptions, onChange }: MultipleSelectProps) {
-    return (
-        
-      <FormControl sx={{ m: 1, width: 300 }}>
+    return ( 
+      <FormControl sx={{ m: 1, width: '90%' }}>
         <InputLabel id="demo-multiple-name-label">{name}</InputLabel>
         <Select
           labelId="demo-multiple-name-label"
@@ -15,6 +14,11 @@ export default function MultipleSelect({ name, options, selectedOptions, onChang
           value={selectedOptions}
           onChange={onChange}
           input={<OutlinedInput label={name} />}
+          MenuProps={{
+            anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+            transformOrigin: { vertical: 'top', horizontal: 'left' },
+            disablePortal: true, 
+          }}
         >
           {options.map((option) => (
             <MenuItem

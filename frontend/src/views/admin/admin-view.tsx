@@ -344,10 +344,6 @@ export default function AdminView()
         <RoleBaseGuard role={user?.role} 
             children={
                 <Box sx={{height: '100%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
-                    <Typography variant="h2" color='primary'>Admin View</Typography>
-                    <Typography variant="body1" color='info'>Only admin users can access this view.</Typography>
-                    <Typography variant="h3" color='primary'>Pending Recipes</Typography>
-                    <Typography variant="body1" color='info'>Here you can review and approve or reject pending recipes submitted by users.</Typography>
                     {error && (
                         <Alert severity='error' sx={{ width: '100%' }}>
                             {error}
@@ -356,65 +352,73 @@ export default function AdminView()
                     <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
                         {`Pending Recipes`}
                     </Typography>
-                    <DataGrid
-                        sx={{ width: '100%', flex: 1 }}
-                        rows={pendingRecipesRows}
-                        columns={pendingRecipesColumns}
-                        getRowId={(row: PendingRecipe) => `${row.recipe_name}-${row.ingredient_name}`}
-                        loading={isLoading}
-                        slots={{
-                            loadingOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
-                                    <CircularProgress size={28} />
-                                </Box>
-                            ),
-                            noRowsOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
-                                    <Typography variant='body2'>No recipes available.</Typography>
-                                </Box>
-                            ),
-                        }}
-                        initialState={{
-                        pagination: {
-                            paginationModel: {
-                            pageSize: 5,
+                    <Box sx={{ width: '90vw' }}>
+                        <DataGrid
+                            sx={{
+                                flex: 1,
+                                borderRadius: '12px',
+                                overflow: 'hidden',
+                            }}
+                            rows={pendingRecipesRows}
+                            columns={pendingRecipesColumns}
+                            getRowId={(row: PendingRecipe) => `${row.recipe_name}-${row.ingredient_name}`}
+                            loading={isLoading}
+                            slots={{
+                                loadingOverlay: () => (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+                                        <CircularProgress size={28} />
+                                    </Box>
+                                ),
+                                noRowsOverlay: () => (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+                                        <Typography variant='body2'>No recipes available.</Typography>
+                                    </Box>
+                                ),
+                            }}
+                            initialState={{
+                            pagination: {
+                                paginationModel: {
+                                pageSize: 5,
+                                },
                             },
-                        },
-                        }}
-                        pageSizeOptions={[5, 10, 20, 50, 100]}
-                        disableRowSelectionOnClick
-                    />
+                            }}
+                            pageSizeOptions={[5, 10, 20, 50, 100]}
+                            disableRowSelectionOnClick
+                        />
+                    </Box>
                     <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
                         {`Users`}
                     </Typography>
-                    <DataGrid
-                        sx={{ width: '100%', flex: 1 }}
-                        rows={usersRows}
-                        columns={usersColumns}
-                        getRowId={(row: UserRows) => `${row.id}`}
-                        loading={isLoading}
-                        slots={{
-                            loadingOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                    <CircularProgress size={28} />
-                                </Box>
-                            ),
-                            noRowsOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                    <Typography variant='body2'>No users available.</Typography>
-                                </Box>
-                            ),
-                        }}
-                        initialState={{
-                        pagination: {
-                            paginationModel: {
-                            pageSize: 5,
+                    <Box sx={{ width: '90vw' }}>
+                        <DataGrid
+                            sx={{ width: '100%', flex: 1 }}
+                            rows={usersRows}
+                            columns={usersColumns}
+                            getRowId={(row: UserRows) => `${row.id}`}
+                            loading={isLoading}
+                            slots={{
+                                loadingOverlay: () => (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                        <CircularProgress size={28} />
+                                    </Box>
+                                ),
+                                noRowsOverlay: () => (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                        <Typography variant='body2'>No users available.</Typography>
+                                    </Box>
+                                ),
+                            }}
+                            initialState={{
+                            pagination: {
+                                paginationModel: {
+                                pageSize: 5,
+                                },
                             },
-                        },
-                        }}
-                        pageSizeOptions={[5, 10, 20, 50, 100]}
-                        disableRowSelectionOnClick
-                    />
+                            }}
+                            pageSizeOptions={[5, 10, 20, 50, 100]}
+                            disableRowSelectionOnClick
+                        />
+                    </Box>
                 </Box>
             }
             protection={

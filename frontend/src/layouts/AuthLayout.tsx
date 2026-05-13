@@ -10,7 +10,14 @@ export default function AuthLayout() {
             minHeight: '100vh',
             width: '100%' 
         }}>
-            <Outlet />
+            <Box sx={{ 
+                flexGrow: 1, 
+                display: 'flex', 
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Outlet />
+            </Box>
             <Footer />
         </Box>
     );
