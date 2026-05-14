@@ -31,6 +31,10 @@ export type ProfileAvatarPanelProps = {
     onUpload: () => void;
     onDeleteAvatar: () => void;
 };
+export type PublicProfileAvatarPanelProps = {
+    user: ProfileUser;
+};
+
 
 export type ProfileFieldProps = {
     label: string;

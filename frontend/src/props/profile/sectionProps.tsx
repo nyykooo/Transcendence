@@ -13,6 +13,10 @@ export type ProfileAvatarSectionProps = {
     onDeleteAvatar: () => void;
 };
 
+export type PublicProfileAvatarSectionProps = {
+    user: ProfileUser;
+};
+
 export type ProfileDetailsSectionProps = {
     profileForm: ProfileForm;
     loading: boolean;

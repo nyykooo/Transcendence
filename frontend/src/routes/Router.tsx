@@ -15,6 +15,7 @@ export default function Router() {
         <Route path="/recipe/:name" element={<ProtectedRoute><RecipeView /></ProtectedRoute>} />
         <Route path="/recipe-list-view" element={<ProtectedRoute><RecipeListView /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        {/* <Route path="/profile/:name" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} /> */}
         <Route path="/file-management" element={<ProtectedRoute><FileManagement /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminView /></ProtectedRoute>} />
         <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
