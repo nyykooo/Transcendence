@@ -1,7 +1,8 @@
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { Button, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
+import UIButton from './UIButton';
 
 import Settings from './Settings';
 import Logo from './Logo';
@@ -34,9 +35,9 @@ export default function Header() {
             justifyContent="space-between"
             sx={{ paddingX: { xs: 1, md: 5 } }}
         >
-            <Button onClick={() => updatePage(paths.home.path)}>
+            <UIButton onClick={() => updatePage(paths.home.path)}>
                 <Logo size={{ xs: 60, md: 120, lg: 150 }} path={images.icons.logo}/>
-            </Button>
+            </UIButton>
             <Stack sx={{
                 display: 'flex',
                 flexDirection: 'row',

@@ -315,6 +315,136 @@ router.post(['/recipes', '/RecipeListView'], requireAuthWithRateLimit, async (re
     }
 });
 
+router.post('/recipes/:name/like_add', requireAuthWithRateLimit, async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    const userId = req.userId ?? req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    try {
+        await pool.query('BEGIN');
+
+        const recipeResult = await pool.query(
+            `SELECT id, liked FROM public.all_recipes WHERE name = $1 LIMIT 1`,
+            [name]
+        );
+        if (recipeResult.rowCount === 0) {
+            await pool.query('ROLLBACK');
+            return res.status(404).json({ error: `Recipe ${name} not found` });
+        }
+
+        const recipeId = recipeResult.rows[0].id;
+        const userResult = await pool.query(
+            `SELECT liked
+             FROM dev_dba.users
+             WHERE id = $1
+             LIMIT 1`,
+            [userId]
+        );
+
+        if (userResult.rowCount === 0) {
+            await pool.query('ROLLBACK');
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const alreadyLiked = Array.isArray(userResult.rows[0].liked)
+            ? userResult.rows[0].liked.some((likedRecipeId) => String(likedRecipeId) === String(recipeId))
+            : false;
+
+        if (alreadyLiked) {
+            await pool.query('COMMIT');
+            return res.json({ liked: recipeResult.rows[0].liked ?? 0, likedByUser: true });
+        }
+
+        const updateRecipe = await pool.query(
+            `UPDATE public.all_recipes
+             SET liked = COALESCE(liked, 0) + 1
+             WHERE id = $1
+             RETURNING liked`,
+            [recipeId]
+        );
+
+        // Add recipe id to user's liked array if not already present
+        await pool.query(
+            `UPDATE dev_dba.users
+             SET liked = CASE WHEN $2 = ANY(COALESCE(liked, '{}')) THEN liked ELSE array_append(COALESCE(liked, '{}'), $2) END
+             WHERE id = $1`,
+            [userId, recipeId]
+        );
+
+        await pool.query('COMMIT');
+
+        return res.json({ liked: updateRecipe.rows[0].liked, likedByUser: true });
+    } catch (error) {
+        await pool.query('ROLLBACK').catch(() => {});
+        return res.status(500).json({ error: 'Failed to like recipe', details: error.message });
+    }
+});
+
+router.post('/recipes/:name/like_remove', requireAuthWithRateLimit, async (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    const userId = req.userId ?? req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    try {
+        await pool.query('BEGIN');
+
+        const recipeResult = await pool.query(
+            `SELECT id, liked FROM public.all_recipes WHERE name = $1 LIMIT 1`,
+            [name]
+        );
+        if (recipeResult.rowCount === 0) {
+            await pool.query('ROLLBACK');
+            return res.status(404).json({ error: `Recipe ${name} not found` });
+        }
+
+        const recipeId = recipeResult.rows[0].id;
+        const userResult = await pool.query(
+            `SELECT liked
+             FROM dev_dba.users
+             WHERE id = $1
+             LIMIT 1`,
+            [userId]
+        );
+
+        if (userResult.rowCount === 0) {
+            await pool.query('ROLLBACK');
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const alreadyLiked = Array.isArray(userResult.rows[0].liked)
+            ? userResult.rows[0].liked.some((likedRecipeId) => String(likedRecipeId) === String(recipeId))
+            : false;
+
+        if (!alreadyLiked) {
+            await pool.query('COMMIT');
+            return res.json({ liked: recipeResult.rows[0].liked ?? 0, likedByUser: false });
+        }
+
+        const updateRecipe = await pool.query(
+            `UPDATE public.all_recipes
+             SET liked = GREATEST(COALESCE(liked, 0) - 1, 0)
+             WHERE id = $1
+             RETURNING liked`,
+            [recipeId]
+        );
+
+        // Remove recipe id from user's liked array
+        await pool.query(
+            `UPDATE dev_dba.users
+             SET liked = array_remove(COALESCE(liked, '{}'), $2)
+             WHERE id = $1`,
+            [userId, recipeId]
+        );
+
+        await pool.query('COMMIT');
+
+        return res.json({ liked: updateRecipe.rows[0].liked, likedByUser: false });
+    } catch (error) {
+        await pool.query('ROLLBACK').catch(() => {});
+        return res.status(500).json({ error: 'Failed to unlike recipe', details: error.message });
+    }
+});
+
 router.post(['/pending/recipes', '/Pending/RecipeListView'], requireAuthWithRateLimit, async (req, res) => {
     const body = req.body || {};
     if (!body.name)
@@ -410,6 +540,7 @@ router.post(['/pending/recipes', '/Pending/RecipeListView'], requireAuthWithRate
 
 router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, async (req, res) => {
     const name = req.params.name; // search normalized values?
+    const userId = req.userId ?? req.user?.id;
 
     try {
         const result = await pool.query(`
@@ -423,9 +554,26 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
         }
 
         const raw_recipe = result.rows[0];
+        let likedByUser = false;
+
+        if (userId) {
+            const userResult = await pool.query(
+                `SELECT liked
+                 FROM dev_dba.users
+                 WHERE id = $1
+                 LIMIT 1`,
+                [userId]
+            );
+
+            if (userResult.rowCount > 0 && Array.isArray(userResult.rows[0].liked)) {
+                likedByUser = userResult.rows[0].liked.some((likedRecipeId) => String(likedRecipeId) === String(raw_recipe.id));
+            }
+        }
+
         const instructions = groupRecipeInstructions(raw_recipe.instructions);
 
         const recipe = {
+            id: raw_recipe.id,
             name: raw_recipe.name,
             ingredients: raw_recipe.ingredients,
             instructions,
@@ -437,8 +585,17 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
             diet: raw_recipe.diet,
             cost: raw_recipe.cost,
             liked: raw_recipe.liked,
-            viewed: raw_recipe.viewed+1,
+            viewed: raw_recipe.viewed,
+            liked_by_user: likedByUser,
         };
+        const updatedViewed = (raw_recipe.viewed || 0) + 1;
+        await pool.query(
+            `UPDATE public.all_recipes
+             SET viewed = $1
+             WHERE id = $2`,
+            [updatedViewed, raw_recipe.id],
+        );
+        recipe.viewed = updatedViewed;
         return res.json(recipe);
     } catch (error) {
         console.log('Error fetching recipe:', error);

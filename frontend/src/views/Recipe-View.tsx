@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { Box, Chip, Divider, Link, Paper, Stack, Typography } from '@mui/material';
+import { Box, Chip, Divider, Paper, Stack, Typography } from '@mui/material';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { Logo } from '../components/components';
 
@@ -39,6 +41,8 @@ export default function RecipeView() {
 
     const [recipe, setRecipe] = useState<Recipe | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isLiked, setIsLiked] = useState(false);
+    const [liking, setLiking] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -52,6 +56,7 @@ export default function RecipeView() {
             }
 
             setRecipe(res);
+            setIsLiked(Boolean(res?.likedByUser));
             setLoading(false);
         };
 
@@ -61,6 +66,41 @@ export default function RecipeView() {
             cancelled = true;
         };
     }, [name]);
+
+    const handleLikeClick = async () => {
+        if (!recipe || !name || liking) return;
+
+        setLiking(true);
+        try {
+            const auth = JSON.parse(localStorage.getItem('auth') || 'null');
+            if (!auth?.token) {
+                console.error('No auth token found');
+                setLiking(false);
+                return;
+            }
+
+            const endpoint = isLiked ? 'like_remove' : 'like_add';
+            const response = await fetch(`/api/recipes/${encodeURIComponent(name)}/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${auth.token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update like');
+            }
+
+            const data = await response.json();
+            setRecipe({ ...recipe, liked: data.liked, likedByUser: Boolean(data.likedByUser) });
+            setIsLiked(Boolean(data.likedByUser));
+        } catch (error) {
+            console.error('Error updating like:', error);
+        } finally {
+            setLiking(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -162,6 +202,45 @@ export default function RecipeView() {
                                     variant="outlined"
                                     sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}
                                 />
+                                <Chip
+                                    label={`${recipe.viewed ?? 0} Views`}
+                                    variant="outlined"
+                                    sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}
+                                />
+                                <Box
+                                    component="button"
+                                    type="button"
+                                    onClick={handleLikeClick}
+                                    disabled={liking}
+                                    aria-pressed={isLiked}
+                                    sx={{
+                                        appearance: 'none',
+                                        border: '1px solid',
+                                        borderColor: isLiked ? '#d32f2f' : 'rgba(211, 47, 47, 0.35)',
+                                        bgcolor: isLiked ? '#d32f2f' : 'transparent',
+                                        color: isLiked ? '#ffffff' : '#d32f2f',
+                                        borderRadius: 2,
+                                        px: 1.5,
+                                        py: 0.75,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 0.75,
+                                        fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
+                                        fontWeight: 600,
+                                        fontSize: '0.875rem',
+                                        cursor: liking ? 'wait' : 'pointer',
+                                        '&:disabled': {
+                                            opacity: 0.65,
+                                            cursor: 'not-allowed',
+                                        },
+                                        '&:hover:not(:disabled)': {
+                                            bgcolor: isLiked ? '#b71c1c' : 'rgba(211, 47, 47, 0.08)',
+                                        },
+                                    }}
+                                >
+                                    {isLiked ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
+                                    {recipe.liked ?? 0} Like{(recipe.liked ?? 0) !== 1 ? 's' : ''}
+                                </Box>
                             </Stack>
                         </Stack>
 
@@ -214,20 +293,25 @@ export default function RecipeView() {
                                     <Divider sx={{ mb: 2 }} />
 
                                     {recipe.url && (
-                                        <Link
+                                        <Box
+                                            component="a"
                                             href={recipe.url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            underline="hover"
                                             sx={{
                                                 display: 'inline-flex',
                                                 mb: 2,
                                                 fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
                                                 fontWeight: 600,
+                                                color: 'primary.main',
+                                                textDecoration: 'none',
+                                                '&:hover': {
+                                                    textDecoration: 'underline',
+                                                },
                                             }}
                                         >
                                             Watch recipe video
-                                        </Link>
+                                        </Box>
                                     )}
 
                                     <Stack spacing={1.25}>

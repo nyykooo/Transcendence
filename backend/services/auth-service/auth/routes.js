@@ -87,6 +87,60 @@ async function loadUserFriendRequests(userId) {
   return requestsResult.rows;
 }
 
+async function loadUserLikedRecipes(userId) {
+  const ownerResult = await pool.query(
+    `SELECT liked
+     FROM dev_dba.users
+     WHERE id = $1
+     LIMIT 1`,
+    [userId]
+  );
+
+  if (ownerResult.rowCount === 0) {
+    return null;
+  }
+
+  const likedRecipes = Array.isArray(ownerResult.rows[0].liked)
+    ? ownerResult.rows[0].liked
+    : [];
+
+  if (likedRecipes.length === 0) {
+    return [];
+  }
+
+  const recipesResult = await pool.query(
+    `SELECT id, name, author, image, url, diet, liked
+     FROM public.all_recipes
+     WHERE id = ANY($1::bigint[])
+     ORDER BY name ASC`,
+    [likedRecipes]
+  );
+
+  return recipesResult.rows;
+}
+
+async function loadUserAuthoredRecipes(userName) {
+  const normalizedName = String(userName || '').trim();
+
+  if (!normalizedName) {
+    return [];
+  }
+
+  const recipesResult = await pool.query(
+    `SELECT id, name, author, image, url, diet, 'approved'::text AS status
+     FROM public.all_recipes
+     WHERE lower(author) = lower($1)
+     UNION ALL
+     SELECT id, name, author, image, url, diet, status
+     FROM public.pending_recipes
+     WHERE lower(author) = lower($1)
+     ORDER BY name ASC`,
+    [normalizedName]
+  );
+
+  return recipesResult.rows;
+}
+
 function normalizeRecipeName(value) {
   return String(value || '').trim();
 }
@@ -1263,6 +1317,46 @@ async function disableTwoFactorHandler(req, res) {
 }
 
 router.post('/profile/2fa/disable', requireAuth, disableTwoFactorHandler);
+
+router.get('/profile/:name', requireAuthWithRateLimit, async (req, res) => {
+  try {
+    const targetName = String(req.params.name || '').trim();
+    if (!targetName) {
+      return res.status(400).json({ error: 'Profile name is required' });
+    }
+
+    const result = await pool.query(
+      `SELECT id, name, email, last_login, is_active
+       FROM dev_dba.users
+       WHERE lower(name) = lower($1)
+       LIMIT 1`,
+      [targetName]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    const likedRecipes = await loadUserLikedRecipes(user.id);
+    const authoredRecipes = await loadUserAuthoredRecipes(user.name);
+
+    return res.status(200).json({
+      message: 'ok',
+      user: {
+        name: user.name,
+        email: user.email,
+        likedRecipes: likedRecipes || [],
+        authoredRecipes,
+        last_login: user.last_login,
+        is_active: user.is_active,
+      },
+    });
+  } catch (error) {
+    console.error('[GET /profile/:name] unexpected error:', error);
+    return res.status(500).json({ error: 'Failed to load profile' });
+  }
+});
 
 // Simple (training-only) global state store.
 // NOTE: This is not safe for multi-user/concurrent logins in real apps.

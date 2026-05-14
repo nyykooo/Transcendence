@@ -1,6 +1,7 @@
 const redis = require('redis');
 
 const RATE_LIMIT_FAIL_OPEN = process.env.RATE_LIMIT_FAIL_OPEN === 'false';
+const RATE_LIMIT_PER_MINUTE = Math.max(1, parseInt(process.env.RATE_LIMIT_PER_MINUTE || '50', 10));
 
 // Conecta ao Redis
 const redisClient = redis.createClient({
@@ -16,7 +17,7 @@ redisClient.connect().catch(err => {
 });
 
 // Middleware de rate limit por userId
-// Limite: 10 requests por minuto (60 segundos)
+// Limite: RATE_LIMIT_PER_MINUTE requests por minuto (60 segundos)
 async function rateLimit(req, res, next) {
     if (!req.user)
         console.log('Warning: rateLimit called without req.user set');
@@ -29,7 +30,7 @@ async function rateLimit(req, res, next) {
         return next(); // Admin sem limite
     }
 
-    const limit = 10; // máximo de requests por minuto
+    const limit = RATE_LIMIT_PER_MINUTE; // máximo de requests por minuto
 
     const key = `ratelimit:${String(userId)}:${Math.floor(Date.now() / 60000)}`; // chave por minuto
 
