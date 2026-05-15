@@ -107,6 +107,7 @@ export default function RecipeView() {
         } finally {
             setLiking(false);
         }
+    };
     const handleExportToCSV = () => {
         if (!recipe) return;
 
