@@ -8,4 +8,5 @@ export { default as Register } from './Register';
 export { default as NotFound } from './error/404';
 export { default as GithubCallback } from './GithubCallback';
 export { default as Profile } from './profile/profile';
+export { default as PublicProfile } from './public-profile/public-profile';
 export { default as AdminView } from  './admin/admin-view';

@@ -20,7 +20,6 @@ export type Recipe = {
     portions: number;
     liked: number;
     viewed: number;
-
 };
 
 export type RecipesResponse = {

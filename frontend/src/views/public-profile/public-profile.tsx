@@ -1,12 +1,18 @@
 import { Card, CardContent, Stack } from '@mui/material';
 
-import { ProfilePageShell } from './public-profile-components';
+import { 
+    ProfilePageShell,
+    PublicProfileLikedTable
+} from './public-profile-components';
 import {
     PublicProfileAvatarSection
 } from './public-profile-sections';
 import { usePublicProfile } from './usePublicProfile';
+import { useNavigate } from 'react-router-dom';
 
 export default function PublicProfile() {
+
+    const navigate = useNavigate();
 
         const {
             user,
@@ -25,6 +31,12 @@ export default function PublicProfile() {
                     <Stack spacing={3}>
                         <PublicProfileAvatarSection
                             user={user}
+                        />
+                        <PublicProfileLikedTable
+                            likedRecipes={user.likedRecipes}
+                            onClickRecipe={(recipeName) => {
+                                navigate(`/recipe/${recipeName}`);
+                            }}
                         />
                     </Stack>
                 </CardContent>

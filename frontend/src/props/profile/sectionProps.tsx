@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 
-import type { FriendUser, PasswordForm, ProfileForm, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
+import type { FriendUser, PasswordForm, ProfileForm, ProfileUser, PublicProfileUser, TwoFactorSetupPayload } from './sharedProps';
 
 export type ProfileAvatarSectionProps = {
     user: ProfileUser;
@@ -13,8 +13,8 @@ export type ProfileAvatarSectionProps = {
     onDeleteAvatar: () => void;
 };
 
-export type PublicProfileAvatarSectionProps = {
-    user: ProfileUser;
+export type PublicProfileInfoSectionProps = {
+    user: PublicProfileUser;
 };
 
 export type ProfileDetailsSectionProps = {

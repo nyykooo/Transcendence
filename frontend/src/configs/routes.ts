@@ -8,7 +8,7 @@ export const paths = {
       name: 'Recipes List',
     },
     recipe: {
-      path: '/recipe-view',
+      path: `/recipe/:name`,
       name: 'Recipe',
     },
     privacyPolicy: {
@@ -38,5 +38,9 @@ export const paths = {
     fileManagement: {
       path: '/file-management',
       name: 'File Management'
+    },
+    publicProfile: {
+      path: `/profile/:name`,
+      name: 'Profile'
     }
 }

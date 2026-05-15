@@ -1,11 +1,11 @@
-import { PublicProfileAvatarPanel } from './public-profile-components';
-import type { PublicProfileAvatarSectionProps } from '../../props/profile/sectionProps';
+import { PublicProfileInfoPanel } from './public-profile-components';
+import type { PublicProfileInfoSectionProps } from '../../props/profile/sectionProps';
 
 export function PublicProfileAvatarSection({
     user,
-}: PublicProfileAvatarSectionProps) {
+}: PublicProfileInfoSectionProps) {
     return (
-        <PublicProfileAvatarPanel
+        <PublicProfileInfoPanel
             user={user}
         />
     );

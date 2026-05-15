@@ -1,3 +1,5 @@
+import  { type Recipe } from '../recipe-list';
+
 export type FriendUser = {
     id: number;
     name: string;
@@ -13,6 +15,14 @@ export type ProfileUser = {
     twoFactorEnabled?: boolean;
     friends?: FriendUser[];
     friendRequests?: FriendUser[];
+    is_active?: boolean;
+};
+
+export type PublicProfileUser = {
+    name: string;
+    avatar: string | null;
+    likedRecipes: Recipe[];
+    is_active?: boolean;
 };
 
 export type TwoFactorSetupPayload = {

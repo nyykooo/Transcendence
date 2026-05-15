@@ -1,6 +1,6 @@
 import type { ChangeEvent, PropsWithChildren } from 'react';
 
-import type { ApiMessage, FriendUser, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
+import type { ApiMessage, FriendUser, ProfileUser, PublicProfileUser, TwoFactorSetupPayload } from './sharedProps';
 
 export type ProfilePageShellProps = PropsWithChildren;
 
@@ -31,8 +31,9 @@ export type ProfileAvatarPanelProps = {
     onUpload: () => void;
     onDeleteAvatar: () => void;
 };
-export type PublicProfileAvatarPanelProps = {
-    user: ProfileUser;
+
+export type PublicProfileInfoPanelProps = {
+    user: PublicProfileUser | null;
 };
 
 
