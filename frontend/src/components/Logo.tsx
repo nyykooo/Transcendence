@@ -17,7 +17,7 @@ export default function Logo({ path, size, sx }: LogoProps) {
             }}
         >
             <img
-                src={path}
+                src={path || undefined}
                 alt="logo"
                 style={{
                     width: '100%',

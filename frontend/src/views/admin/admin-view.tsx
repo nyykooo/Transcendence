@@ -26,8 +26,6 @@ export default function AdminView()
 
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-
     const handleRoleChange = (userId: number) => (event: SelectChangeEvent<string>) => {
         setEditedRoles(prev => ({ ...prev, [userId]: event.target.value }));
     };

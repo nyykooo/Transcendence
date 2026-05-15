@@ -1,5 +1,4 @@
-
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, matchPath } from 'react-router-dom';
 
 import { Stack, Typography } from '@mui/material';
 import UIButton from './UIButton';
@@ -14,7 +13,7 @@ import NavigationMenu from './NavigationMenu';
 export default function Header() {
 
     const navigate = useNavigate();
-    
+
     const location = useLocation();
 
     function updatePage(path: string) {
@@ -24,7 +23,7 @@ export default function Header() {
 
     function getLocationName() {
         const path = location.pathname;
-        return Object.values(paths).find((p) => p.path === path)?.name;
+        return Object.values(paths).find((p) => matchPath(p.path, path))?.name;
     }
 
     return (
@@ -35,7 +34,7 @@ export default function Header() {
             justifyContent="space-between"
             sx={{ paddingX: { xs: 1, md: 5 } }}
         >
-            <UIButton onClick={() => updatePage(paths.home.path)}>
+            <UIButton onClick={() => updatePage(paths.home.path)} style={{color: 'primary'}}>
                 <Logo size={{ xs: 60, md: 120, lg: 150 }} path={images.icons.logo}/>
             </UIButton>
             <Stack sx={{
