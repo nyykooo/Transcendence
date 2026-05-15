@@ -15,6 +15,7 @@ import {
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 
 import { uploadFile, importRecipes, uploadRecipeImage, deleteRecipeImage } from '../api/fileManagement';
 import type { FileUploadProgress, RecipeImportResponse, RecipeImportResult } from '../props/fileManagement/fileProps';
@@ -136,10 +137,39 @@ export default function FileManagement() {
             const values = rows[i];
             if (!values.length) continue;
 
-            const recipe: Record<string, string> = {};
+            const recipe: Record<string, any> = {};
 
             headers.forEach((header, index) => {
-                recipe[header] = values[index] || '';
+                const value = values[index] || '';
+                if (header === 'ingredients') {
+                    recipe[header] = value.split(',').map(s => {
+                        const parts = s.trim().match(/^(.+?)\s\((\d+(\.\d+)?)\s*([a-zA-Z]+)\)$/);
+                        if (parts) {
+                            return {
+                                name: parts[1],
+                                quantity: parseFloat(parts[2]),
+                                unit: parts[4]
+                            };
+                        }
+                        return { name: s.trim(), quantity: 0, unit: '' };
+                    });
+                } else if (header === 'instructions') {
+                    const mainInstructions: string[] = [];
+                    const subInstructions: string[] = [];
+                    value.split(/\d+\./).forEach(part => {
+                        if (part.trim()) {
+                            const [main, sub] = part.split(':');
+                            mainInstructions.push(main.trim());
+                            if (sub) {
+                                subInstructions.push(sub.trim());
+                            }
+                        }
+                    });
+                    recipe['main_instructions'] = mainInstructions;
+                    recipe['sub_instructions'] = subInstructions;
+                } else {
+                    recipe[header] = value;
+                }
             });
 
             recipes.push(recipe as unknown as RecipeImportResult);
@@ -378,6 +408,20 @@ export default function FileManagement() {
         }
     };
 
+    const handleDownloadTemplate = () => {
+        const headers = ['name', 'ingredients', 'diet', 'cost', 'portions', 'prep_time', 'cooking_time', 'instructions', 'url', 'author'];
+        const csvContent = headers.join(',') + '\n';
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'recipe-template.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
             <Typography variant="h4" sx={{ mb: 3 }}>
@@ -391,6 +435,15 @@ export default function FileManagement() {
                     </Box>
                 </Alert>
             )}
+
+            <Button
+                variant="outlined"
+                startIcon={<DownloadIcon />}
+                onClick={handleDownloadTemplate}
+                sx={{ mb: 2 }}
+            >
+                Download CSV Template
+            </Button>
 
             {importResult && (
                 <>
@@ -660,16 +713,6 @@ export default function FileManagement() {
             <CSVRecipePreview
                 open={showPreview}
                 recipes={previewData}
-                recipeImages={recipeImages}
-                onImageChange={(index, file) => {
-                    if (file) {
-                        setRecipeImages({ ...recipeImages, [index]: file });
-                    } else {
-                        const updated = { ...recipeImages };
-                        delete updated[index];
-                        setRecipeImages(updated);
-                    }
-                }}
                 onConfirm={confirmImport}
                 onCancel={() => {
                     setShowPreview(false);
