@@ -521,13 +521,13 @@ router.post(['/pending/recipes', '/Pending/RecipeListView'], requireAuthWithRate
         authorName,
         body.name,
         JSON.stringify(normalizedIngredients),
-        body.diet ?? 'Vegan',
-        body.instructions ?? null,
-        body.url ?? null,
-        body.cost ?? 0,
-        body.portions ?? 1,
-        body.prep_time ?? null,
-        body.cooking_time ?? null,
+        body.diet,
+        body.instructions,
+        body.url,
+        body.cost,
+        body.portions,
+        body.prep_time,
+        body.cooking_time,
     ];
 
     try {
