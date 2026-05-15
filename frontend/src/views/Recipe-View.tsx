@@ -74,7 +74,6 @@ export default function RecipeView() {
         };
     }, [name]);
 
-<<<<<<< Updated upstream
     const handleLikeClick = async () => {
         if (!recipe || !name || liking) return;
 
@@ -108,7 +107,6 @@ export default function RecipeView() {
         } finally {
             setLiking(false);
         }
-=======
     const handleExportToCSV = () => {
         if (!recipe) return;
 
@@ -155,7 +153,6 @@ export default function RecipeView() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
->>>>>>> Stashed changes
     };
 
     if (loading) {
