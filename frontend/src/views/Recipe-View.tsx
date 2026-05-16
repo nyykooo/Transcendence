@@ -6,7 +6,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { Logo } from '../components/components';
 
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { type Recipe } from '../props/recipeProps';
 
@@ -37,6 +37,7 @@ const headingSx = {
 };
 
 export default function RecipeView() {
+    const navigate = useNavigate();
     const { name } = useParams<{name: string}>();
 
     const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -48,16 +49,20 @@ export default function RecipeView() {
         let cancelled = false;
 
         const fetchRecipe = async () => {
-            setLoading(true);
-            const res = await getRecipe(name || '');
-
-            if (cancelled) {
-                return;
+            try{
+                setLoading(true);
+                const res = await getRecipe(name || '');
+    
+                if (cancelled) {
+                    return;
+                }
+    
+                setRecipe(res);
+                setIsLiked(Boolean(res?.likedByUser));
+                setLoading(false);
+            } catch (error) {
+                navigate('/not-found');
             }
-
-            setRecipe(res);
-            setIsLiked(Boolean(res?.likedByUser));
-            setLoading(false);
         };
 
         fetchRecipe();

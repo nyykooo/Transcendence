@@ -56,14 +56,14 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
         setSelectedCost([0, safeCostMax]);
     }, [safeCostMax]);
 
-    const handleChangeselectedCost = (event: Event, newValue: number | number[], activeThumb: number) => {
+    const handleChangeselectedCost = (_event: Event, newValue: number | number[], activeThumb: number) => {
         if (!Array.isArray(newValue)) return;
         if (activeThumb === 0) {
             setSelectedCost([Math.min(newValue[0], selectedCost[1] - 0.1), selectedCost[1]]);
         } else {
             setSelectedCost([selectedCost[0], Math.max(newValue[1], selectedCost[0] + 0.1)]);
         }
-        event.preventDefault();
+        // event.preventDefault();
     };
 
     // ### Serving ###
@@ -73,14 +73,14 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
         setSelectedServing([0, safeServingMax]);
     }, [safeServingMax]);
 
-    const handleChangeSelectedServing = (event: Event, newValue: number | number[], activeThumb: number) => {
+    const handleChangeSelectedServing = (_event: Event, newValue: number | number[], activeThumb: number) => {
         if (!Array.isArray(newValue)) return;
         if (activeThumb === 0) {
             setSelectedServing([Math.min(newValue[0], selectedServing[1] - 1), selectedServing[1]]);
         } else {
             setSelectedServing([selectedServing[0], Math.max(newValue[1], selectedServing[0] + 1)]);
         }
-        event.preventDefault();
+        // event.preventDefault();
     };
 
     const recipes = defaultFilters.recipes ?? [];

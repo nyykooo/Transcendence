@@ -16,6 +16,7 @@ import {
     verifyProfileTwoFactor,
 } from '../../api/profile';
 import type { ApiMessage, PasswordForm, ProfileForm, ProfileUser, TwoFactorSetupPayload } from '../../props/profile/sharedProps';
+import { useNavigate } from 'react-router-dom';
 
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const;
@@ -30,6 +31,7 @@ function isCustomAvatar(avatar: string | null): boolean {
 }
 
 export function useProfile() {
+    const navigate = useNavigate();
     const { user: authUser, getAuthToken } = useAuth();
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -508,6 +510,11 @@ export function useProfile() {
         }
     };
 
+    const handleClickPublicProfile = (friendName: string) => {
+        console.log('Navigating to public profile of:', friendName);
+        navigate(`/profile/${friendName}`);
+    }
+
     return {
         user,
         selectedFile,
@@ -525,6 +532,7 @@ export function useProfile() {
         twoFactorCode,
         twoFactorSetup,
         friendEmail: friendName,
+        handleClickPublicProfile,
         handleFileSelect,
         handleUpload,
         handleAvatarDelete,

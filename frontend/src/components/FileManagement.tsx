@@ -380,10 +380,6 @@ export default function FileManagement() {
 
     return (
         <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
-            <Typography variant="h4" sx={{ mb: 3 }}>
-                📁 File Management
-            </Typography>
-
             {error && (
                 <Alert severity="error" sx={{ mb: 2, whiteSpace: 'pre-wrap' }} onClose={() => setError(null)}>
                     <Box sx={{ fontFamily: 'monospace', fontSize: '0.875rem', lineHeight: 1.6 }}>

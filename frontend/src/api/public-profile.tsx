@@ -92,7 +92,6 @@ export async function fetchPublicProfile(token: string, name: string | undefined
     });
 
     const data = await parsePublicProfileEnvelope(response);
-    console.log('Fetched public profile data:', data);
 
     if (!response.ok) {
         throw new Error(getResponseError(data, 'Could not load your profile right now.'));

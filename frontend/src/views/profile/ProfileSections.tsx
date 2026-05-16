@@ -118,6 +118,7 @@ export function ProfileFriendsSection({
     friendRequests,
     friendEmail,
     loading,
+    onClickPublicProfile,
     onFriendEmailChange,
     onAddFriend,
     onRemoveFriend,
@@ -130,6 +131,7 @@ export function ProfileFriendsSection({
             friendRequests={friendRequests}
             friendEmail={friendEmail}
             loading={loading}
+            onClickPublicProfile={onClickPublicProfile}
             onFriendEmailChange={onFriendEmailChange}
             onAddFriend={onAddFriend}
             onRemoveFriend={onRemoveFriend}

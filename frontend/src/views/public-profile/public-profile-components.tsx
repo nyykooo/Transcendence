@@ -2,6 +2,7 @@ import {
     Avatar,
     Box,
     Paper,
+    Alert,
     Stack,
     Typography,
 } from '@mui/material';
@@ -9,6 +10,7 @@ import {
 import type {
     ProfilePageShellProps,
     ProfileSectionCardProps,
+    ProfileStatusBannerProps,
     PublicProfileInfoPanelProps,
 } from '../../props/profile/componentProps';
 import type { Recipe } from '../../props/recipe-list';
@@ -24,6 +26,24 @@ export function ProfilePageShell({ children }: ProfilePageShellProps) {
         >
             <Box sx={{ maxWidth: 1100, mx: 'auto' }}>{children}</Box>
         </Box>
+    );
+}
+
+export function ProfileStatusBanner({ profileError, message }: ProfileStatusBannerProps) {
+    return (
+        <Stack spacing={1.5} sx={{ mb: 2 }}>
+            {profileError && (
+                <Alert severity="warning" sx={{ borderRadius: 2 }}>
+                    {profileError}
+                </Alert>
+            )}
+
+            {message && (
+                <Alert severity={message.type} sx={{ borderRadius: 2 }}>
+                    {message.text}
+                </Alert>
+            )}
+        </Stack>
     );
 }
 
