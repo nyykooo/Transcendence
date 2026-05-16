@@ -35,6 +35,8 @@ export type RecipeImportResult = {
     instructions?: string;
     url?: string;
     author?: string;
+    image_path?: string;
+    image?: string;
 };
 
 export type RecipeImportResponse = {
@@ -43,6 +45,19 @@ export type RecipeImportResponse = {
         total: number;
         imported: number;
         failed: number;
+    };
+    importedRecipes: Array<{
+        id: number;
+        name: string;
+        author: string;
+        status: string;
+        createdAt: string;
+        imageUrl: string | null;
+    }>;
+    importFile: {
+        filename: string;
+        originalName: string;
+        uploadedAt: string;
     };
     failures: {
         invalid: Array<{
@@ -58,4 +73,31 @@ export type FileUploadProgress = {
     loaded: number;
     total: number;
     percentage: number;
+};
+
+export type AdminFileInfo = {
+    filename: string;
+    size: number;
+    uploadedAt: string;
+    modifiedAt: string;
+    type: 'image' | 'data' | 'unknown';
+    extension: string;
+    previewUrl: string | null;
+    canDelete: boolean;
+};
+
+export type AdminFilesListResponse = {
+    files: AdminFileInfo[];
+    total: number;
+    storageUsed: number;
+};
+
+export type RecipeImageResponse = {
+    message: string;
+    recipe: {
+        id: number;
+        name: string;
+        image: string | null;
+    };
+    imageUrl?: string;
 };

@@ -1,7 +1,7 @@
+import { useNavigate, useLocation, matchPath } from 'react-router-dom';
 
-import { useNavigate, useLocation } from 'react-router-dom';
-
-import { Button, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
+import UIButton from './UIButton';
 
 import Settings from './Settings';
 import Logo from './Logo';
@@ -13,7 +13,7 @@ import NavigationMenu from './NavigationMenu';
 export default function Header() {
 
     const navigate = useNavigate();
-    
+
     const location = useLocation();
 
     function updatePage(path: string) {
@@ -23,22 +23,36 @@ export default function Header() {
 
     function getLocationName() {
         const path = location.pathname;
-        return Object.values(paths).find((p) => p.path === path)?.name;
+        return Object.values(paths).find((p) => matchPath(p.path, path))?.name;
     }
 
     return (
-        <Stack direction="row" useFlexGap justifyContent="space-between">
-            <Button onClick={() => updatePage(paths.home.path)}>
-                <Logo size={100} path={images.icons.logo}/>
-            </Button>
+        <Stack 
+            direction="row" 
+            useFlexGap 
+            flexWrap="wrap"
+            justifyContent="space-between"
+            sx={{ paddingX: { xs: 1, md: 5 } }}
+        >
+            <UIButton onClick={() => updatePage(paths.home.path)} style={{color: 'primary'}}>
+                <Logo size={{ xs: 60, md: 120, lg: 150 }} path={images.icons.logo}/>
+            </UIButton>
             <Stack sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    paddingX: 5
-                }}>
-                <Typography variant="h4" sx={{alignSelf: 'end'}}>
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                flex: 1,
+                paddingX: { xs: 1, md: 5 },
+                marginTop: { xs: 1, md: 0 }
+            }}>
+                <Typography 
+                    variant="h1" 
+                    sx={{ 
+                    alignSelf: 'center',
+                    fontSize: { xs: '1.5rem', md: '2rem' },
+                    flex: 1
+                    }}
+                >
                     {getLocationName()}
                 </Typography>
                 <NavigationMenu/>

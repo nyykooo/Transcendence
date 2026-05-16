@@ -25,6 +25,8 @@ import type {
     ProfileTwoFactorPanelProps,
 } from '../../props/profile/componentProps';
 
+import { secondaryBackgroundGradient } from '../../configs/theme';
+
 export function ProfilePageShell({ children }: ProfilePageShellProps) {
     return (
         <Box
@@ -32,8 +34,6 @@ export function ProfilePageShell({ children }: ProfilePageShellProps) {
                 minHeight: '100%',
                 width: '100%',
                 p: { xs: 2, md: 4 },
-                background:
-                    'radial-gradient(circle at top left, rgba(25, 118, 210, 0.12), transparent 28%), linear-gradient(180deg, #f6f9fc 0%, #ffffff 55%, #f8fafc 100%)',
             }}
         >
             <Box sx={{ maxWidth: 1100, mx: 'auto' }}>{children}</Box>
@@ -49,7 +49,7 @@ export function ProfileHeroCard({ user, previewSrc }: ProfileHeroCardProps) {
                 mb: 3,
                 p: { xs: 2.5, md: 4 },
                 borderRadius: 4,
-                background: 'linear-gradient(135deg, rgba(25,118,210,0.96) 0%, rgba(63,81,181,0.96) 100%)',
+                background: secondaryBackgroundGradient,
                 color: 'white',
                 boxShadow: '0 18px 50px rgba(25, 118, 210, 0.22)',
             }}

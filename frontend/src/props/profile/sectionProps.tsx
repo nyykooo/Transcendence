@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 
-import type { FriendUser, PasswordForm, ProfileForm, ProfileUser, TwoFactorSetupPayload } from './sharedProps';
+import type { FriendUser, PasswordForm, ProfileForm, ProfileUser, PublicProfileUser, TwoFactorSetupPayload } from './sharedProps';
 
 export type ProfileAvatarSectionProps = {
     user: ProfileUser;
@@ -11,6 +11,10 @@ export type ProfileAvatarSectionProps = {
     onFileSelect: (event: ChangeEvent<HTMLInputElement>) => void;
     onUpload: () => void;
     onDeleteAvatar: () => void;
+};
+
+export type PublicProfileInfoSectionProps = {
+    user: PublicProfileUser;
 };
 
 export type ProfileDetailsSectionProps = {

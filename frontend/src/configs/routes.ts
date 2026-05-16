@@ -8,7 +8,7 @@ export const paths = {
       name: 'Recipes List',
     },
     recipe: {
-      path: '/recipe-view',
+      path: `/recipe/:name`,
       name: 'Recipe',
     },
     privacyPolicy: {
@@ -30,5 +30,17 @@ export const paths = {
     admin: {
       path: '/admin',
       name: 'Admin Panel'
+    },
+    profile: {
+      path: '/profile',
+      name: 'Profile'
+    },
+    fileManagement: {
+      path: '/file-management',
+      name: 'File Management'
+    },
+    publicProfile: {
+      path: `/profile/:name`,
+      name: 'Profile'
     }
 }

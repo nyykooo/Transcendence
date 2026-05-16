@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Box, Stack, Button, type SelectChangeEvent } from '@mui/material';
+import { Box, Stack, Button, type SelectChangeEvent, Paper } from '@mui/material';
 
 import { MultipleSelect, SliderSelector, MultipleAutoComplete, Logo } from '../../components/components';
 
@@ -130,60 +130,105 @@ export default function RecipeListTableToolbar({ defaultFilters, handleSearch }:
         setSelectedServing([0, safeServingMax]);
     }, [safeCostMax, safeServingMax]);
 
+    
     return (
-        <Box sx={{width: '100%', height: '20%'}}>
-            <Stack direction="row" spacing={2}>
-                {/*Name == MultipleAutoComplete*/}
-                <MultipleAutoComplete<string>
-                    id="customized-hook-demo"
-                    options={recipes}
-                    getOptionLabel={(option) => option}
-                    onChange={handleChangeRecipes}
-                    value={selectedRecipes ?? []}
-                />
-                {/* Diet == Multiple Select */}
-                <MultipleSelect 
-                    name="Diets"
-                    options={defaultFilters.diets}
-                    selectedOptions={selectedDiets}
-                    onChange={handleChangeDiet}
-                />
-                {/* Ingredients == Multiple Select */}
-                <MultipleSelect 
-                    name="Ingredients"
-                    options={defaultFilters.ingredients}
-                    selectedOptions={selectedIngredients}
-                    onChange={handleChangeIngredients}
-                />
-                <Stack direction="column" spacing={1} sx={{width: '30%'}}>
-                    {/* selectedCost == Slider Selector */}
-                    <SliderSelector
-                        value={selectedCost}
-                        valueText="€"
-                        onChange={handleChangeselectedCost}
-                        min={0}
-                        max={safeCostMax}
-                        name='selectedCost'
-                        step={0.1}
-                    />
-                    {/* selectedServing == Slider Selector */}
-                    <SliderSelector
-                        value={selectedServing}
-                        valueText="units"
-                        onChange={handleChangeSelectedServing}
-                        min={0}
-                        max={safeServingMax}
-                        name='selectedServing'
-                        step={1}
-                    />
+        <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Paper
+                elevation={0}
+                sx={{
+                    p: { xs: 2.5, md: 4 },
+                    width: '90vw',
+                    borderRadius: 6,
+                    border: '1px solid rgba(15, 23, 42, 0.08)',
+                    boxShadow: '0 30px 80px rgba(15, 23, 42, 0.08)',
+                    background: 'linear-gradient(150deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.8) 100%)',
+                    backdropFilter: 'blur(3px)',
+                }}
+            >
+                <Stack
+                    direction={{ xs: 'column', md: 'row' }}
+                    spacing={2}
+                    alignItems="center"
+                    justifyContent="space-between"
+                    flexWrap="wrap"
+                    useFlexGap
+                >
+                    {/* Name */}
+                    <Box sx={{ flex: { xs: '1 1 100%', md: '2 1 200px', width: '90%' } }}>
+                        <MultipleAutoComplete<string>
+                            id="customized-hook-demo"
+                            options={recipes}
+                            getOptionLabel={(option) => option}
+                            onChange={handleChangeRecipes}
+                            value={selectedRecipes ?? []}
+                        />
+                    </Box>
+
+                    {/* Diet */}
+                    <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 140px', width: '90%' } }}>
+                        <MultipleSelect
+                            name="Diets"
+                            options={defaultFilters.diets}
+                            selectedOptions={selectedDiets}
+                            onChange={handleChangeDiet}
+                        />
+                    </Box>
+
+                    {/* Ingredients */}
+                    <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 140px', width: '90%' } }}>
+                        <MultipleSelect
+                            name="Ingredients"
+                            options={defaultFilters.ingredients}
+                            selectedOptions={selectedIngredients}
+                            onChange={handleChangeIngredients}
+                        />
+                    </Box>
+
+                    {/* Sliders */}
+                    <Stack
+                        direction="column"
+                        spacing={1}
+                        sx={{ flex: { xs: '1 1 100%', md: '1 1 180px' } }}
+                    >
+                        <SliderSelector
+                            value={selectedCost}
+                            valueText="€"
+                            onChange={handleChangeselectedCost}
+                            min={0}
+                            max={safeCostMax}
+                            name="Cost"
+                            step={0.1}
+                        />
+                        <SliderSelector
+                            value={selectedServing}
+                            valueText="units"
+                            onChange={handleChangeSelectedServing}
+                            min={0}
+                            max={safeServingMax}
+                            name="Servings"
+                            step={1}
+                        />
+                    </Stack>
+
+                    {/* Action buttons */}
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                            flex: { xs: '1 1 100%', md: '0 0 auto' },
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Button onClick={handleSearchButton}>
+                            <Logo size={20} path={images.icons.search} />
+                        </Button>
+                        <Button onClick={handleCleanFilters}>
+                            <Logo size={20} path={images.icons.trash} />
+                        </Button>
+                    </Stack>
                 </Stack>
-                <Button onClick={() => handleSearchButton()}>
-                    <Logo size={20} path={images.icons.search}></Logo>
-                </Button>
-                <Button onClick={() => handleCleanFilters()}>
-                    <Logo size={20} path={images.icons.trash}></Logo>
-                </Button>
-            </Stack>
+            </Paper>
         </Box>
     );
 }

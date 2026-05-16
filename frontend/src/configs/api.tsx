@@ -9,7 +9,7 @@ export const api = {
     register: `${API_BASE_URL}/register`,
     recipe: `${API_BASE_URL}/recipes/`,
     pendingRecipes: {
-        getAll: `${API_BASE_URL}/pending/recipes/`,
+        getAll: `${API_BASE_URL}/pending/recipes`,
         approve: `${API_BASE_URL}/pending/recipes/approve/`,
         reprove: `${API_BASE_URL}/pending/recipes/reprove/`,
     },
@@ -26,4 +26,6 @@ export const api = {
     profileFriends: `${API_BASE_URL}/profile/friends`,
     profileFriendRequests: `${API_BASE_URL}/profile/friends/requests`,
     profileFriendRequestsAccept: `${API_BASE_URL}/profile/friends/requests/accept`,
+    adminFiles: `${API_BASE_URL}/admin/files`,
+    recipeImage: `${API_BASE_URL}/recipes`,
 };

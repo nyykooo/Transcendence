@@ -4,9 +4,17 @@ import { Outlet } from 'react-router-dom';
 
 export default function MainLayout() {
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100%' }}>
+        <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            height: '100vh', 
+            width: '100%',
+            paddingBottom: { xs: 7, md: 0 }  // Espaço para footer em mobile
+        }}>
             <Header />
-            <Outlet />
+            <Box sx={{ flexGrow: 1 }}>
+                <Outlet />
+            </Box>
             <Footer />
         </Box>
     );

@@ -1,6 +1,8 @@
-import type { ProfileUser } from './sharedProps';
+import type { Recipe } from '../recipe-list';
+import type { ProfileUser, PublicProfileUser } from './sharedProps';
 
 export type ProfilePayload = Partial<ProfileUser>;
+export type PublicProfilePayload = Partial<PublicProfileUser>;
 
 export type ProfileEnvelope = {
     user?: ProfilePayload;
@@ -9,6 +11,14 @@ export type ProfileEnvelope = {
     avatar?: string | null;
     qrCodeDataUrl?: string;
     manualEntryKey?: string;
+    error?: string;
+    message?: string;
+};
+
+export type PublicProfileEnvelope = {
+    user?: ProfilePayload;
+    likedRecipes?: Recipe[];
+    avatar?: string | null;
     error?: string;
     message?: string;
 };

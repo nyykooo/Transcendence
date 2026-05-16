@@ -1,26 +1,37 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography, Tabs, Tab, useTheme, useMediaQuery } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useAuth } from '../../components/AuthProvider';
 import { RoleBaseGuard, ErrorPage } from '../../components/components';
 import { getPendingRecipes, getAllUsers, deleteUser, updateUserRole, aprovePendingRecipe, reprovePendingRecipe } from '../../api/admin';
+import AdminFileManagement from '../../components/AdminFileManagement';
 import { type PendingRecipe, type PendingRecipesResponse } from '../../props/recipe-list';
 import { type UserRows, type AllUsersResponse } from '../../props/userProps';
 
 export default function AdminView()
 {
+    const theme = useTheme();
+
     const { user } = useAuth();
 
     const [pendingRecipesRows, setPendingRecipesRows] = useState<PendingRecipe[]>([]);
 
     const [usersRows, setUsersRows] = useState<UserRows[]>([]);
+    
+    const [tabValue, setTabValue] = useState(0);
 
     const ROLE_OPTIONS = ['user', 'admin'];
 
     const [editedRoles, setEditedRoles] = useState<Record<number, string>>({});
 
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     const handleRoleChange = (userId: number) => (event: SelectChangeEvent<string>) => {
         setEditedRoles(prev => ({ ...prev, [userId]: event.target.value }));
+    };
+
+    const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
     };
 
     const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +50,7 @@ export default function AdminView()
             diet: recipe.diet,
             author: recipe.author,
             status: recipe.status,
-            submission_date: recipe.submission_date,
+            created_at: recipe.created_at,
         }));
 
         setPendingRecipesRows(mappedRows);
@@ -210,53 +221,62 @@ export default function AdminView()
             field: 'recipe_name',
             headerName: 'Recipe Name',
             flex: 1,
+            minWidth: 130,
         },
         {
             field: 'ingredient_name',
             headerName: 'Ingredient Name',
             flex: 2,
+            minWidth: 130,
         },
         {
             field: 'diet',
             headerName: 'Diet',
             flex: 1,
+            minWidth: 130,
         },
         {
             field: 'author',
             headerName: 'Author',
             flex: 1,
+            minWidth: 130,
         },
         {
-            field: 'submission_date',
+            field: 'created_at',
             headerName: 'Submission Date',
             flex: 1,
+            minWidth: 130,
         },
         {
             field: 'status',
             headerName: 'Status',
             flex: 1,
+            minWidth: 130,
         },
         {
             headerName: 'Actions',
             field: 'actions',
             flex: 1,
+            minWidth: 130,
             renderCell: (params) => {
                 return (
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button
-                        variant="contained"
-                        size="small"
-                        onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
-                    >
-                        Aprove
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
-                    >
-                        Reprove
-                    </Button>
+                        <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
+                            color='success'
+                        >
+                            Aprove
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
+                            color='error'
+                        >
+                            Reprove
+                        </Button>
                     </Box>
                 );
             },
@@ -268,16 +288,19 @@ export default function AdminView()
             field: 'name',
             headerName: 'User Name',
             flex: 1,
+            minWidth: 130,
         },
         {
             field: 'email',
             headerName: 'Email',
             flex: 1,
+            minWidth: 130,
         },
         {
             field: 'role',
             headerName: 'Role',
             flex: 1,
+            minWidth: 130,
             renderCell: (params) => {
             const currentRole = (editedRoles[params.row.id] ?? params.row.role) as string;
             return (
@@ -299,6 +322,7 @@ export default function AdminView()
             field: 'is_active',
             headerName: 'Active',
             flex: 1,
+            minWidth: 130,
             renderCell: (params) => (
                 <Typography variant='body2' color={params.value ? 'green' : 'red'}>
                     {params.value ? 'Yes' : 'No'}
@@ -309,6 +333,7 @@ export default function AdminView()
             headerName: 'Actions',
             field: 'actions',
             flex: 1,
+            minWidth: 130,
             renderCell: (params) => {
                 const selectedRole = editedRoles[params.row.id] ?? params.row.role;
                 const isChanged = selectedRole !== params.row.role;
@@ -320,6 +345,7 @@ export default function AdminView()
                         size="small"
                         disabled={!isChanged}
                         onClick={() => handleUpdateUserRole(params.row.id)}
+                        color='success'
                     >
                         Update
                     </Button>
@@ -327,6 +353,7 @@ export default function AdminView()
                         variant="outlined"
                         size="small"
                         onClick={() => handleDeleteUser(params.row.id)}
+                        color='error'
                     >
                         Delete
                     </Button>
@@ -340,76 +367,126 @@ export default function AdminView()
         <RoleBaseGuard role={user?.role} 
             children={
                 <Box sx={{height: '100%', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
-                    <h1>Admin View</h1>
-                    <p>Only admin users can access this view.</p>
-                    <h2>Pending Recipes</h2>
-                    <p>Here you can review and approve or reject pending recipes submitted by users.</p>
                     {error && (
                         <Alert severity='error' sx={{ width: '100%' }}>
                             {error}
                         </Alert>
                     )}
-                    <Typography variant='body2' color='textSecondary'>
-                        {`Pending Recipes`}
-                    </Typography>
-                    <DataGrid
-                        sx={{ width: '100%', flex: 1 }}
-                        rows={pendingRecipesRows}
-                        columns={pendingRecipesColumns}
-                        getRowId={(row: PendingRecipe) => `${row.recipe_name}-${row.ingredient_name}`}
-                        loading={isLoading}
-                        slots={{
-                            loadingOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
-                                    <CircularProgress size={28} />
-                                </Box>
-                            ),
-                            noRowsOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
-                                    <Typography variant='body2'>No recipes available.</Typography>
-                                </Box>
-                            ),
-                        }}
-                        initialState={{
-                        pagination: {
-                            paginationModel: {
-                            pageSize: 5,
-                            },
-                        },
-                        }}
-                        pageSizeOptions={[5, 10, 20, 50, 100]}
-                        disableRowSelectionOnClick
-                    />
-                    <Typography variant='body2' color='textSecondary'>
-                        {`Users`}
-                    </Typography>
-                    <DataGrid
-                        rows={usersRows}
-                        columns={usersColumns}
-                        getRowId={(row: UserRows) => `${row.id}`}
-                        loading={isLoading}
-                        slots={{
-                            loadingOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                    <CircularProgress size={28} />
-                                </Box>
-                            ),
-                            noRowsOverlay: () => (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                    <Typography variant='body2'>No users available.</Typography>
-                                </Box>
-                            ),
-                        }}
-                        initialState={{
-                        pagination: {
-                            paginationModel: {
-                            pageSize: 5,
-                            },
-                        },
-                        }}
-                        pageSizeOptions={[5, 10, 20, 50, 100]}
-                        disableRowSelectionOnClick
-                    />
+                    
+                    {/* Tabs */}
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
+                        <Tabs
+                            value={tabValue}
+                            onChange={handleTabChange}
+                            variant={isMobile ? 'fullWidth' : 'standard'}
+                            scrollButtons="auto"
+                        >
+                            <Tab
+                                label={isMobile ? '📋' : '📋 Pending Recipes'}
+                                title="Pending Recipes"
+                                sx={{ minWidth: isMobile ? 'unset' : undefined }}
+                            />
+                            <Tab
+                                label={isMobile ? '👥' : '👥 Users'}
+                                title="Users"
+                                sx={{ minWidth: isMobile ? 'unset' : undefined }}
+                            />
+                            <Tab
+                                label={isMobile ? '📁' : '📁 File Management'}
+                                title="File Management"
+                                sx={{ minWidth: isMobile ? 'unset' : undefined }}
+                            />
+                        </Tabs>
+                    </Box>
+
+
+                    {/* Tab Content - Pending Recipes */}
+                    {tabValue === 0 && (
+                    <>
+                        <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
+                            {`Pending Recipes`}
+                        </Typography>
+                        <Box sx={{ width: '90vw', overflowX: 'auto' }}>
+                            <DataGrid
+                                sx={{
+                                    flex: 1,
+                                    minWidth: 130,
+                                    borderRadius: '12px',
+                                    overflow: 'hidden',
+                                }}
+                                rows={pendingRecipesRows}
+                                columns={pendingRecipesColumns}
+                                getRowId={(row: PendingRecipe) => `${row.recipe_name}-${row.ingredient_name}`}
+                                loading={isLoading}
+                                slots={{
+                                    loadingOverlay: () => (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+                                            <CircularProgress size={28} />
+                                        </Box>
+                                    ),
+                                    noRowsOverlay: () => (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+                                            <Typography variant='body2'>No recipes available.</Typography>
+                                        </Box>
+                                    ),
+                                }}
+                                initialState={{
+                                pagination: {
+                                    paginationModel: {
+                                    pageSize: 5,
+                                    },
+                                },
+                                }}
+                                pageSizeOptions={[5, 10, 20, 50, 100]}
+                                disableRowSelectionOnClick
+                            />
+                        </Box>
+                    </>
+                    )}
+
+                    {/* Tab Content - Users */}
+                    {tabValue === 1 && (
+                    <>
+                        <Typography variant='h2' color='secondary' sx={{ mt: 4 }}>
+                            {`Users`}
+                        </Typography>
+                        <Box sx={{ width: '90vw', overflowX: 'auto'  }}>
+                            <DataGrid
+                                sx={{ width: '100%', flex: 1 }}
+                                rows={usersRows}
+                                columns={usersColumns}
+                                getRowId={(row: UserRows) => `${row.id}`}
+                                loading={isLoading}
+                                slots={{
+                                    loadingOverlay: () => (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                            <CircularProgress size={28} />
+                                        </Box>
+                                    ),
+                                    noRowsOverlay: () => (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                            <Typography variant='body2'>No users available.</Typography>
+                                        </Box>
+                                    ),
+                                }}
+                                initialState={{
+                                pagination: {
+                                    paginationModel: {
+                                    pageSize: 5,
+                                    },
+                                },
+                                }}
+                                pageSizeOptions={[5, 10, 20, 50, 100]}
+                                disableRowSelectionOnClick
+                            />
+                        </Box>
+                    </>
+                    )}
+
+                    {/* Tab Content - File Management */}
+                    {tabValue === 2 && (
+                    <AdminFileManagement />
+                    )}
                 </Box>
             }
             protection={

@@ -60,4 +60,4 @@ build_dev: certs
 dev-frontend-local: down build_dev dev submakes dev-frontend-run
 
 dev-frontend-run:
-	cd $(FRONTEND_DIR) && PORT=3000 npm run dev:ssr
+	cd $(FRONTEND_DIR) && npm install && PORT=3000 npm run dev:ssr

@@ -20,7 +20,6 @@ export type Recipe = {
     portions: number;
     liked: number;
     viewed: number;
-
 };
 
 export type RecipesResponse = {
@@ -49,5 +48,5 @@ export type PendingRecipe = {
     diet: string;
     author: string;
     status: string;
-    submission_date: string;
+    created_at: string;
 };

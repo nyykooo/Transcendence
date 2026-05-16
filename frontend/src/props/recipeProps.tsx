@@ -4,10 +4,18 @@ type ingredient = {
     unit: string;
 }
 
+export type InstructionGroup = {
+    title: string;
+    subSteps: string[];
+}
+
 export type Recipe = {
     name: string;
     ingredients: ingredient[];
-    instructions: string;
+    instructions: InstructionGroup[];
     image: string | null;
     url: string | null;
+    liked: number;
+    viewed: number;
+    likedByUser?: boolean;
 }
