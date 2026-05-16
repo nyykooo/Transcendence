@@ -17,6 +17,24 @@ const RECIPES_SERVICE_URL = process.env.RECIPES_SERVICE_URL || 'http://recipes-s
 const PROXY_CONNECT_TIMEOUT_MS = Number(process.env.PROXY_CONNECT_TIMEOUT_MS || 3000);
 const PROXY_RESPONSE_TIMEOUT_MS = Number(process.env.PROXY_RESPONSE_TIMEOUT_MS || 5000);
 
+function writeLog(level, event, data = {}) {
+  const log = {
+    '@timestamp': new Date().toISOString(),
+    service: 'api-gateway',
+    level,
+    event,
+    ...data,
+  };
+
+  const line = JSON.stringify(log);
+
+  if (level === 'error') {
+    console.error(line);
+  } else {
+    console.log(line);
+  }
+}
+
 const recipePrefixes = [
   '/recipes',
   '/pending/recipes',
@@ -83,14 +101,30 @@ function prometheusMiddleware(req, res, next) {
     return next();
   }
 
+  const startTime = process.hrtime.bigint();
   const end = httpRequestDuration.startTimer();
 
   res.on('finish', () => {
+    const route = normalizeRoute(req.path);
+    const statusCode = String(res.statusCode);
+    const targetService = getTargetService(req.path);
+
     end({
       method: req.method,
-      route: normalizeRoute(req.path),
-      status_code: String(res.statusCode),
-      target_service: getTargetService(req.path),
+      route,
+      status_code: statusCode,
+      target_service: targetService,
+    });
+
+    writeLog('info', 'http_request_completed', {
+      method: req.method,
+      route,
+      path: req.originalUrl || req.url,
+      status_code: Number(statusCode),
+      target_service: targetService,
+      duration_ms: Number(process.hrtime.bigint() - startTime) / 1_000_000,
+      ip: req.ip,
+      user_agent: req.get('user-agent') || null,
     });
   });
 
@@ -108,6 +142,12 @@ function createProxy(target) {
     pathRewrite: (path, req) => stripApiPrefix(req.originalUrl || path),
     on: {
       error: (err, req, res) => {
+        writeLog('error', 'proxy_error', {
+          target,
+          path: req.originalUrl || req.url,
+          error: err?.message || 'proxy error',
+        });
+
         if (res.headersSent) {
           return;
         }
@@ -153,6 +193,12 @@ app.use('/uploads', createProxyMiddleware({
   pathRewrite: (_path, req) => req.originalUrl,
   on: {
     error: (err, req, res) => {
+      writeLog('error', 'proxy_error', {
+        target: AUTH_SERVICE_URL,
+        path: req.originalUrl || req.url,
+        error: err?.message || 'proxy error',
+      });
+
       if (res.headersSent) {
         return;
       }
@@ -190,7 +236,11 @@ function startHttpsServer() {
   };
 
   https.createServer(tlsOptions, app).listen(PORT, () => {
-    console.log(`API gateway listening on ${PORT}`);
+    writeLog('info', 'server_started', {
+      port: PORT,
+      auth_target: AUTH_SERVICE_URL,
+      recipes_target: RECIPES_SERVICE_URL,
+    });
   });
 }
 

@@ -16,10 +16,15 @@ mkdir -p "${DB_DIR}/tools/certs/pgadmin"
 mkdir -p "${DEVOPS_DIR}/tools/certs/prometheus"
 mkdir -p "${DEVOPS_DIR}/tools/certs/grafana"
 mkdir -p "${DEVOPS_DIR}/tools/certs/postgres_exporter"
+mkdir -p "${DEVOPS_DIR}/tools/certs/filebeat"
+mkdir -p "${DEVOPS_DIR}/tools/certs/logstash"
+mkdir -p "${DEVOPS_DIR}/tools/certs/elk-ca"
+mkdir -p "${DEVOPS_DIR}/tools/certs/elasticsearch"
+mkdir -p "${DEVOPS_DIR}/tools/certs/kibana"
 
-chown "$USER:$USER" "${DB_DIR}/tools/certs" 2>/dev/null || true
-chown "$USER:$USER" "${DEVOPS_DIR}/tools/certs" 2>/dev/null || true
-chown "$USER:$USER" "${FRONTEND_DIR}/tools/certs" 2>/dev/null || true
+sudo chown "$USER:$USER" "${DB_DIR}/tools/certs" 2>/dev/null || true
+sudo chown "$USER:$USER" "${DEVOPS_DIR}/tools/certs" 2>/dev/null || true
+sudo chown "$USER:$USER" "${FRONTEND_DIR}/tools/certs" 2>/dev/null || true
 
 # Exit only if ALL certs already exist
 if [ -f "${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt" ] && \
@@ -33,7 +38,17 @@ if [ -f "${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/grafana/grafana.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/grafana/grafana.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.crt" ] && \
-   [ -f "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.key" ]; then
+   [ -f "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.key" ] && \
+   [ -f "${DEVOPS_DIR}/tools/certs/filebeat/filebeat.crt" ] && \
+   [ -f "${DEVOPS_DIR}/tools/certs/filebeat/filebeat.key" ] && \
+   [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.crt" ] && \
+   [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.key" ]
+   [ -f "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt" ] && \
+   [ -f "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" ] && \
+   [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.crt" ] && \
+   [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.key" ] &&
+   [ -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.crt" ] && \
+   [ -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.key" ]; then
   echo "All certificates already found"
   echo "EXITING..."
   exit 0
@@ -102,9 +117,9 @@ else
     -nodes \
     -subj "/CN=prometheus" \
     -addext "subjectAltName = DNS:prometheus, DNS:localhost, IP:127.0.0.1"
-  chmod 777 "${DEVOPS_DIR}/tools/certs/prometheus/prometheus.key"
-  chmod 777 "${DEVOPS_DIR}/tools/certs/prometheus/prometheus.crt"
-  chown -R 65534:65534 "${DEVOPS_DIR}/tools/certs/prometheus" 2>/dev/null || true
+  chmod 600 "${DEVOPS_DIR}/tools/certs/prometheus/prometheus.key"
+  chmod 644 "${DEVOPS_DIR}/tools/certs/prometheus/prometheus.crt"
+  sudo chown -R 65534:65534 "${DEVOPS_DIR}/tools/certs/prometheus" 2>/dev/null || true
 fi
 
 if [ -f "${DEVOPS_DIR}/tools/certs/grafana/grafana.crt" ] && [ -f "${DEVOPS_DIR}/tools/certs/grafana/grafana.key" ]; then
@@ -119,9 +134,9 @@ else
     -nodes \
     -subj "/CN=grafana" \
     -addext "subjectAltName = DNS:grafana, DNS:localhost, IP:127.0.0.1"
-  chmod 777 "${DEVOPS_DIR}/tools/certs/grafana/grafana.key"
-  chmod 777 "${DEVOPS_DIR}/tools/certs/grafana/grafana.crt"
-  chown -R 472:472 "${DEVOPS_DIR}/tools/certs/grafana" 2>/dev/null || true
+  chmod 600 "${DEVOPS_DIR}/tools/certs/grafana/grafana.key"
+  chmod 644 "${DEVOPS_DIR}/tools/certs/grafana/grafana.crt"
+  sudo chown -R 472:472 "${DEVOPS_DIR}/tools/certs/grafana" 2>/dev/null || true
 fi
 
 if [ -f "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.crt" ] && [ -f "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.key" ]; then
@@ -136,10 +151,115 @@ else
     -nodes \
     -subj "/CN=postgres_exporter" \
     -addext "subjectAltName = DNS:postgres_exporter, DNS:localhost, IP:127.0.0.1"
-  chmod 777 "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.key"
-  chmod 777 "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.crt"
-  chown -R 65534:65534 "${DEVOPS_DIR}/tools/certs/postgres_exporter" 2>/dev/null || true
+  chmod 600 "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.key"
+  chmod 644 "${DEVOPS_DIR}/tools/certs/postgres_exporter/postgres_exporter.crt"
+  sudo chown -R 65534:65534 "${DEVOPS_DIR}/tools/certs/postgres_exporter" 2>/dev/null || true
 fi
+
+if [ -f "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt" ] && [ -f "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" ]; then
+  echo "ELK CA found"
+else
+  echo "Creating ELK CA"
+  echo ""
+
+  openssl genrsa -out "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" 4096
+
+  openssl req -x509 -new -nodes \
+    -key "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" \
+    -sha256 \
+    -days 365 \
+    -out "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt" \
+    -subj "/CN=transcendence-elk-ca"
+
+  chmod 600 "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key"
+  chmod 644 "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt"
+fi
+
+if [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.crt" ] && [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.key" ]; then
+  echo "Logstash SSL certs found"
+else
+  echo "Creating Logstash SSL certificates"
+  echo ""
+
+  openssl req -newkey rsa:4096 -nodes \
+    -keyout "${DEVOPS_DIR}/tools/certs/logstash/logstash.key" \
+    -out "${DEVOPS_DIR}/tools/certs/logstash/logstash.csr" \
+    -subj "/CN=logstash"
+
+  openssl x509 -req \
+    -in "${DEVOPS_DIR}/tools/certs/logstash/logstash.csr" \
+    -CA "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt" \
+    -CAkey "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" \
+    -CAcreateserial \
+    -out "${DEVOPS_DIR}/tools/certs/logstash/logstash.crt" \
+    -days 365 \
+    -sha256 \
+    -extfile <(printf "subjectAltName=DNS:logstash,DNS:localhost,IP:127.0.0.1")
+
+  rm -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.csr"
+
+  chmod 640 "${DEVOPS_DIR}/tools/certs/logstash/logstash.key"
+  chmod 644 "${DEVOPS_DIR}/tools/certs/logstash/logstash.crt"
+  sudo chown -R 1000:1000 "${DEVOPS_DIR}/tools/certs/logstash" 2>/dev/null || true
+fi
+
+if [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.crt" ] && [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.key" ]; then
+  echo "Elasticsearch SSL certs found"
+else
+  echo "Creating Elasticsearch SSL certificates"
+  echo ""
+
+  openssl req -newkey rsa:4096 -nodes \
+    -keyout "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.key" \
+    -out "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.csr" \
+    -subj "/CN=elasticsearch"
+
+  openssl x509 -req \
+    -in "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.csr" \
+    -CA "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt" \
+    -CAkey "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" \
+    -CAcreateserial \
+    -out "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.crt" \
+    -days 365 \
+    -sha256 \
+    -extfile <(printf "subjectAltName=DNS:elasticsearch,DNS:localhost,IP:127.0.0.1")
+
+  rm -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.csr"
+
+  chmod 640 "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.key"
+  chmod 644 "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.crt"
+  sudo chown -R 1000:0 "${DEVOPS_DIR}/tools/certs/elasticsearch" 2>/dev/null || true
+fi
+
+if [ -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.crt" ] && [ -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.key" ]; then
+  echo "Kibana SSL certs found"
+else
+  echo "Creating Kibana SSL certificates"
+  echo ""
+
+  openssl req -newkey rsa:4096 -nodes \
+    -keyout "${DEVOPS_DIR}/tools/certs/kibana/kibana.key" \
+    -out "${DEVOPS_DIR}/tools/certs/kibana/kibana.csr" \
+    -subj "/CN=kibana"
+
+  openssl x509 -req \
+    -in "${DEVOPS_DIR}/tools/certs/kibana/kibana.csr" \
+    -CA "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt" \
+    -CAkey "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" \
+    -CAcreateserial \
+    -out "${DEVOPS_DIR}/tools/certs/kibana/kibana.crt" \
+    -days 365 \
+    -sha256 \
+    -extfile <(printf "subjectAltName=DNS:kibana,DNS:localhost,IP:127.0.0.1")
+
+  rm -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.csr"
+
+  chmod 640 "${DEVOPS_DIR}/tools/certs/kibana/kibana.key"
+  chmod 644 "${DEVOPS_DIR}/tools/certs/kibana/kibana.crt"
+  sudo chown -R 1000:0 "${DEVOPS_DIR}/tools/certs/kibana" 2>/dev/null || true
+fi
+
+chmod 644 "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt"
 
 echo ""
 echo "Certificate generation finished"

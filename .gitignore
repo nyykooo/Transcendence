@@ -26,3 +26,5 @@ database/tools/certs/
 *.env
 *.crt
 *.key
+monitoring/tools/certs/
+monitoring/elasticsearch/snapshots
