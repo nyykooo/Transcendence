@@ -205,10 +205,118 @@ services:
     networks:
       - transcendence
 
+  filebeat:
+    container_name: brunchio_filebeat
+    build:
+      context: ./monitoring/filebeat
+      dockerfile: Dockerfile
+    user: root
+    command: ["filebeat", "-e", "--strict.perms=false"]
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring/tools/certs/elk-ca/ca.crt:/usr/share/filebeat/certs/ca.crt:ro
+      - filebeat_data:/usr/share/filebeat/data
+    depends_on:
+      - logstash
+    restart: always
+    networks:
+      - transcendence
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  logstash:
+    container_name: brunchio_logstash
+    build:
+      context: ./monitoring/logstash
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "5044:5044"
+    volumes:
+      - ./monitoring/tools/certs/logstash/logstash.crt:/usr/share/logstash/certs/logstash.crt:ro
+      - ./monitoring/tools/certs/logstash/logstash.key:/usr/share/logstash/certs/logstash.key:ro
+      - ./monitoring/tools/certs/elk-ca/ca.crt:/usr/share/logstash/certs/ca.crt:ro
+    depends_on:
+      - elasticsearch
+    restart: always
+    networks:
+      - transcendence
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  elasticsearch:
+    container_name: brunchio_elasticsearch
+    build:
+      context: ./monitoring/elasticsearch
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./monitoring/elasticsearch/snapshots:/snapshots
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./monitoring/tools/certs/elasticsearch/elasticsearch.crt:/usr/share/elasticsearch/config/certs/elasticsearch.crt:ro
+      - ./monitoring/tools/certs/elasticsearch/elasticsearch.key:/usr/share/elasticsearch/config/certs/elasticsearch.key:ro
+      - ./monitoring/tools/certs/elk-ca/ca.crt:/usr/share/elasticsearch/config/certs/ca.crt:ro
+    restart: always
+    networks:
+      - transcendence
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  kibana:
+    container_name: brunchio_kibana
+    build:
+      context: ./monitoring/kibana
+      dockerfile: Dockerfile
+    environment:
+      - SERVER_NAME=${SERVER_NAME}
+      - SERVER_HOST=${SERVER_HOST}
+      - SERVER_PORT=${SERVER_PORT}
+      - SERVER_SSL_ENABLED=${SERVER_SSL_ENABLED}
+      - SERVER_SSL_CERTIFICATE=${SERVER_SSL_CERTIFICATE}
+      - SERVER_SSL_KEY=${SERVER_SSL_KEY}
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOSTS}
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=${ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES}
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./monitoring/tools/certs/kibana/kibana.crt:/usr/share/kibana/config/certs/kibana.crt:ro
+      - ./monitoring/tools/certs/kibana/kibana.key:/usr/share/kibana/config/certs/kibana.key:ro
+      - ./monitoring/tools/certs/elk-ca/ca.crt:/usr/share/kibana/config/certs/ca.crt:ro
+      - ./monitoring/kibana/dashboards:/dashboards:ro
+    depends_on:
+      - elasticsearch
+    restart: always
+    networks:
+      - transcendence
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
     postgres_data:
     pgadmin_data:
     grafana_data:
+    filebeat_data:
+    elasticsearch_data:
     uploads_data:
       name: transcendence_uploads_data
 

@@ -1,0 +1,66 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: API Gateway Alerts
+    folder: Transcendence
+    interval: 30s
+    rules:
+      - uid: api-gateway-more-than-2-requests
+        title: API Gateway More Than 2 Requests
+        condition: C
+
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              refId: A
+              expr: |
+                sum(
+                  increase(api_gateway_http_request_duration_seconds_count[1m])
+                )
+              range: true
+              instant: false
+
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - type: query
+                  query:
+                    params:
+                      - C
+                  reducer:
+                    type: last
+                  evaluator:
+                    type: gt
+                    params:
+                      - 2
+                  operator:
+                    type: and
+
+        for: 0s
+        noDataState: OK
+        execErrState: Error
+
+        labels:
+          severity: critical
+          service: api-gateway
+
+        annotations:
+          summary: More than 2 requests reached API Gateway
+          description: API Gateway received more than 2 requests in the last 1 minute.
