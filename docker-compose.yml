@@ -8,12 +8,12 @@ services:
       network: host
     restart: always
     ports:
-      - "443:443"
+      - "1025:1025"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - PORT=443
+      - PORT=1025
       - SSL_CERT_PATH=/etc/ssl/certs/server.crt
       - SSL_KEY_PATH=/etc/ssl/certs/server.key
       - FRONTEND_API_TARGET=https://api:3443
@@ -64,7 +64,7 @@ services:
       - PORT=3001
       - POSTGRES_HOST=postgres
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_PORT=6378
       - RATE_LIMIT_PER_MINUTE=50
     volumes:
       - uploads_data:/app/uploads
@@ -87,7 +87,7 @@ services:
       - PORT=3002
       - POSTGRES_HOST=postgres
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_PORT=6378
       - RATE_LIMIT_PER_MINUTE=50
     networks:
       - transcendence
@@ -125,13 +125,13 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
-      - PGADMIN_ENABLE_TLS=true
+      - PGADMIN_ENABLE_TLS=false
+      - SCRIPT_NAME=/pgadmin4
     ports:
-      - "5050:443"
+      - "5050:80"
     restart: always
     volumes:
       - ./database/tools/server.json:/pgadmin4/servers.json
-      - ./database/tools/certs/pgadmin:/certs
     env_file:
       - .env
     depends_on:
@@ -143,7 +143,7 @@ services:
     container_name: brunchio_redis
     image: redis:latest
     ports:
-      - "6379:6379"
+      - "6378:6378"
     restart: always
     networks:
       - transcendence
@@ -166,6 +166,8 @@ services:
     restart: always
     networks:
       - transcendence
+    profiles:
+      - monitoring
     
   prometheus:
     container_name: brunchio_prometheus
@@ -187,6 +189,8 @@ services:
     restart: always
     networks:
       - transcendence
+    profiles:
+      - monitoring
 
   grafana:
     container_name: brunchio_grafana
@@ -206,6 +210,8 @@ services:
     restart: always
     networks:
       - transcendence
+    profiles:
+      - monitoring
 
   filebeat:
     container_name: brunchio_filebeat
@@ -229,6 +235,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    profiles:
+      - monitoring
 
   logstash:
     container_name: brunchio_logstash
@@ -253,6 +261,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    profiles:
+      - monitoring
 
   elasticsearch:
     container_name: brunchio_elasticsearch
@@ -277,6 +287,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    profiles:
+      - monitoring
 
   kibana:
     container_name: brunchio_kibana
@@ -312,6 +324,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    profiles:
+      - monitoring
 
 volumes:
     postgres_data:
