@@ -95,6 +95,7 @@ services:
   postgres:
     container_name: brunchio_db
     image: postgres:latest
+    entrypoint: ["/docker-entrypoint.sh"]
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-yourUser}
       - POSTGRES_PASSWORD=${POSTGRES_PW:-changeit}
@@ -103,7 +104,8 @@ services:
       - "5432:5432"
     volumes:
       # - postgres_data:/var/lib/postgresql/data
-      - ./database/tools/certs/postgres-ssl-certs:/var/lib/postgresql/ssl:ro
+      - ./database/tools/certs/postgres-ssl-certs:/var/lib/postgresql/ssl
+      - ./database/tools/docker-entrypoint.sh:/docker-entrypoint.sh:ro
     restart: always
     command: |
       -c ssl=on
@@ -125,11 +127,14 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
+      - PGADMIN_ENABLE_TLS=true
+      - SCRIPT_NAME=/pgadmin4
     ports:
-      - "5050:80"
+      - "5050:443"
     restart: always
     volumes:
       - ./database/tools/server.json:/pgadmin4/servers.json
+      - ./database/tools/certs/pgadmin:/certs:ro
     env_file:
       - .env
     depends_on:
