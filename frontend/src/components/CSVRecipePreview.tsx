@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -52,8 +52,6 @@ export default function CSVRecipePreview({
     onCancel,
     uploading,
 }: CSVRecipePreviewProps) {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
