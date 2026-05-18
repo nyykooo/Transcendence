@@ -59,12 +59,62 @@ function groupRecipeInstructions(instructions) {
         return [];
     }
 
-    // The first line is the title, the rest are substeps.
-    const title = lines[0];
-    const subSteps = lines.slice(1);
+    const groups = [];
+    let currentTitle = null;
+    let currentSubSteps = [];
 
-    // The frontend expects an array of groups, so we'll create one group.
-    return [{ title: title, subSteps: subSteps }];
+    const pushCurrent = () => {
+        if (currentTitle) {
+            groups.push({ title: currentTitle, subSteps: currentSubSteps });
+        }
+        currentTitle = null;
+        currentSubSteps = [];
+    };
+
+    const cleanTitle = (text) => {
+        let title = text.trim();
+        title = title.replace(/^\d+\.\s*/, '');
+        title = title.replace(/\*\*(.*?)\*\*/g, '$1');
+        title = title.replace(/:\s*$/, '');
+        return title.trim();
+    };
+
+    lines.forEach((line) => {
+        const isBullet = /^[-•]\s+/.test(line);
+        const isTitleLine = /:\s*$/.test(line) || /^\d+\.\s*/.test(line) || /^\*\*.*\*\*:?$/.test(line);
+        const hasInlineColon = !isBullet && !isTitleLine && line.includes(':');
+
+        if (isTitleLine && !isBullet) {
+            pushCurrent();
+            currentTitle = cleanTitle(line);
+            return;
+        }
+
+        if (hasInlineColon) {
+            const [titlePart, ...restParts] = line.split(':');
+            const rest = restParts.join(':').trim();
+            pushCurrent();
+            currentTitle = cleanTitle(titlePart);
+            if (rest) {
+                currentSubSteps.push(rest);
+            }
+            return;
+        }
+
+        if (!currentTitle) {
+            currentTitle = cleanTitle(line);
+            return;
+        }
+
+        if (isBullet) {
+            currentSubSteps.push(line.replace(/^[-•]\s+/, '').trim());
+        } else {
+            currentSubSteps.push(line.trim());
+        }
+    });
+
+    pushCurrent();
+    return groups;
 }
 
 router.get(['/recipes', '/recipes/', '/RecipeListView'], requireAuthWithRateLimit, (req, res) => {

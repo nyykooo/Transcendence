@@ -154,19 +154,15 @@ export default function FileManagement() {
                         return { name: s.trim(), quantity: 0, unit: '' };
                     });
                 } else if (header === 'instructions') {
-                    const mainInstructions: string[] = [];
-                    const subInstructions: string[] = [];
-                    value.split(/\d+\./).forEach(part => {
-                        if (part.trim()) {
-                            const [main, sub] = part.split(':');
-                            mainInstructions.push(main.trim());
-                            if (sub) {
-                                subInstructions.push(sub.trim());
-                            }
-                        }
-                    });
-                    recipe['main_instructions'] = mainInstructions;
-                    recipe['sub_instructions'] = subInstructions;
+                    const instructionText = value.trim();
+                    const steps = instructionText
+                        .split(/\.(?:\s+|$)/)
+                        .map(step => {
+                            const trimmed = step.trim();
+                            return trimmed ? (trimmed.endsWith('.') ? trimmed : `${trimmed}.`) : '';
+                        })
+                        .filter(Boolean);
+                    recipe['instructions'] = steps.length > 0 ? steps.join('\n') : instructionText;
                 } else {
                     recipe[header] = value;
                 }
