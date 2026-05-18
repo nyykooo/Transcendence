@@ -17,8 +17,6 @@ import {
 } from '@mui/material';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import DeleteIcon from '@mui/icons-material/Delete';
 import type { RecipeImportResult } from '../props/fileManagement/fileProps';
 
 interface CSVRecipePreviewProps {
@@ -27,8 +25,6 @@ interface CSVRecipePreviewProps {
     onConfirm: () => void;
     onCancel: () => void;
     uploading: boolean;
-    recipeImages?: Record<number, File>;
-    onImageChange?: (index: number, file: File | undefined) => void;
 }
 
 const pageShellSx = {
@@ -55,8 +51,6 @@ export default function CSVRecipePreview({
     onConfirm,
     onCancel,
     uploading,
-    recipeImages = {},
-    onImageChange,
 }: CSVRecipePreviewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -222,86 +216,7 @@ export default function CSVRecipePreview({
                                 </Stack>
                             </Stack>
 
-                            {/* Image Section */}
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    ...sectionPaperSx,
-                                    background: 'rgba(16, 122, 108, 0.08)',
-                                    borderLeft: '4px solid #107a6c',
-                                    p: 2,
-                                }}
-                            >
-                                <Stack spacing={1.5}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                fontWeight: 700,
-                                                color: '#107a6c',
-                                            }}
-                                        >
-                                            📷 Recipe Image
-                                        </Typography>
-                                        {recipeImages && recipeImages[safeIndex] && (
-                                            <Chip
-                                                label="✓ Assigned"
-                                                size="small"
-                                                color="success"
-                                                variant="outlined"
-                                            />
-                                        )}
-                                        {(!recipeImages || !recipeImages[safeIndex]) && (
-                                            <Chip
-                                                label="✗ Missing"
-                                                size="small"
-                                                color="error"
-                                                variant="outlined"
-                                            />
-                                        )}
-                                    </Box>
-                                    <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
-                                        <input
-                                            type="file"
-                                            id={`preview-dialog-image-${safeIndex}`}
-                                            hidden
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                if (e.target.files && e.target.files[0] && onImageChange) {
-                                                    onImageChange(safeIndex, e.target.files[0]);
-                                                }
-                                            }}
-                                        />
-                                        <label htmlFor={`preview-dialog-image-${safeIndex}`}>
-                                            <Button
-                                                component="span"
-                                                size="small"
-                                                variant={recipeImages && recipeImages[safeIndex] ? 'outlined' : 'contained'}
-                                                color={recipeImages && recipeImages[safeIndex] ? 'success' : 'primary'}
-                                                startIcon={<AddPhotoAlternateIcon />}
-                                            >
-                                                {recipeImages && recipeImages[safeIndex] ? 'Change Image' : 'Add Image'}
-                                            </Button>
-                                        </label>
-                                        {recipeImages && recipeImages[safeIndex] && (
-                                            <>
-                                                <Typography variant="caption" sx={{ alignSelf: 'center', color: '#666' }}>
-                                                    {recipeImages[safeIndex]?.name}
-                                                </Typography>
-                                                <Button
-                                                    size="small"
-                                                    color="error"
-                                                    variant="text"
-                                                    startIcon={<DeleteIcon />}
-                                                    onClick={() => onImageChange && onImageChange(safeIndex, undefined)}
-                                                >
-                                                    Remove
-                                                </Button>
-                                            </>
-                                        )}
-                                    </Stack>
-                                </Stack>
-                            </Paper>\n\n                            {/* Ingredients Section */}
+                            {/* Ingredients Section */}
                             {ingredientList.length > 0 && (
                                 <Paper
                                     elevation={0}

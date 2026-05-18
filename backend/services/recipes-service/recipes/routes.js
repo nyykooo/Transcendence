@@ -46,27 +46,75 @@ function serializeRecipeRow(row) {
 }
 
 function groupRecipeInstructions(instructions) {
-    const groupedSteps = [];
+    if (!instructions) {
+        return [];
+    }
 
-    const lines = Array.isArray(instructions)
-        ? instructions.map((step) => String(step || '').trim()).filter(Boolean)
-        : String(instructions ?? '')
-            .split('\n')
-            .map((line) => line.trim())
-            .filter(Boolean);
+    const lines = String(instructions)
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean);
 
-    lines.forEach((step) => {
-        if (step.startsWith('-')) {
-            if (groupedSteps.length > 0) {
-                groupedSteps[groupedSteps.length - 1].subSteps.push(step.substring(1).trim());
+    if (lines.length === 0) {
+        return [];
+    }
+
+    const groups = [];
+    let currentTitle = null;
+    let currentSubSteps = [];
+
+    const pushCurrent = () => {
+        if (currentTitle) {
+            groups.push({ title: currentTitle, subSteps: currentSubSteps });
+        }
+        currentTitle = null;
+        currentSubSteps = [];
+    };
+
+    const cleanTitle = (text) => {
+        let title = text.trim();
+        title = title.replace(/^\d+\.\s*/, '');
+        title = title.replace(/\*\*(.*?)\*\*/g, '$1');
+        title = title.replace(/:\s*$/, '');
+        return title.trim();
+    };
+
+    lines.forEach((line) => {
+        const isBullet = /^[-•]\s+/.test(line);
+        const isTitleLine = /:\s*$/.test(line) || /^\d+\.\s*/.test(line) || /^\*\*.*\*\*:?$/.test(line);
+        const hasInlineColon = !isBullet && !isTitleLine && line.includes(':');
+
+        if (isTitleLine && !isBullet) {
+            pushCurrent();
+            currentTitle = cleanTitle(line);
+            return;
+        }
+
+        if (hasInlineColon) {
+            const [titlePart, ...restParts] = line.split(':');
+            const rest = restParts.join(':').trim();
+            pushCurrent();
+            currentTitle = cleanTitle(titlePart);
+            if (rest) {
+                currentSubSteps.push(rest);
             }
             return;
         }
 
-        groupedSteps.push({ title: step, subSteps: [] });
+        if (!currentTitle) {
+            currentTitle = cleanTitle(line);
+            return;
+        }
+
+        if (isBullet) {
+            currentSubSteps.push(line.replace(/^[-•]\s+/, '').trim());
+        } else {
+            currentSubSteps.push(line.trim());
+        }
     });
 
-    return groupedSteps;
+    pushCurrent();
+    return groups;
 }
 
 router.get(['/recipes', '/recipes/', '/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
@@ -521,13 +569,13 @@ router.post(['/pending/recipes', '/Pending/RecipeListView'], requireAuthWithRate
         authorName,
         body.name,
         JSON.stringify(normalizedIngredients),
-        body.diet ?? 'Vegan',
-        body.instructions ?? null,
-        body.url ?? null,
-        body.cost ?? 0,
-        body.portions ?? 1,
-        body.prep_time ?? null,
-        body.cooking_time ?? null,
+        body.diet,
+        body.instructions,
+        body.url,
+        body.cost,
+        body.portions,
+        body.prep_time,
+        body.cooking_time,
     ];
 
     try {

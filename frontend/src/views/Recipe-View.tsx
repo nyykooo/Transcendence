@@ -13,6 +13,8 @@ import { type Recipe } from '../props/recipeProps';
 import { getRecipe } from '../api/recipe';
 
 import '../assets/style.css';
+import { Button } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const pageShellSx = {
     minHeight: '100%',
@@ -106,6 +108,53 @@ export default function RecipeView() {
             setLiking(false);
         }
     };
+    const handleExportToCSV = () => {
+        if (!recipe) return;
+
+        const headers = ['name', 'ingredients', 'diet', 'cost', 'portions', 'prep_time', 'cooking_time', 'instructions', 'url', 'author', 'image'];
+        
+        const formatIngredients = (ingredients: Array<{ name: string; quantity: number; unit: string }>) => {
+            return ingredients.map(i => `${i.name} (${i.quantity} ${i.unit})`).join(', ');
+        };
+
+        const formatInstructions = (instructions: Array<{ title: string; subSteps: string[] }>) => {
+            return instructions.map(g => `${g.title}: ${g.subSteps.join(', ')}`).join('\n');
+        };
+
+        const escapeCSV = (str: string | number | null | undefined) => {
+            if (str === null || str === undefined) return '';
+            const s = String(str);
+            if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+                return `"${s.replace(/"/g, '""')}"`;
+            }
+            return s;
+        };
+
+        const row = [
+            escapeCSV(recipe.name),
+            escapeCSV(formatIngredients(recipe.ingredients)),
+            escapeCSV(recipe.diet),
+            escapeCSV(recipe.cost),
+            escapeCSV(recipe.portions),
+            escapeCSV(recipe.prep_time),
+            escapeCSV(recipe.cooking_time),
+            escapeCSV(formatInstructions(recipe.instructions)),
+            escapeCSV(recipe.url),
+            escapeCSV(recipe.author),
+            escapeCSV(recipe.image)
+        ];
+
+        const csvContent = headers.join(',') + '\n' + row.join(',');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${recipe.name}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     if (loading) {
         return (
@@ -184,18 +233,27 @@ export default function RecipeView() {
                                     fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
                                 }}
                             />
-                            <Typography
-                                variant="h2"
-                                sx={{
-                                    fontFamily: '"Fraunces", "Georgia", serif',
-                                    fontWeight: 700,
-                                    lineHeight: 1.05,
-                                    letterSpacing: '-0.02em',
-                                    fontSize: { xs: '2rem', md: '3.4rem' },
-                                }}
-                            >
-                                {recipe.name || 'Untitled Recipe'}
-                            </Typography>
+                            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                <Typography
+                                    variant="h2"
+                                    sx={{
+                                        fontFamily: '"Fraunces", "Georgia", serif',
+                                        fontWeight: 700,
+                                        lineHeight: 1.05,
+                                        letterSpacing: '-0.02em',
+                                        fontSize: { xs: '2rem', md: '3.4rem' },
+                                    }}
+                                >
+                                    {recipe.name || 'Untitled Recipe'}
+                                </Typography>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<DownloadIcon />}
+                                    onClick={handleExportToCSV}
+                                >
+                                    Export to CSV
+                                </Button>
+                            </Stack>
                             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                                 <Chip
                                     label={`${recipe.ingredients?.length || 0} Ingredients`}

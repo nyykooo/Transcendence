@@ -18,4 +18,10 @@ export type Recipe = {
     liked: number;
     viewed: number;
     likedByUser?: boolean;
+    diet?: string;
+    cost?: number;
+    portions?: number;
+    prep_time?: number;
+    cooking_time?: number;
+    author?: string;
 }

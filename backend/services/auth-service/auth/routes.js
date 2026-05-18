@@ -1499,7 +1499,7 @@ router.get('/auth/github/callback', async (req, res) => {
       { expiresIn: "1h" }
     );
   
-    const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:443';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://localhost:1025';
     const redirectTo = new URL('/auth/github/callback', frontendUrl);
     redirectTo.searchParams.set('id', String(user.id));
     redirectTo.searchParams.set('token', jwtToken);
