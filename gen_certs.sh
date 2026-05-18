@@ -42,11 +42,11 @@ if [ -f "${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/filebeat/filebeat.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/filebeat/filebeat.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.crt" ] && \
-   [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.key" ]
+   [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.crt" ] && \
-   [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.key" ] &&
+   [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.key" ]; then
   echo "All certificates already found"
