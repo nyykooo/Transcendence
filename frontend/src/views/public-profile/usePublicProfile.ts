@@ -7,9 +7,11 @@ import {
     // removeProfileFriend,
 } from '../../api/public-profile';
 import type { /* ApiMessage ,*/ PublicProfileUser } from '../../props/profile/sharedProps';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export function usePublicProfile() {
+    const navigate = useNavigate();
+
     const { name } = useParams<{ name: string }>();
 
     const { user: authUser, getAuthToken } = useAuth();
@@ -48,7 +50,7 @@ export function usePublicProfile() {
                     return;
                 }
 
-                setProfileError(error instanceof Error ? error.message : 'Could not load your profile right now.');
+                navigate('/not-found');
             }
         };
 

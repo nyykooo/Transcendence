@@ -28,6 +28,7 @@ export default function Profile() {
         twoFactorSetup,
         friendEmail,
         friendsLoading,
+        handleClickPublicProfile,
         handleFileSelect,
         handleUpload,
         handleAvatarDelete,
@@ -95,6 +96,7 @@ export default function Profile() {
                             friendRequests={user.friendRequests || []}
                             friendEmail={friendEmail}
                             loading={friendsLoading}
+                            onClickPublicProfile={handleClickPublicProfile}
                             onFriendEmailChange={handleFriendEmailChange}
                             onAddFriend={handleAddFriend}
                             onRemoveFriend={handleRemoveFriend}

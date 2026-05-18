@@ -72,6 +72,7 @@ export type ProfileFriendsPanelProps = {
     friendRequests: FriendUser[];
     friendEmail: string;
     loading: boolean;
+    onClickPublicProfile: (friendName: string) => void;
     onFriendEmailChange: (event: ChangeEvent<HTMLInputElement>) => void;
     onAddFriend: () => void;
     onRemoveFriend: (email: string) => void;

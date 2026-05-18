@@ -299,6 +299,7 @@ export function ProfileFriendsPanel({
     friendRequests,
     friendEmail,
     loading,
+    onClickPublicProfile,
     onFriendEmailChange,
     onAddFriend,
     onRemoveFriend,
@@ -416,7 +417,7 @@ export function ProfileFriendsPanel({
                                     p: 1.5,
                                 }}
                             >
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }} onClick={() => onClickPublicProfile(friend.name)} style={{ cursor: 'pointer' }}>
                                     <Avatar src={friend.avatar || undefined} sx={{ width: 36, height: 36 }}>
                                         {friend.name.charAt(0)}
                                     </Avatar>
