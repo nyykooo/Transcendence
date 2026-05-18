@@ -154,19 +154,18 @@ export default function FileManagement() {
                         return { name: s.trim(), quantity: 0, unit: '' };
                     });
                 } else if (header === 'instructions') {
-                    const mainInstructions: string[] = [];
-                    const subInstructions: string[] = [];
-                    value.split(/\d+\./).forEach(part => {
-                        if (part.trim()) {
-                            const [main, sub] = part.split(':');
-                            mainInstructions.push(main.trim());
-                            if (sub) {
-                                subInstructions.push(sub.trim());
-                            }
-                        }
-                    });
-                    recipe['main_instructions'] = mainInstructions;
-                    recipe['sub_instructions'] = subInstructions;
+                    // Parse instructions into individual steps
+                    // Format: "Step Name: Description. Step Name: Description."
+                    const instructionText = value.trim();
+                    
+                    // Split by period followed by spaces to separate steps
+                    const steps = instructionText.split(/\.\s+/).map(step => {
+                        const trimmed = step.trim();
+                        // Add period back if it was removed by split
+                        return trimmed ? (trimmed.endsWith('.') ? trimmed : trimmed + '.') : '';
+                    }).filter(Boolean);
+                    
+                    recipe['instructions'] = steps.length > 0 ? steps.join('\n') : instructionText;
                 } else {
                     recipe[header] = value;
                 }
@@ -249,15 +248,12 @@ export default function FileManagement() {
     };
 
     const confirmImport = async () => {
-        if (!previewFile) return;
-
-        // Check if all recipes have images before importing
-        if (!previewData || previewData.length === 0) {
+        if (!previewFile || !previewData || previewData.length === 0) {
             setError('No recipes to import');
             return;
         }
 
-        // Check if all recipes have images assigned
+        // Check if all recipes have images
         const recipesWithoutImages = previewData.filter(
             (_recipe, index) => !recipeImages[index]
         );
@@ -278,23 +274,23 @@ export default function FileManagement() {
             setError(null);
             setImportResult(null);
 
-            // Step 1: Upload all images first
+            // Step 1: Upload images if any exist
             const imageFilenames: Record<number, string> = {};
             for (let i = 0; i < previewData.length; i++) {
                 const imageFile = recipeImages[i];
                 if (imageFile) {
                     try {
                         const uploadResponse = await uploadFile(imageFile, (prog) => setProgress(prog));
-                        // Store the full path for the image
                         imageFilenames[i] = uploadResponse.file.url;
                         console.log(`[Image ${i}] Uploaded: ${uploadResponse.file.filename} → ${uploadResponse.file.url}`);
                     } catch (err) {
-                        throw new Error(`Failed to upload image for ${previewData[i].name}: ${err instanceof Error ? err.message : String(err)}`);
+                        console.warn(`Failed to upload image for ${previewData[i].name}:`, err);
+                        // Don't fail the whole import, just skip the image
                     }
                 }
             }
 
-            // Step 2: Create recipe data with image paths - add only the image field
+            // Step 2: Attach image paths to recipes if available
             const recipesWithImages = previewData.map((recipe, index) => {
                 const recipeWithImage = { ...recipe };
                 if (imageFilenames[index]) {
@@ -302,8 +298,6 @@ export default function FileManagement() {
                 }
                 return recipeWithImage;
             });
-
-            console.log('[Import] Recipes with images:', JSON.stringify(recipesWithImages, null, 2));
 
             // Step 3: Convert to JSON and send for import
             const jsonContent = JSON.stringify(recipesWithImages, null, 2);
@@ -313,7 +307,7 @@ export default function FileManagement() {
                 { type: 'application/json' }
             );
 
-            // Step 4: Import the recipes with image paths included
+            // Step 4: Import the recipes
             nextImportResult = await importRecipes(jsonFile, (prog) => setProgress(prog));
             
             if (nextImportResult.stats.failed > 0) {
@@ -322,15 +316,15 @@ export default function FileManagement() {
                 let errorDetails = '';
                 
                 // Check for validation errors
-                if (nextImportResult.failures.invalid && nextImportResult.failures.invalid.length > 0) {
+                if (nextImportResult.failures?.invalid && nextImportResult.failures.invalid.length > 0) {
                     errorDetails = nextImportResult.failures.invalid
-                        .map(fail => `• ${fail.recipe}: ${fail.errors.join('; ')}`)
+                        .map((fail: any) => `• ${fail.recipe}: ${fail.errors.join('; ')}`)
                         .join('\n');
                     console.error('[Import] Validation errors:', nextImportResult.failures.invalid);
                 }
                 
                 // Check for insert errors
-                if (nextImportResult.failures.insertErrors && nextImportResult.failures.insertErrors.length > 0) {
+                if (nextImportResult.failures?.insertErrors && nextImportResult.failures.insertErrors.length > 0) {
                     const insertErrs = nextImportResult.failures.insertErrors.join('\n• ');
                     errorDetails += (errorDetails ? '\n\n' : '') + `Insert errors:\n• ${insertErrs}`;
                     console.error('[Import] Insert errors:', nextImportResult.failures.insertErrors);
@@ -549,83 +543,32 @@ export default function FileManagement() {
                 </>
             )}
 
-            {/* Upload Area */}
-            <Card
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                sx={{
-                    p: { xs: 2, sm: 3 },
-                    textAlign: 'center',
-                    border: '2px dashed #ccc',
-                    borderRadius: 2,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s',
-                    '&:hover': {
-                        borderColor: '#1976d2',
-                        backgroundColor: '#f5f5f5',
-                    },
-                    mb: 3,
-                    minHeight: { xs: 150, sm: 200 },
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                }}
-            >
-                <input
-                    type="file"
-                    id="file-input"
-                    hidden
-                    accept=".csv,.json"
-                    onChange={handleFileInput}
-                />
-                <label htmlFor="file-input" style={{ cursor: 'pointer', width: '100%' }}>
-                    <CloudUploadIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: '#1976d2', mb: 1 }} />
-                    <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                        Drag & drop files here or click to select
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1, fontSize: { xs: '0.85rem', sm: '1rem' } }}>
-                        📋 <strong>Recipe File:</strong> Upload CSV or JSON with recipes, then add images for each
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                        Supported: CSV, JSON formats (max 5MB)
-                    </Typography>
-                </label>
-            </Card>
-
-            {/* Upload Progress */}
-            {(uploading || progress) && (
-                <Box sx={{ mb: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <CircularProgress size={20} sx={{ mr: 1 }} />
-                        <Typography variant="body2">
-                            {progress
-                                ? `Uploading: ${Math.round(progress.percentage)}%`
-                                : 'Processing file...'}
-                        </Typography>
-                    </Box>
-                    {progress ? (
-                        <LinearProgress variant="determinate" value={progress.percentage} />
-                    ) : (
-                        <LinearProgress />
-                    )}
-                </Box>
-            )}
-
-            {/* Image Upload Section - Always Visible After File Upload */}
+            {/* Recipe Preview Section - Optional Image Upload */}
             {previewData && previewData.length > 0 && (
                 <Card sx={{ mb: 3, p: { xs: 2, sm: 3 }, backgroundColor: '#f9f9f9', borderRadius: 2 }}>
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 2, gap: 2 }}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold', mb: { xs: 1, sm: 0 } }}>
-                            🖼️ Add Images to Recipes (Required)
+                            📋 Recipe Preview - Add Images (Required)
                         </Typography>
-                        <Button
-                            variant="contained"
-                            color="info"
-                            onClick={() => setShowPreview(true)}
-                            sx={{ minWidth: 150 }}
-                        >
-                            👁️ View Preview
-                        </Button>
+                        <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' }, width: { xs: '100%', sm: 'auto' } }}>
+                            <Button
+                                variant="outlined"
+                                color="info"
+                                onClick={() => setShowPreview(true)}
+                                sx={{ minWidth: 150 }}
+                            >
+                                👁️ View Preview
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="success"
+                                onClick={confirmImport}
+                                disabled={uploading}
+                                sx={{ minWidth: 150 }}
+                            >
+                                {uploading ? 'Importing...' : '✅ Import All'}
+                            </Button>
+                        </Box>
                     </Box>
                     <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
                         Each recipe requires an image before importing. Click "Add Image" for each recipe below.
@@ -703,6 +646,68 @@ export default function FileManagement() {
                         })}
                     </List>
                 </Card>
+            )}
+
+            {/* Upload Area */}
+            <Card
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                sx={{
+                    p: { xs: 2, sm: 3 },
+                    textAlign: 'center',
+                    border: '2px dashed #ccc',
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                        borderColor: '#1976d2',
+                        backgroundColor: '#f5f5f5',
+                    },
+                    mb: 3,
+                    minHeight: { xs: 150, sm: 200 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                }}
+            >
+                <input
+                    type="file"
+                    id="file-input"
+                    hidden
+                    accept=".csv,.json"
+                    onChange={handleFileInput}
+                />
+                <label htmlFor="file-input" style={{ cursor: 'pointer', width: '100%' }}>
+                    <CloudUploadIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: '#1976d2', mb: 1 }} />
+                    <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                        Drag & drop files here or click to select
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1, fontSize: { xs: '0.85rem', sm: '1rem' } }}>
+                        📋 <strong>Recipe File:</strong> Upload CSV or JSON with recipes, then add images for each
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        Supported: CSV, JSON formats (max 5MB)
+                    </Typography>
+                </label>
+            </Card>
+
+            {/* Upload Progress */}
+            {(uploading || progress) && (
+                <Box sx={{ mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <CircularProgress size={20} sx={{ mr: 1 }} />
+                        <Typography variant="body2">
+                            {progress
+                                ? `Uploading: ${Math.round(progress.percentage)}%`
+                                : 'Processing file...'}
+                        </Typography>
+                    </Box>
+                    {progress ? (
+                        <LinearProgress variant="determinate" value={progress.percentage} />
+                    ) : (
+                        <LinearProgress />
+                    )}
+                </Box>
             )}
 
             {/* Preview Dialog */}
