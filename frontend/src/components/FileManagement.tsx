@@ -13,13 +13,16 @@ import {
     Chip,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+// import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 
 import { uploadFile, importRecipes, uploadRecipeImage, deleteRecipeImage } from '../api/fileManagement';
 import type { FileUploadProgress, RecipeImportResponse, RecipeImportResult } from '../props/fileManagement/fileProps';
 import CSVRecipePreview from './CSVRecipePreview';
+
+import  RecipeImageUploader  from './test.tsx';
+
 
 const MIN_PROGRESS_VISIBLE_MS = 1000;
 
@@ -466,7 +469,7 @@ export default function FileManagement() {
                                         key={recipe.id}
                                         secondaryAction={
                                             <>
-                                                <input
+                                                {/* <input
                                                     type="file"
                                                     id={`image-upload-${recipe.id}`}
                                                     hidden
@@ -490,7 +493,16 @@ export default function FileManagement() {
                                                     >
                                                         {recipe.imageUrl ? 'Change' : 'Add Image'}
                                                     </Button>
-                                                </label>
+                                                </label> */}
+
+                                                <RecipeImageUploader
+                                                    index={recipe.id}
+                                                    currentFile={undefined}
+                                                    disabled={imageUploadLoading}
+                                                    onChange={(_idx: number, file: File | undefined) => {
+                                                        if (file) handleRecipeImageUpload(recipe.id, file);
+                                                    }}
+                                                />
                                                 {recipe.imageUrl && (
                                                     <Button
                                                         size="small"
@@ -508,6 +520,11 @@ export default function FileManagement() {
                                     >
                                         <ListItemText
                                             primary={recipe.name}
+                                            slotProps={{
+                                                secondary: {
+                                                    component: 'div'
+                                                }
+                                            }}
                                             secondary={
                                                 <>
                                                     <Typography variant="caption" display="block">
@@ -549,8 +566,9 @@ export default function FileManagement() {
                         </Typography>
                         <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' }, width: { xs: '100%', sm: 'auto' } }}>
                             <Button
-                                variant="outlined"
+                                variant="contained"
                                 color="info"
+                                onMouseDown={(e) => e.preventDefault()} // evita reter foco
                                 onClick={() => setShowPreview(true)}
                                 sx={{ minWidth: 150 }}
                             >
@@ -578,7 +596,7 @@ export default function FileManagement() {
                                     key={index}
                                     secondaryAction={
                                         <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' }, mt: { xs: 2, sm: 0 }, width: { xs: '100%', sm: 'auto' } }}>
-                                            <input
+                                            {/* <input
                                                 type="file"
                                                 id={`preview-image-${index}`}
                                                 hidden
@@ -610,7 +628,21 @@ export default function FileManagement() {
                                                 >
                                                     {hasImage ? recipeImages[index]?.name?.substring(0, 20) : 'Add Image'}
                                                 </Button>
-                                            </label>
+                                            </label> */}
+
+                                            <RecipeImageUploader
+                                                index={index}
+                                                currentFile={recipeImages[index]}
+                                                onChange={(idx: number, file: File | undefined) => {
+                                                    if (file) {
+                                                        setRecipeImages({ ...recipeImages, [idx]: file });
+                                                    } else {
+                                                        const updated = { ...recipeImages };
+                                                        delete updated[idx];
+                                                        setRecipeImages(updated);
+                                                    }
+                                                }}
+                                            />
                                             {hasImage && (
                                                 <Button
                                                     size="small"
@@ -633,8 +665,10 @@ export default function FileManagement() {
                                     <ListItemText
                                         primary={recipe.name || `Recipe ${index + 1}`}
                                         secondary={hasImage ? '✅ Image ready' : '❌ Missing image'}
-                                        secondaryTypographyProps={{
-                                            color: hasImage ? 'success.main' : 'error.main',
+                                        slotProps={{
+                                            secondary:{
+                                                color: hasImage ? 'success.main' : 'error.main',
+                                            }
                                         }}
                                         sx={{ mb: { xs: 1, sm: 0 }, minWidth: { xs: '100%', sm: 'auto' } }}
                                     />
