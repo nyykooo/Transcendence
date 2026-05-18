@@ -42,11 +42,11 @@ if [ -f "${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/filebeat/filebeat.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/filebeat/filebeat.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.crt" ] && \
-   [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.key" ]
+   [ -f "${DEVOPS_DIR}/tools/certs/logstash/logstash.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/elk-ca/ca.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/elk-ca/ca.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.crt" ] && \
-   [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.key" ] &&
+   [ -f "${DEVOPS_DIR}/tools/certs/elasticsearch/elasticsearch.key" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.crt" ] && \
    [ -f "${DEVOPS_DIR}/tools/certs/kibana/kibana.key" ]; then
   echo "All certificates already found"
@@ -66,8 +66,8 @@ else
     -nodes \
     -subj "/CN=postgres" \
     -addext "subjectAltName = DNS:postgres, DNS:localhost, IP:127.0.0.1"
-  chmod 777 "${DB_DIR}/tools/certs/postgres-ssl-certs/server.key"
-  chmod 777 "${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt"
+  chmod 600 "${DB_DIR}/tools/certs/postgres-ssl-certs/server.key"
+  chmod 644 "${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt"
   chown -R 999:999 "${DB_DIR}/tools/certs/postgres-ssl-certs" 2>/dev/null || true
 fi
 
