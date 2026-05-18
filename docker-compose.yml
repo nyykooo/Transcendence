@@ -142,6 +142,7 @@ services:
   redis:
     container_name: brunchio_redis
     image: redis:latest
+    command: redis-server --port 6378
     ports:
       - "6378:6378"
     restart: always
