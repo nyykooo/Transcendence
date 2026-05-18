@@ -128,7 +128,6 @@ services:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
       - PGADMIN_ENABLE_TLS=true
-      - SCRIPT_NAME=/pgadmin4
     ports:
       - "5050:443"
     restart: always
