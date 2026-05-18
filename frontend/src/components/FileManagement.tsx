@@ -154,18 +154,19 @@ export default function FileManagement() {
                         return { name: s.trim(), quantity: 0, unit: '' };
                     });
                 } else if (header === 'instructions') {
-                    // Parse instructions into individual steps
-                    // Format: "Step Name: Description. Step Name: Description."
-                    const instructionText = value.trim();
-                    
-                    // Split by period followed by spaces to separate steps
-                    const steps = instructionText.split(/\.\s+/).map(step => {
-                        const trimmed = step.trim();
-                        // Add period back if it was removed by split
-                        return trimmed ? (trimmed.endsWith('.') ? trimmed : trimmed + '.') : '';
-                    }).filter(Boolean);
-                    
-                    recipe['instructions'] = steps.length > 0 ? steps.join('\n') : instructionText;
+                    const mainInstructions: string[] = [];
+                    const subInstructions: string[] = [];
+                    value.split(/\d+\./).forEach(part => {
+                        if (part.trim()) {
+                            const [main, sub] = part.split(':');
+                            mainInstructions.push(main.trim());
+                            if (sub) {
+                                subInstructions.push(sub.trim());
+                            }
+                        }
+                    });
+                    recipe['main_instructions'] = mainInstructions;
+                    recipe['sub_instructions'] = subInstructions;
                 } else {
                     recipe[header] = value;
                 }

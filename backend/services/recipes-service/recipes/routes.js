@@ -59,50 +59,12 @@ function groupRecipeInstructions(instructions) {
         return [];
     }
 
-    const groups = [];
-    let currentTitle = null;
-    let currentSubSteps = [];
+    // The first line is the title, the rest are substeps.
+    const title = lines[0];
+    const subSteps = lines.slice(1);
 
-    const pushCurrent = () => {
-        if (currentTitle) {
-            groups.push({ title: currentTitle, subSteps: currentSubSteps });
-        }
-        currentTitle = null;
-        currentSubSteps = [];
-    };
-
-    const cleanTitle = (text) => {
-        let title = text.trim();
-        title = title.replace(/^\d+\.\s*/, '');
-        title = title.replace(/\*\*(.*?)\*\*/g, '$1');
-        title = title.replace(/:\s*$/, '');
-        return title.trim();
-    };
-
-    lines.forEach((line) => {
-        const isBullet = /^[-•]\s+/.test(line);
-        const isTitleLine = /:\s*$/.test(line) || /^\d+\.\s*/.test(line) || /^\*\*.*\*\*:?$/.test(line);
-
-        if (isTitleLine && !isBullet) {
-            pushCurrent();
-            currentTitle = cleanTitle(line);
-            return;
-        }
-
-        if (!currentTitle) {
-            currentTitle = cleanTitle(line);
-            return;
-        }
-
-        if (isBullet) {
-            currentSubSteps.push(line.replace(/^[-•]\s+/, '').trim());
-        } else {
-            currentSubSteps.push(line.trim());
-        }
-    });
-
-    pushCurrent();
-    return groups;
+    // The frontend expects an array of groups, so we'll create one group.
+    return [{ title: title, subSteps: subSteps }];
 }
 
 router.get(['/recipes', '/recipes/', '/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
