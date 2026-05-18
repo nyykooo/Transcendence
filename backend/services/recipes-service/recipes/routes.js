@@ -46,27 +46,25 @@ function serializeRecipeRow(row) {
 }
 
 function groupRecipeInstructions(instructions) {
-    const groupedSteps = [];
+    if (!instructions) {
+        return [];
+    }
 
-    const lines = Array.isArray(instructions)
-        ? instructions.map((step) => String(step || '').trim()).filter(Boolean)
-        : String(instructions ?? '')
-            .split('\n')
-            .map((line) => line.trim())
-            .filter(Boolean);
+    const lines = String(instructions)
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean);
 
-    lines.forEach((step) => {
-        if (step.startsWith('-')) {
-            if (groupedSteps.length > 0) {
-                groupedSteps[groupedSteps.length - 1].subSteps.push(step.substring(1).trim());
-            }
-            return;
-        }
+    if (lines.length === 0) {
+        return [];
+    }
 
-        groupedSteps.push({ title: step, subSteps: [] });
-    });
+    // The first line is the title, the rest are substeps.
+    const title = lines[0];
+    const subSteps = lines.slice(1);
 
-    return groupedSteps;
+    // The frontend expects an array of groups, so we'll create one group.
+    return [{ title: title, subSteps: subSteps }];
 }
 
 router.get(['/recipes', '/recipes/', '/RecipeListView'], requireAuthWithRateLimit, (req, res) => {
