@@ -24,8 +24,8 @@ COPY --from=build /app/src ./src
 COPY --from=build /app/vite.config.ts ./vite.config.ts
 
 ENV NODE_ENV=production
-ENV PORT=443
+ENV PORT=1025
 
-EXPOSE 443
+EXPOSE 1025
 
 CMD ["node", "server.mjs"]
