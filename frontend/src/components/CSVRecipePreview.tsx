@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -52,6 +52,8 @@ export default function CSVRecipePreview({
     onCancel,
     uploading,
 }: CSVRecipePreviewProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
@@ -129,18 +131,22 @@ export default function CSVRecipePreview({
             onClose={onCancel} 
             maxWidth="lg" 
             fullWidth 
-            PaperProps={{ 
-                sx: { 
-                    minHeight: { xs: '95vh', sm: '90vh' },
-                    maxHeight: { xs: '100vh', sm: '90vh' },
-                    m: { xs: 1, sm: 2 },
-                    width: { xs: 'calc(100% - 16px)', sm: '100%' }
-                } 
+            slotProps={{
+                paper: { 
+                    sx: { 
+                        minHeight: { xs: '95vh', sm: '90vh' },
+                        maxHeight: { xs: '100vh', sm: '90vh' },
+                        m: { xs: 1, sm: 2 },
+                        width: { xs: 'calc(100% - 16px)', sm: '100%' }
+                    } 
+                }
             }}
         >
-            <DialogTitle sx={{ p: { xs: 1.5, sm: 2 } }}>
+            <DialogTitle autoFocus tabIndex={-1} sx={{ p: { xs: 1.5, sm: 2 } }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
-                    <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>Recipe Preview ({currentIndex + 1} of {recipes.length})</Typography>
+                    <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                        Recipe Preview ({currentIndex + 1} of {recipes.length})
+                    </Typography>
                     <Typography variant="caption" color="textSecondary">
                         {uploading ? 'Validating...' : 'Ready to import'}
                     </Typography>
