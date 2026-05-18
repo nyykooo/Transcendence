@@ -66,8 +66,8 @@ else
     -nodes \
     -subj "/CN=postgres" \
     -addext "subjectAltName = DNS:postgres, DNS:localhost, IP:127.0.0.1"
-  chmod 777 "${DB_DIR}/tools/certs/postgres-ssl-certs/server.key"
-  chmod 777 "${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt"
+  chmod 600 "${DB_DIR}/tools/certs/postgres-ssl-certs/server.key"
+  chmod 644 "${DB_DIR}/tools/certs/postgres-ssl-certs/server.crt"
   chown -R 999:999 "${DB_DIR}/tools/certs/postgres-ssl-certs" 2>/dev/null || true
 fi
 
