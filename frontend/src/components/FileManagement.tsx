@@ -13,15 +13,13 @@ import {
     Chip,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-// import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 
 import { uploadFile, importRecipes, uploadRecipeImage, deleteRecipeImage } from '../api/fileManagement';
 import type { FileUploadProgress, RecipeImportResponse, RecipeImportResult } from '../props/fileManagement/fileProps';
 import CSVRecipePreview from './CSVRecipePreview';
 
-import  RecipeImageUploader  from './test.tsx';
+import  RecipeImageUploader  from './RecipeImageUploader.tsx';
 
 
 const MIN_PROGRESS_VISIBLE_MS = 1000;
@@ -381,27 +379,6 @@ export default function FileManagement() {
         }
     };
 
-    const handleRecipeImageDelete = async (recipeId: number) => {
-        try {
-            setImageDeleteLoading(recipeId);
-            setError(null);
-            await deleteRecipeImage(recipeId);
-            if (importResult) {
-                const updatedRecipes = importResult.importedRecipes.map((r) =>
-                    r.id === recipeId ? { ...r, imageUrl: null } : r
-                );
-                setImportResult({
-                    ...importResult,
-                    importedRecipes: updatedRecipes,
-                });
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to delete image');
-        } finally {
-            setImageDeleteLoading(null);
-        }
-    };
-
     const handleDownloadTemplate = () => {
         const headers = ['name', 'ingredients', 'diet', 'cost', 'portions', 'prep_time', 'cooking_time', 'instructions', 'url', 'author'];
         const csvContent = headers.join(',') + '\n';
@@ -469,32 +446,6 @@ export default function FileManagement() {
                                         key={recipe.id}
                                         secondaryAction={
                                             <>
-                                                {/* <input
-                                                    type="file"
-                                                    id={`image-upload-${recipe.id}`}
-                                                    hidden
-                                                    accept="image/*"
-                                                    onChange={(e) => {
-                                                        if (e.target.files && e.target.files[0]) {
-                                                            handleRecipeImageUpload(recipe.id, e.target.files[0]);
-                                                        }
-                                                    }}
-                                                    disabled={imageUploadLoading}
-                                                />
-                                                <label htmlFor={`image-upload-${recipe.id}`}>
-                                                    <Button
-                                                        component="span"
-                                                        size="small"
-                                                        variant={recipe.imageUrl ? 'outlined' : 'contained'}
-                                                        color={recipe.imageUrl ? 'success' : 'primary'}
-                                                        startIcon={<AddPhotoAlternateIcon />}
-                                                        disabled={imageUploadLoading}
-                                                        sx={{ mr: 1 }}
-                                                    >
-                                                        {recipe.imageUrl ? 'Change' : 'Add Image'}
-                                                    </Button>
-                                                </label> */}
-
                                                 <RecipeImageUploader
                                                     index={recipe.id}
                                                     currentFile={undefined}
@@ -503,17 +454,6 @@ export default function FileManagement() {
                                                         if (file) handleRecipeImageUpload(recipe.id, file);
                                                     }}
                                                 />
-                                                {recipe.imageUrl && (
-                                                    <Button
-                                                        size="small"
-                                                        color="error"
-                                                        startIcon={<DeleteIcon />}
-                                                        onClick={() => handleRecipeImageDelete(recipe.id)}
-                                                        disabled={imageDeleteLoading === recipe.id}
-                                                    >
-                                                        Remove
-                                                    </Button>
-                                                )}
                                             </>
                                         }
                                         sx={{ borderBottom: '1px solid #eee', mb: 1 }}
@@ -596,40 +536,6 @@ export default function FileManagement() {
                                     key={index}
                                     secondaryAction={
                                         <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' }, mt: { xs: 2, sm: 0 }, width: { xs: '100%', sm: 'auto' } }}>
-                                            {/* <input
-                                                type="file"
-                                                id={`preview-image-${index}`}
-                                                hidden
-                                                accept="image/*"
-                                                onChange={(e) => {
-                                                    if (e.target.files && e.target.files[0]) {
-                                                        setRecipeImages({
-                                                            ...recipeImages,
-                                                            [index]: e.target.files[0],
-                                                        });
-                                                    }
-                                                }}
-                                            />
-                                            <label htmlFor={`preview-image-${index}`} style={{ flex: 'auto', minWidth: 0 }}>
-                                                <Button
-                                                    component="span"
-                                                    size="small"
-                                                    variant={hasImage ? 'outlined' : 'contained'}
-                                                    color={hasImage ? 'success' : 'primary'}
-                                                    startIcon={<AddPhotoAlternateIcon />}
-                                                    sx={{ 
-                                                        whiteSpace: 'nowrap', 
-                                                        overflow: 'hidden', 
-                                                        textOverflow: 'ellipsis',
-                                                        width: { xs: '100%', sm: 'auto' },
-                                                        minWidth: { xs: 0, sm: 120 }
-                                                    }}
-                                                    title={recipeImages[index]?.name || 'Add image for this recipe'}
-                                                >
-                                                    {hasImage ? recipeImages[index]?.name?.substring(0, 20) : 'Add Image'}
-                                                </Button>
-                                            </label> */}
-
                                             <RecipeImageUploader
                                                 index={index}
                                                 currentFile={recipeImages[index]}
@@ -643,21 +549,6 @@ export default function FileManagement() {
                                                     }
                                                 }}
                                             />
-                                            {hasImage && (
-                                                <Button
-                                                    size="small"
-                                                    color="error"
-                                                    startIcon={<DeleteIcon />}
-                                                    sx={{ width: { xs: '100%', sm: 'auto' } }}
-                                                    onClick={() => {
-                                                        const updated = { ...recipeImages };
-                                                        delete updated[index];
-                                                        setRecipeImages(updated);
-                                                    }}
-                                                >
-                                                    Remove
-                                                </Button>
-                                            )}
                                         </Box>
                                     }
                                     sx={{ borderBottom: '1px solid #eee', mb: 1, flexWrap: 'wrap' }}
