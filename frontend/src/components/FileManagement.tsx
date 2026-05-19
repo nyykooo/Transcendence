@@ -15,7 +15,7 @@ import {
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DownloadIcon from '@mui/icons-material/Download';
 
-import { uploadFile, importRecipes, uploadRecipeImage, deleteRecipeImage } from '../api/fileManagement';
+import { uploadFile, importRecipes, uploadRecipeImage } from '../api/fileManagement';
 import type { FileUploadProgress, RecipeImportResponse, RecipeImportResult } from '../props/fileManagement/fileProps';
 import CSVRecipePreview from './CSVRecipePreview';
 
@@ -37,7 +37,6 @@ export default function FileManagement() {
     const [importResult, setImportResult] = useState<RecipeImportResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [imageUploadLoading, setImageUploadLoading] = useState(false);
-    const [imageDeleteLoading, setImageDeleteLoading] = useState<number | null>(null);
     const [recipeImages, setRecipeImages] = useState<Record<number, File>>({});
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
