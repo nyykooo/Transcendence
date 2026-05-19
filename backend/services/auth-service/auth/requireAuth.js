@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { rateLimit } = require('./rateLimit');
+const { pool } = require('../db');
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
     const auth = req.headers.authorization;
     const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
     if (!token)
@@ -16,6 +17,18 @@ function requireAuth(req, res, next) {
             return res.status(401).json({error: "Invalid token payload"});
         }
         req.userRole = req.user.role;
+        
+        // Update user's online status on every authenticated request
+        try {
+            await pool.query(
+                'UPDATE dev_dba.users SET is_active = true, last_login = NOW() WHERE id = $1',
+                [req.userId]
+            );
+        } catch (dbError) {
+            console.error('[requireAuth] Failed to update user status:', dbError);
+            // Don't block the request if status update fails
+        }
+        
         next();
     }
     catch(e) {
