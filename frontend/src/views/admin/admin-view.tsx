@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography, Tabs, Tab, useTheme, useMediaQuery } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography, Tabs, Tab, useTheme, useMediaQuery, NativeSelect } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useAuth } from '../../components/AuthProvider';
 import { RoleBaseGuard, ErrorPage } from '../../components/components';
@@ -7,6 +7,12 @@ import { getPendingRecipes, getAllUsers, deleteUser, updateUserRole, aprovePendi
 import AdminFileManagement from '../../components/AdminFileManagement';
 import { type PendingRecipe, type PendingRecipesResponse } from '../../props/recipe-list';
 import { type UserRows, type AllUsersResponse } from '../../props/userProps';
+
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Tooltip, IconButton } from '@mui/material';
 
 export default function AdminView()
 {
@@ -257,30 +263,51 @@ export default function AdminView()
             headerName: 'Actions',
             field: 'actions',
             flex: 1,
-            minWidth: 130,
-            renderCell: (params) => {
-                return (
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
-                            color='success'
-                        >
-                            Aprove
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
-                            color='error'
-                        >
-                            Reprove
-                        </Button>
-                    </Box>
-                );
-            },
-        }
+            minWidth: 100,
+            renderCell: (params) => (
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <Tooltip title="Approve">
+                    <IconButton
+                    size="small"
+                    color="success"
+                    onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
+                    sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                    >
+                    <CheckIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="Reprove">
+                    <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
+                    sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                    >
+                    <CloseIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+
+                <Button
+                    variant="contained"
+                    size="small"
+                    color="success"
+                    onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
+                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                >
+                    Approve
+                </Button>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    color="error"
+                    onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
+                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                >
+                    Reprove
+                </Button>
+                </Box>
+            ),
+            }
     ];
 
     const usersColumns: GridColDef<UserRows>[] = [
@@ -296,27 +323,35 @@ export default function AdminView()
             flex: 1,
             minWidth: 130,
         },
+        
         {
             field: 'role',
             headerName: 'Role',
             flex: 1,
             minWidth: 130,
             renderCell: (params) => {
-            const currentRole = (editedRoles[params.row.id] ?? params.row.role) as string;
-            return (
-                <Select
-                value={currentRole}
-                onChange={handleRoleChange(params.row.id)}
-                size="small"
-                >
-                {ROLE_OPTIONS.map((role) => (
-                    <MenuItem key={role} value={role}>
-                    {role}
-                    </MenuItem>
-                ))}
-                </Select>
-            );
-            },
+                const currentRole = (editedRoles[params.row.id] ?? params.row.role) as string;
+                return (
+                    <Select
+                    value={currentRole}
+                    onChange={handleRoleChange(params.row.id)}
+                    size="small"
+                    onOpen={(e) => e.stopPropagation()}
+                    MenuProps={{
+                        disableScrollLock: true,
+                        disablePortal: false,
+                        keepMounted: false,
+                        container: document.body,
+                    }}
+                    >
+                    {ROLE_OPTIONS.map((role) => (
+                        <MenuItem key={role} value={role}>
+                        {role}
+                        </MenuItem>
+                    ))}
+                    </Select>
+                );
+                },
         },
         {
             field: 'is_active',
@@ -333,31 +368,58 @@ export default function AdminView()
             headerName: 'Actions',
             field: 'actions',
             flex: 1,
-            minWidth: 130,
+            minWidth: 100,
             renderCell: (params) => {
                 const selectedRole = editedRoles[params.row.id] ?? params.row.role;
                 const isChanged = selectedRole !== params.row.role;
-
                 return (
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button
-                        variant="contained"
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    {/* Mobile: ícones */}
+                    <Tooltip title="Update">
+                    <span> {/* span necessário para o Tooltip funcionar com botão disabled */}
+                        <IconButton
                         size="small"
+                        color="success"
                         disabled={!isChanged}
                         onClick={() => handleUpdateUserRole(params.row.id)}
-                        color='success'
+                        sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                        >
+                        <SaveIcon fontSize="small" />
+                        </IconButton>
+                    </span>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                    <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteUser(params.row.id)}
+                        sx={{ display: { xs: 'inline-flex', md: 'none' } }}
                     >
-                        Update
+                        <DeleteIcon fontSize="small" />
+                    </IconButton>
+                    </Tooltip>
+
+                    {/* Desktop: botões com texto */}
+                    <Button
+                    variant="contained"
+                    size="small"
+                    color="success"
+                    disabled={!isChanged}
+                    onClick={() => handleUpdateUserRole(params.row.id)}
+                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                    >
+                    Update
                     </Button>
                     <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => handleDeleteUser(params.row.id)}
-                        color='error'
+                    variant="outlined"
+                    size="small"
+                    color="error"
+                    onClick={() => handleDeleteUser(params.row.id)}
+                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
                     >
-                        Delete
+                    Delete
                     </Button>
-                    </Box>
+                </Box>
                 );
             },
         }
@@ -478,6 +540,8 @@ export default function AdminView()
                                 }}
                                 pageSizeOptions={[5, 10, 20, 50, 100]}
                                 disableRowSelectionOnClick
+                                disableVirtualization
+                                onCellClick={(_, event) => event.stopPropagation()}
                             />
                         </Box>
                     </>

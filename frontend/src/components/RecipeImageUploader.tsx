@@ -1,65 +1,84 @@
-// RecipeImageUploader.tsx
 import { useRef } from 'react';
-import { Button, Box } from '@mui/material';
+import { Button, Box, useTheme, useMediaQuery } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 interface RecipeImageUploaderProps {
-    index: number;
-    recipeName: string;
-    currentFile?: File;
-    onChange: (index: number, file: File | undefined) => void;
+  index: number;
+  currentFile?: File;
+  onChange: (index: number, file: File | undefined) => void;
+  disabled?: boolean;
 }
 
 export default function RecipeImageUploader({
-    index,
-    // recipeName,
-    currentFile,
-    onChange,
+  index,
+  currentFile,
+  onChange,
+  disabled,
 }: RecipeImageUploaderProps) {
-    // Cada instância deste componente tem o seu próprio ref isolado
-    const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const hasImage = Boolean(currentFile);
+  const theme = useTheme();
+  const isSmallOrMedium = useMediaQuery(theme.breakpoints.down('lg'));
 
-    const hasImage = Boolean(currentFile);
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 1,
+        minWidth: 0,
+      }}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        disabled={disabled}
+        onChange={(e) => {
+          if (e.target.files?.[0]) {
+            onChange(index, e.target.files[0]);
+            e.target.value = '';
+            buttonRef.current?.blur();
+          }
+        }}
+      />
 
-    return (
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-            {/* Input escondido, controlado por ref */}
-            <input
-                ref={inputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                        onChange(index, e.target.files[0]);
-                        // Reset para permitir selecionar o mesmo ficheiro novamente
-                        e.target.value = '';
-                    }
-                }}
-            />
+      <Button
+        ref={buttonRef}
+        size="small"
+        variant={hasImage ? 'outlined' : 'contained'}
+        color={hasImage ? 'success' : 'primary'}
+        disabled={disabled}
+        onClick={() => inputRef.current?.click()}
+        sx={{
+          minWidth: 0,
+          maxWidth: '100%',
+          '& .MuiButton-startIcon + span, & > span:last-child': {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            maxWidth: 'min(180px, 40vw)',
+          },
+        }}
+      >
+        {isSmallOrMedium ? (<AddPhotoAlternateIcon />) : (hasImage ? currentFile!.name : 'Add Image')}
+      </Button>
 
-            {/* Botão real (não span), sem label */}
-            <Button
-                size="small"
-                variant={hasImage ? 'outlined' : 'contained'}
-                color={hasImage ? 'success' : 'primary'}
-                startIcon={<AddPhotoAlternateIcon />}
-                onClick={() => inputRef.current?.click()}
-            >
-                {hasImage ? currentFile!.name.substring(0, 20) : 'Add Image'}
-            </Button>
-
-            {hasImage && (
-                <Button
-                    size="small"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                    onClick={() => onChange(index, undefined)}
-                >
-                    Remove
-                </Button>
-            )}
-        </Box>
-    );
+      {hasImage && (
+        <Button
+          size="small"
+          color="error"
+          startIcon={<DeleteIcon />}
+          disabled={disabled}
+          onClick={() => onChange(index, undefined)}
+        >
+          Remove
+        </Button>
+      )}
+    </Box>
+  );
 }
