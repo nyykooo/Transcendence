@@ -40,9 +40,10 @@ prune:
 	docker system prune --all --volumes --force \
 	&& docker volume ls -q | xargs -r docker volume rm
 prune_net:
-	docker network prune --force
+	docker network prune --force 
 
 fclean: down prune prune_net
+	docker system prune --force
 
 re: fclean all
 

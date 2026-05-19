@@ -404,7 +404,7 @@ router.post('/recipes/:name/like_add', requireAuthWithRateLimit, async (req, res
         }
 
         const updateRecipe = await pool.query(
-            `UPDATE public.all_recipes
+            `UPDATE dev_dba.all_recipes
              SET liked = COALESCE(liked, 0) + 1
              WHERE id = $1
              RETURNING liked`,
@@ -469,7 +469,7 @@ router.post('/recipes/:name/like_remove', requireAuthWithRateLimit, async (req, 
         }
 
         const updateRecipe = await pool.query(
-            `UPDATE public.all_recipes
+            `UPDATE dev_dba.all_recipes
              SET liked = GREATEST(COALESCE(liked, 0) - 1, 0)
              WHERE id = $1
              RETURNING liked`,
@@ -638,7 +638,7 @@ router.get(['/recipes/:name', '/RecipeView/:name'], requireAuthWithRateLimit, as
         };
         const updatedViewed = (raw_recipe.viewed || 0) + 1;
         await pool.query(
-            `UPDATE public.all_recipes
+            `UPDATE dev_dba.all_recipes
              SET viewed = $1
              WHERE id = $2`,
             [updatedViewed, raw_recipe.id],
