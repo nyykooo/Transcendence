@@ -187,15 +187,18 @@ export default function AdminFileManagement() {
                                     </TableCell>
                                     <TableCell>{formatDate(file.uploadedAt)}</TableCell>
                                     <TableCell align="center">
-                                        <Tooltip title="Preview">
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handlePreview(file)}
-                                                color="primary"
-                                            >
-                                                <VisibilityIcon />
-                                            </IconButton>
-                                        </Tooltip>
+                                        {/* preview only for image type */}
+                                        {file.type === 'image' && (
+                                            <Tooltip title="Preview">
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handlePreview(file)}
+                                                    color="primary"
+                                                >
+                                                    <VisibilityIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
                                         {file.canDelete && (
                                             <Tooltip title="Delete">
                                                 <IconButton
@@ -216,7 +219,7 @@ export default function AdminFileManagement() {
             )}
 
             {/* Preview Dialog */}
-            <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md" fullWidth>
+            <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md" fullWidth disableRestoreFocus>
                 <DialogTitle>File Preview</DialogTitle>
                 <DialogContent>
                     {previewLoading ? (
@@ -268,7 +271,7 @@ export default function AdminFileManagement() {
             </Dialog>
 
             {/* Delete Confirmation Dialog */}
-            <Dialog open={Boolean(deleteConfirm)} onClose={() => setDeleteConfirm(null)}>
+            <Dialog open={Boolean(deleteConfirm)} onClose={() => setDeleteConfirm(null)} disableRestoreFocus>
                 <DialogTitle>Delete File</DialogTitle>
                 <DialogContent>
                     <Typography>

@@ -306,7 +306,7 @@ export default function AdminView()
                     size="small"
                     color="success"
                     onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
-                    sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                    sx={{ display: { xs: 'inline-flex',  md: 'inline-flex', lg: 'none' } }}
                     >
                     <CheckIcon fontSize="small" />
                     </IconButton>
@@ -316,7 +316,7 @@ export default function AdminView()
                     size="small"
                     color="error"
                     onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
-                    sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                    sx={{ display: { xs: 'inline-flex', md: 'inline-flex', lg: 'none' } }}
                     >
                     <CloseIcon fontSize="small" />
                     </IconButton>
@@ -327,7 +327,7 @@ export default function AdminView()
                     size="small"
                     color="success"
                     onClick={() => handleAprovePendingRecipe(params.row.recipe_name)}
-                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                    sx={{ display: { xs: 'none', md: 'none', lg: 'inline-flex' } }}
                 >
                     Approve
                 </Button>
@@ -336,7 +336,7 @@ export default function AdminView()
                     size="small"
                     color="error"
                     onClick={() => handleReprovePendingRecipe(params.row.recipe_name)}
-                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                    sx={{ display: { xs: 'none', md: 'none', lg: 'inline-flex' } }}
                 >
                     Reprove
                 </Button>
@@ -417,7 +417,7 @@ export default function AdminView()
                         color="success"
                         disabled={!isChanged}
                         onClick={() => handleUpdateUserRole(params.row.id)}
-                        sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                        sx={{ display: { xs: 'inline-flex', md: 'inline-flex', lg: 'none' } }}
                         >
                         <SaveIcon fontSize="small" />
                         </IconButton>
@@ -428,7 +428,7 @@ export default function AdminView()
                         size="small"
                         color="error"
                         onClick={() => handleDeleteUser(params.row.id)}
-                        sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                        sx={{ display: { xs: 'inline-flex', md: 'inline-flex', lg: 'none' } }}
                     >
                         <DeleteIcon fontSize="small" />
                     </IconButton>
@@ -441,7 +441,7 @@ export default function AdminView()
                     color="success"
                     disabled={!isChanged}
                     onClick={() => handleUpdateUserRole(params.row.id)}
-                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                    sx={{ display: { xs: 'none', md: 'none', lg: 'inline-flex' } }}
                     >
                     Update
                     </Button>
@@ -450,7 +450,7 @@ export default function AdminView()
                     size="small"
                     color="error"
                     onClick={() => handleDeleteUser(params.row.id)}
-                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+                    sx={{ display: { xs: 'none', md: 'none', lg: 'inline-flex' } }}
                     >
                     Delete
                     </Button>
@@ -593,6 +593,7 @@ export default function AdminView()
                         onClose={handleCloseInstructionsModal}
                         maxWidth="md"
                         fullWidth
+                        disableRestoreFocus
                     >
                         <DialogTitle>
                             Recipe Instructions: {selectedRecipeInstructions?.name}

@@ -135,12 +135,14 @@ export default function CSVRecipePreview({
                         minHeight: { xs: '95vh', sm: '90vh' },
                         maxHeight: { xs: '100vh', sm: '90vh' },
                         m: { xs: 1, sm: 2 },
-                        width: { xs: 'calc(100% - 16px)', sm: '100%' }
+                        width: { xs: 'calc(100% - 16px)', sm: '100%' },
+                        wordBreak: 'break-word'
                     } 
                 }
             }}
+            disableRestoreFocus
         >
-            <DialogTitle autoFocus tabIndex={-1} sx={{ p: { xs: 1.5, sm: 2 } }}>
+            <DialogTitle sx={{ p: { xs: 1.5, sm: 2 } }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
                     <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                         Recipe Preview ({currentIndex + 1} of {recipes.length})

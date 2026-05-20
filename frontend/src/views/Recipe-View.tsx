@@ -436,62 +436,61 @@ export default function RecipeView() {
                                         Instructions
                                     </Typography>
                                     <Divider sx={{ mb: 2 }} />
-                                    <Stack spacing={1.75}>
+                                    <Stack spacing={1.75} sx={{wordBreak: 'break-word'}}>
                                                                             {recipe.instructions.length === 0 && (
                                         <Typography color="text.secondary" sx={{ fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
                                           No instructions provided for this recipe.
                                         </Typography>
                                       )}
+                                        {recipe.instructions.map((group, groupIndex) => (
+                                            <Box key={`${group.title}-${groupIndex}`} sx={{ mb: 1 }}>
+                                                <Stack direction="row" spacing={1.5} alignItems="flex-start" sx={{ mb: 1.5 }}>
+                                                    <Box
+                                                        sx={{
+                                                            width: 28,
+                                                            height: 28,
+                                                            borderRadius: '50%',
+                                                            display: 'grid',
+                                                            placeItems: 'center',
+                                                            fontWeight: 700,
+                                                            fontSize: 13,
+                                                            bgcolor: 'rgba(203, 107, 61, 0.18)',
+                                                            color: '#8c3e1f',
+                                                            fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
+                                                        }}
+                                                    >
+                                                        {groupIndex + 1}
+                                                    </Box>
+                                                    <Typography sx={{ pt: 0.35, fontWeight: 600, fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
+                                                        {group.title}
+                                                    </Typography>
+                                                </Stack>
 
-                                                                            {recipe.instructions.map((group, groupIndex) => (
-                                                                                <Box key={`${group.title}-${groupIndex}`} sx={{ mb: 1 }}>
-                                                                                    <Stack direction="row" spacing={1.5} alignItems="flex-start" sx={{ mb: 1.5 }}>
-                                                                                        <Box
-                                                                                            sx={{
-                                                                                                width: 28,
-                                                                                                height: 28,
-                                                                                                borderRadius: '50%',
-                                                                                                display: 'grid',
-                                                                                                placeItems: 'center',
-                                                                                                fontWeight: 700,
-                                                                                                fontSize: 13,
-                                                                                                bgcolor: 'rgba(203, 107, 61, 0.18)',
-                                                                                                color: '#8c3e1f',
-                                                                                                fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
-                                                                                            }}
-                                                                                        >
-                                                                                            {groupIndex + 1}
-                                                                                        </Box>
-                                                                                        <Typography sx={{ pt: 0.35, fontWeight: 600, fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
-                                                                                            {group.title}
-                                                                                        </Typography>
-                                                                                    </Stack>
-
-                                                                                    <Stack spacing={1} sx={{ pl: 4 }}>
-                                                                                        {group.subSteps.map((subStep, subIndex) => (
-                                                                                            <Stack key={`${group.title}-${subIndex}`} direction="row" spacing={1.5} alignItems="center">
-                                                                                                <Box
-                                                                                                    sx={{
-                                                                                                        flexShrink: 0,
-                                                                                                        width: 20,
-                                                                                                        height: 20,
-                                                                                                        display: 'grid',
-                                                                                                        placeItems: 'center',
-                                                                                                        color: '#8c3e1f',
-                                                                                                        fontSize: 18,
-                                                                                                        lineHeight: 1,
-                                                                                                    }}
-                                                                                                >
-                                                                                                    •
-                                                                                                </Box>
-                                                                                                <Typography sx={{ pt: 0.35, fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
-                                                                                                    {subStep}
-                                                                                                </Typography>
-                                                                                            </Stack>
-                                                                                        ))}
-                                                                                    </Stack>
-                                                                                </Box>
-                                                                            ))}
+                                                <Stack spacing={1} sx={{ pl: 4 }}>
+                                                    {group.subSteps.map((subStep, subIndex) => (
+                                                        <Stack key={`${group.title}-${subIndex}`} direction="row" spacing={1.5} alignItems="center">
+                                                            <Box
+                                                                sx={{
+                                                                    flexShrink: 0,
+                                                                    width: 20,
+                                                                    height: 20,
+                                                                    display: 'grid',
+                                                                    placeItems: 'center',
+                                                                    color: '#8c3e1f',
+                                                                    fontSize: 18,
+                                                                    lineHeight: 1,
+                                                                }}
+                                                            >
+                                                                •
+                                                            </Box>
+                                                            <Typography sx={{ pt: 0.35, fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif' }}>
+                                                                {subStep}
+                                                            </Typography>
+                                                        </Stack>
+                                                    ))}
+                                                </Stack>
+                                            </Box>
+                                        ))}
                                     </Stack>
                                 </Paper>
                     </Stack>
