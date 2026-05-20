@@ -187,15 +187,18 @@ export default function AdminFileManagement() {
                                     </TableCell>
                                     <TableCell>{formatDate(file.uploadedAt)}</TableCell>
                                     <TableCell align="center">
-                                        <Tooltip title="Preview">
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handlePreview(file)}
-                                                color="primary"
-                                            >
-                                                <VisibilityIcon />
-                                            </IconButton>
-                                        </Tooltip>
+                                        {/* preview only for image type */}
+                                        {file.type === 'image' && (
+                                            <Tooltip title="Preview">
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handlePreview(file)}
+                                                    color="primary"
+                                                >
+                                                    <VisibilityIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
                                         {file.canDelete && (
                                             <Tooltip title="Delete">
                                                 <IconButton

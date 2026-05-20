@@ -507,7 +507,6 @@ export default function FileManagement() {
                             <Button
                                 variant="contained"
                                 color="info"
-                                onMouseDown={(e) => e.preventDefault()} // evita reter foco
                                 onClick={() => setShowPreview(true)}
                                 sx={{ minWidth: 150 }}
                             >

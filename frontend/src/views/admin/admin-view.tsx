@@ -593,6 +593,7 @@ export default function AdminView()
                         onClose={handleCloseInstructionsModal}
                         maxWidth="md"
                         fullWidth
+                        disableRestoreFocus
                     >
                         <DialogTitle>
                             Recipe Instructions: {selectedRecipeInstructions?.name}

@@ -13,12 +13,8 @@ export default function MultipleSelect({ name, options, selectedOptions, onChang
                 onChange={onChange}
                 input={<OutlinedInput label={name} />}
                 MenuProps={{
-                    anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-                    transformOrigin: { vertical: 'top', horizontal: 'left' },
-                    disablePortal: true,
-                    // ✅ Adicione estas duas linhas
-                    disableRestoreFocus: true,  // Impede restaurar o foco ao fechar o menu
-                    disableEnforceFocus: true,   // Não força o foco dentro do menu
+                    anchorOrigin: { vertical: 'bottom', horizontal: 'center' },
+                    disableScrollLock: true,
                 }}
             >
                 {options.map((option) => (
