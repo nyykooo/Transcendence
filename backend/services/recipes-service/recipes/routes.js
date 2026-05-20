@@ -42,6 +42,7 @@ function serializeRecipeRow(row) {
         author: row.author ?? null,
         created_at: row.created_at ?? null,
         status: row.status ?? null,
+        instructions: row.instructions ?? null,
     };
 }
 
@@ -153,7 +154,8 @@ router.get(['/pending/recipes', '/pending/RecipeListView'], requireAuthWithRateL
             r.ingredients,
             r.diet,
             r.status,
-            r.created_at
+            r.created_at,
+            r.instructions
 
             FROM public.pending_recipes r
             ORDER BY r.name ASC

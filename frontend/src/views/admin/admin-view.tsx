@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography, Tabs, Tab, useTheme, useMediaQuery } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, MenuItem, Select, type SelectChangeEvent, Typography, Tabs, Tab, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useAuth } from '../../components/AuthProvider';
 import { RoleBaseGuard, ErrorPage } from '../../components/components';
@@ -12,6 +12,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Tooltip, IconButton } from '@mui/material';
 
 export default function AdminView()
@@ -32,8 +33,24 @@ export default function AdminView()
 
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+    const [instructionsModalOpen, setInstructionsModalOpen] = useState(false);
+    const [selectedRecipeInstructions, setSelectedRecipeInstructions] = useState<{ name: string; instructions: string } | null>(null);
+
     const handleRoleChange = (userId: number) => (event: SelectChangeEvent<string>) => {
         setEditedRoles(prev => ({ ...prev, [userId]: event.target.value }));
+    };
+
+    const handleViewInstructions = (recipe: PendingRecipe) => {
+        setSelectedRecipeInstructions({
+            name: recipe.recipe_name,
+            instructions: recipe.instructions
+        });
+        setInstructionsModalOpen(true);
+    };
+
+    const handleCloseInstructionsModal = () => {
+        setInstructionsModalOpen(false);
+        setSelectedRecipeInstructions(null);
     };
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -57,6 +74,7 @@ export default function AdminView()
             author: recipe.author,
             status: recipe.status,
             created_at: recipe.created_at,
+            instructions: recipe.instructions,
         }));
 
         setPendingRecipesRows(mappedRows);
@@ -258,6 +276,23 @@ export default function AdminView()
             headerName: 'Status',
             flex: 1,
             minWidth: 130,
+        },
+        {
+            headerName: 'View Instructions',
+            field: 'instructions_button',
+            flex: 1,
+            minWidth: 80,
+            renderCell: (params) => (
+                <Tooltip title="View Instructions">
+                    <IconButton
+                    size="small"
+                    color="info"
+                    onClick={() => handleViewInstructions(params.row)}
+                    >
+                    <VisibilityIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+            ),
         },
         {
             headerName: 'Actions',
@@ -551,6 +586,26 @@ export default function AdminView()
                     {tabValue === 2 && (
                     <AdminFileManagement />
                     )}
+
+                    {/* Instructions Modal */}
+                    <Dialog
+                        open={instructionsModalOpen}
+                        onClose={handleCloseInstructionsModal}
+                        maxWidth="md"
+                        fullWidth
+                    >
+                        <DialogTitle>
+                            Recipe Instructions: {selectedRecipeInstructions?.name}
+                        </DialogTitle>
+                        <DialogContent sx={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', pt: 2 }}>
+                            {selectedRecipeInstructions?.instructions || 'No instructions available'}
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCloseInstructionsModal} color="primary">
+                                Close
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </Box>
             }
             protection={

@@ -49,4 +49,5 @@ export type PendingRecipe = {
     author: string;
     status: string;
     created_at: string;
+    instructions: string;
 };
