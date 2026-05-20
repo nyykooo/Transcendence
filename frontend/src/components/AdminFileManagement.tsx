@@ -216,7 +216,7 @@ export default function AdminFileManagement() {
             )}
 
             {/* Preview Dialog */}
-            <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md" fullWidth>
+            <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md" fullWidth disableRestoreFocus>
                 <DialogTitle>File Preview</DialogTitle>
                 <DialogContent>
                     {previewLoading ? (
@@ -268,7 +268,7 @@ export default function AdminFileManagement() {
             </Dialog>
 
             {/* Delete Confirmation Dialog */}
-            <Dialog open={Boolean(deleteConfirm)} onClose={() => setDeleteConfirm(null)}>
+            <Dialog open={Boolean(deleteConfirm)} onClose={() => setDeleteConfirm(null)} disableRestoreFocus>
                 <DialogTitle>Delete File</DialogTitle>
                 <DialogContent>
                     <Typography>
