@@ -225,7 +225,7 @@ router.post(['/pending/recipes/approve/:name', '/pending/RecipeListView/approve/
             : {};
 
         const insertResult = await pool.query(`
-            INSERT INTO public.all_recipes (
+            INSERT INTO dev_dba.all_recipes (
                 author,
                 name,
                 ingredients,

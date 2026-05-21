@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DownloadIcon from '@mui/icons-material/Download';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import { uploadFile, importRecipes, uploadRecipeImage } from '../api/fileManagement';
 import type { FileUploadProgress, RecipeImportResponse, RecipeImportResult } from '../props/fileManagement/fileProps';
@@ -38,6 +39,19 @@ export default function FileManagement() {
     const [error, setError] = useState<string | null>(null);
     const [imageUploadLoading, setImageUploadLoading] = useState(false);
     const [recipeImages, setRecipeImages] = useState<Record<number, File>>({});
+
+    const reindexRecipeImages = (images: Record<number, File>, removedIndex: number) => {
+        return Object.entries(images).reduce<Record<number, File>>((acc, [key, value]) => {
+            const index = Number(key);
+            if (Number.isNaN(index) || index === removedIndex) {
+                return acc;
+            }
+
+            const nextIndex = index > removedIndex ? index - 1 : index;
+            acc[nextIndex] = value;
+            return acc;
+        }, {});
+    };
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -124,6 +138,25 @@ export default function FileManagement() {
             console.error('[Preview] Parse error:', errMsg);
             setError('Failed to parse file: ' + errMsg);
         }
+    };
+
+    const handleDeletePreviewRecipe = (recipeIndex: number) => {
+        setPreviewData((current) => {
+            if (!current || current.length === 0) {
+                return current;
+            }
+
+            const nextRecipes = current.filter((_, index) => index !== recipeIndex);
+            setRecipeImages((currentImages) => reindexRecipeImages(currentImages, recipeIndex));
+
+            if (nextRecipes.length === 0) {
+                setShowPreview(false);
+                setPreviewFile(null);
+                return null;
+            }
+
+            return nextRecipes;
+        });
     };
 
     const parseCSV = (content: string): RecipeImportResult[] => {
@@ -547,6 +580,16 @@ export default function FileManagement() {
                                                     }
                                                 }}
                                             />
+                                            <Button
+                                                size="small"
+                                                color="error"
+                                                variant="outlined"
+                                                startIcon={<DeleteIcon />}
+                                                onClick={() => handleDeletePreviewRecipe(index)}
+                                                sx={{ alignSelf: { xs: 'stretch', sm: 'center' } }}
+                                            >
+                                                Remove Recipe
+                                            </Button>
                                         </Box>
                                     }
                                     sx={{ borderBottom: '1px solid #eee', mb: 1, flexWrap: 'wrap' }}
@@ -634,6 +677,7 @@ export default function FileManagement() {
             <CSVRecipePreview
                 open={showPreview}
                 recipes={previewData}
+                onDeleteRecipe={handleDeletePreviewRecipe}
                 onConfirm={confirmImport}
                 onCancel={() => {
                     setShowPreview(false);
