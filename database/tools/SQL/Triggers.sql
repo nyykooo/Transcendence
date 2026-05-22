@@ -1,27 +1,80 @@
-CREATE OR REPLACE FUNCTION dev_dba.export_to_public()
+CREATE OR REPLACE FUNCTION dev_dba.sync_all_recipes_to_public()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    INSERT INTO public.all_recipes (id, name, diet, ingredients, cost, is_public)
-    VALUES (NEW.id, NEW.name, COALESCE(NEW.diet, 'vegan'), NEW.ingredients,NEW.cost, NEW.is_public)
-    ON CONFLICT (id) DO UPDATE 
-    SET name = EXCLUDED.name,
+    IF TG_OP = 'DELETE' THEN
+        DELETE FROM public.all_recipes
+        WHERE id = OLD.id;
+        RETURN OLD;
+    END IF;
+
+    INSERT INTO public.all_recipes (
+        id,
+        name,
+        diet,
+        ingredients,
+        instructions,
+        image,
+        url,
+        cost,
+        portions,
+        created_at,
+        updated,
+        is_public,
+        prep_time,
+        cooking_time,
+        liked,
+        viewed,
+        author
+    )
+    VALUES (
+        NEW.id,
+        NEW.name,
+        COALESCE(NEW.diet, 'vegan'),
+        NEW.ingredients,
+        NEW.instructions,
+        NEW.image,
+        NEW.url,
+        NEW.cost,
+        NEW.portions,
+        NEW.created_at,
+        NEW.updated,
+        NEW.is_public,
+        NEW.prep_time,
+        NEW.cooking_time,
+        NEW.liked,
+        NEW.viewed,
+        NEW.author
+    )
+    ON CONFLICT (id) DO UPDATE
+    SET
+        name = EXCLUDED.name,
         diet = EXCLUDED.diet,
+        ingredients = EXCLUDED.ingredients,
+        instructions = EXCLUDED.instructions,
+        image = EXCLUDED.image,
+        url = EXCLUDED.url,
         cost = EXCLUDED.cost,
-		ingredients = EXCLUDED.ingredients,
-        is_public = EXCLUDED.is_public;
-    
+        portions = EXCLUDED.portions,
+        created_at = EXCLUDED.created_at,
+        updated = EXCLUDED.updated,
+        is_public = EXCLUDED.is_public,
+        prep_time = EXCLUDED.prep_time,
+        cooking_time = EXCLUDED.cooking_time,
+        liked = EXCLUDED.liked,
+        viewed = EXCLUDED.viewed,
+        author = EXCLUDED.author;
+
     RETURN NEW;
 END;
 $$;
 
-
-CREATE OR REPLACE TRIGGER on_approval
-AFTER UPDATE ON dev_dba.all_recipes
+DROP TRIGGER IF EXISTS on_approval ON dev_dba.all_recipes;
+CREATE TRIGGER on_approval
+AFTER INSERT OR UPDATE OR DELETE ON dev_dba.all_recipes
 FOR EACH ROW
-WHEN (NEW.is_public = 'true')
-EXECUTE FUNCTION dev_dba.export_to_public();
+EXECUTE FUNCTION dev_dba.sync_all_recipes_to_public();
 
 CREATE OR REPLACE FUNCTION dev_dba.set_all_recipes_public()
 RETURNS INTEGER
@@ -42,47 +95,6 @@ END;
 $$;
 
 SELECT dev_dba.set_all_recipes_public();
-
-
-
-CREATE OR REPLACE FUNCTION replicate_all_recipes_update()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM public.all_recipes WHERE id = NEW.id) THEN
-
-        UPDATE public.all_recipes
-        SET 
-            name = NEW.name,
-            diet = NEW.diet,
-            ingredients = NEW.ingredients,
-			instructions = NEW.instructions,
-			image = NEW.image,
-			url = NEW.url,
-            cost = NEW.cost,
-			portions = NEW.portions,
-            created_at = NEW.created_at,
-            updated = NEW.updated,
-            prep_time = NEW.prep_time,
-			cooking_time = NEW.cooking_time,
-			liked = NEW.liked,
-			viewed = NEW.viewed,
-            author = NEW.author
-        WHERE id = NEW.id;
-    END IF;
-    
-    RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER trigger_replicate_all_recipes_update
-    AFTER UPDATE ON dev_dba.all_recipes
-    FOR EACH ROW
-    EXECUTE FUNCTION replicate_all_recipes_update();
-
-
 
 CREATE OR REPLACE FUNCTION dev_dba.update_timestamp()
 RETURNS trigger

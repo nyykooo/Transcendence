@@ -17,11 +17,13 @@ import {
 } from '@mui/material';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import DeleteIcon from '@mui/icons-material/Delete';
 import type { RecipeImportResult } from '../props/fileManagement/fileProps';
 
 interface CSVRecipePreviewProps {
     open: boolean;
     recipes: RecipeImportResult[] | null;
+    onDeleteRecipe: (recipeIndex: number) => void;
     onConfirm: () => void;
     onCancel: () => void;
     uploading: boolean;
@@ -48,6 +50,7 @@ const headingSx = {
 export default function CSVRecipePreview({
     open,
     recipes,
+    onDeleteRecipe,
     onConfirm,
     onCancel,
     uploading,
@@ -56,7 +59,13 @@ export default function CSVRecipePreview({
 
     useEffect(() => {
         if (open) {
-            setCurrentIndex(0);
+            setCurrentIndex((current) => {
+                if (!recipes || recipes.length === 0) {
+                    return 0;
+                }
+
+                return Math.min(current, recipes.length - 1);
+            });
         }
     }, [open, recipes]);
 
@@ -77,6 +86,10 @@ export default function CSVRecipePreview({
         if (currentIndex > 0) {
             setCurrentIndex(currentIndex - 1);
         }
+    };
+
+    const handleDeleteCurrentRecipe = () => {
+        onDeleteRecipe(safeIndex);
     };
 
     // Parse ingredients from string format if needed
@@ -383,6 +396,15 @@ export default function CSVRecipePreview({
                 </Stack>
                 <Box sx={{ flex: 1, display: { xs: 'none', sm: 'block' } }} />
                 <Stack direction={{ xs: 'column-reverse', sm: 'row' }} spacing={1} sx={{ width: { xs: '100%', sm: 'auto' }, '& button': { width: { xs: '100%', sm: 'auto' } } }}>
+                    <Button
+                        onClick={handleDeleteCurrentRecipe}
+                        color="error"
+                        variant="outlined"
+                        disabled={uploading}
+                        startIcon={<DeleteIcon />}
+                    >
+                        Delete Recipe
+                    </Button>
                     <Button onClick={onCancel} disabled={uploading} variant="outlined">
                         Cancel
                     </Button>

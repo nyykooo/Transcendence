@@ -71,7 +71,7 @@ export async function aprovePendingRecipe(token: string, recipeName: string): Pr
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({}),  // ✅ ADICIONAR ISTO
+        body: JSON.stringify({}),
     });
 
     if (!response.ok)
