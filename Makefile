@@ -44,6 +44,9 @@ prune_net:
 
 fclean: down prune prune_net
 	docker system prune --force
+	rm -rf $(FRONTEND_DIR)/tools/certs \
+		$(DB_DIR)/tools/certs \
+		$(ROOT_DIR)/monitoring/tools/certs
 
 re: fclean all
 

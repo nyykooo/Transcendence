@@ -252,7 +252,7 @@ router.post(['/pending/recipes/approve/:name', '/pending/RecipeListView/approve/
             pendingRecipe.portions,
             pendingRecipe.prep_time,
             pendingRecipe.cooking_time,
-            false,  // is_public padrão
+            true,   // approved recipes should be public
             0,      // liked padrão
             0       // viewed padrão
         ]);
