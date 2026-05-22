@@ -556,9 +556,6 @@ export default function FileManagement() {
                             </Button>
                         </Box>
                     </Box>
-                    <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-                        Each recipe requires an image before importing. Click "Add Image" for each recipe below.
-                    </Typography>
                     <List sx={{ '& .MuiListItem-root': { flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' } } }}>
                         {previewData.map((recipe, index) => {
                             const hasImage = Boolean(recipeImages[index]);
@@ -570,6 +567,7 @@ export default function FileManagement() {
                                             <RecipeImageUploader
                                                 index={index}
                                                 currentFile={recipeImages[index]}
+                                                showRemoveButton={false}
                                                 onChange={(idx: number, file: File | undefined) => {
                                                     if (file) {
                                                         setRecipeImages({ ...recipeImages, [idx]: file });
@@ -592,7 +590,7 @@ export default function FileManagement() {
                                             </Button>
                                         </Box>
                                     }
-                                    sx={{ borderBottom: '1px solid #eee', mb: 1, flexWrap: 'wrap' }}
+                                    sx={{ mb: 1, flexWrap: 'wrap' }}
                                 >
                                     <ListItemText
                                         primary={recipe.name || `Recipe ${index + 1}`}

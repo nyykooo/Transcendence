@@ -8,6 +8,7 @@ interface RecipeImageUploaderProps {
   currentFile?: File;
   onChange: (index: number, file: File | undefined) => void;
   disabled?: boolean;
+  showRemoveButton?: boolean;
 }
 
 export default function RecipeImageUploader({
@@ -15,6 +16,7 @@ export default function RecipeImageUploader({
   currentFile,
   onChange,
   disabled,
+  showRemoveButton = true,
 }: RecipeImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -68,7 +70,7 @@ export default function RecipeImageUploader({
         {isSmallOrMedium ? (<AddPhotoAlternateIcon />) : (hasImage ? currentFile!.name : 'Add Image')}
       </Button>
 
-      {hasImage && (
+      {hasImage && showRemoveButton && (
         <Button
           size="small"
           color="error"
