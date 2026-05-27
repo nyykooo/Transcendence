@@ -128,7 +128,7 @@ CREATE TABLE public.pending_recipes
 CREATE TABLE public.user_info
 (
 	id bigserial NOT NULL,
-    name TEXT NOT NULL REFERENCES dev_dba.users(name),
+	name TEXT NOT NULL REFERENCES dev_dba.users(name) ON UPDATE CASCADE,
     liked integer[] DEFAULT '{}',
     viewed integer[] DEFAULT '{}',
 	last_login timestamp with time zone,

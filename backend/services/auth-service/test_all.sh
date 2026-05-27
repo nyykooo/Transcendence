@@ -169,7 +169,7 @@ step "[8] Create recipe with token..."
 mapfile -t CREATE < <(request_with_code -X POST "${BASE_URL}/pending/recipes" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN1" \
-  -d "{\"name\":\"${RECIPE_NAME}\",\"ingredients\":[{\"name\":\"Kiwi\",\"unit\":\"g\",\"quantity\":22},{\"name\":\"Pineapple\",\"unit\":\"g\",\"quantity\":56}]}")
+  -d "{\"name\":\"${RECIPE_NAME}\",\"diet\":\"Vegan\",\"ingredients\":[{\"name\":\"Kiwi\",\"unit\":\"g\",\"quantity\":22},{\"name\":\"Pineapple\",\"unit\":\"g\",\"quantity\":56}]}")
 print_json_or_raw "${CREATE[0]}"
 assert_code "${CREATE[-1]}" "201" "Create recipe"
 RECIPE_NAME_CREATED=$(echo "${CREATE[0]}" | jq -r '.name // empty')
