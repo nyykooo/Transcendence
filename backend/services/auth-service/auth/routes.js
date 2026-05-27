@@ -515,53 +515,116 @@ async function deleteAvatarHandler(req, res){
 router.delete('/profile/avatar', requireAuth, deleteAvatarHandler);
 
 router.put(['/profile'], requireAuthWithRateLimit, async (req, res) => {
+  const client = await pool.connect();
   try {
     const userId = req.userId ?? req.user?.id;
     if (!userId) {
       return res.status(401).json({error: 'Unauthorized'});
     }
-    
+
     const name = String(req.body?.name || '').trim();
     const normalizedEmail = String(req.body?.email || '').trim().toLowerCase();
-    
+
     if (!name || !normalizedEmail) {
       return res.status(400).json({error: 'name and email required'});
     }
-    const result = await pool.query(
-        `SELECT id, email, password , name, avatar, is_active, git_id
-         FROM dev_dba.users
-         WHERE id = $1
-         LIMIT 1`,
-        [userId]
-      );
+
+    await client.query('BEGIN');
+
+    const result = await client.query(
+      `SELECT id, email, password, name, avatar, is_active, git_id
+       FROM dev_dba.users
+       WHERE id = $1
+       LIMIT 1`,
+      [userId]
+    );
     if (result.rowCount === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'User not found' });
     }
-    const user = result.rows[0];
-    if (user.git_id)
-      return res.status(400).json({error: 'Profile cannot be changed for users registered via GitHub OAuth'});
 
-    const updated = await pool.query(
-      ` UPDATE dev_dba.users
-        SET name = $1, email = $2
-        WHERE id = $3
-        RETURNING id, email, name, avatar, is_active`,
-        [name ,normalizedEmail, userId]
+    const user = result.rows[0];
+    if (user.git_id) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({error: 'Profile cannot be changed for users registered via GitHub OAuth'});
+    }
+
+    const previousName = user.name;
+    const previousEmail = normalizeFriendEmail(user.email);
+
+    if (previousName !== name) {
+      await client.query(
+        `UPDATE dev_dba.all_recipes
+         SET author = $1
+         WHERE author = $2`,
+        [name, previousName]
+      );
+      await client.query(
+        `UPDATE public.all_recipes
+         SET author = $1
+         WHERE author = $2`,
+        [name, previousName]
+      );
+      await client.query(
+        `UPDATE public.pending_recipes
+         SET author = $1
+         WHERE author = $2`,
+        [name, previousName]
+      );
+      await client.query(
+        `UPDATE public.user_info
+         SET name = $1
+         WHERE name = $2`,
+        [name, previousName]
+      );
+    }
+
+    if (previousEmail !== normalizedEmail) {
+      await client.query(
+        `UPDATE dev_dba.users
+         SET friend_list = array_replace(COALESCE(friend_list, '{}'::text[]), $1, $2),
+             request_list = array_replace(COALESCE(request_list, '{}'::text[]), $1, $2)
+         WHERE $1 = ANY(COALESCE(friend_list, '{}'::text[]))
+            OR $1 = ANY(COALESCE(request_list, '{}'::text[]))`,
+        [previousEmail, normalizedEmail]
+      );
+    }
+
+    const updated = await client.query(
+      `UPDATE dev_dba.users
+       SET name = $1, email = $2
+       WHERE id = $3
+       RETURNING id, email, name, avatar, is_active`,
+      [name, normalizedEmail, userId]
     );
     if (updated.rowCount === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({error: 'User not found'});
     }
+
+    await client.query('COMMIT');
     return res.status(200).json({
       message: 'Profile updated',
       user: updated.rows[0],
     });
   }
   catch(error) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {
+      // Ignore rollback failures and surface the original error below.
+    }
     if (error?.code === '23505') {
+      if (error?.constraint === 'unique_user') {
+        return res.status(409).json({error: 'Name already in use'});
+      }
       return res.status(409).json({error: 'Email already in use'});
     }
     console.log('[PUT /profile] unexpected error:', error);
     return res.status(500).json({error: 'Failed to update profile'});
+  }
+  finally {
+    client.release();
   }
 });
 
