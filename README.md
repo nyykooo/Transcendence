@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by ncamobel, duamarqu, framador, dioalexa, lede-gui*
+*This project has been created as part of the 42 curriculum by ncampbel, duamarqu, framador, dioalexa, lede-gui*
 
 # Brunchio
 
