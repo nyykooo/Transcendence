@@ -5,7 +5,7 @@ DB_DIR="${ROOT_DIR}/database"
 FRONTEND_DIR="${ROOT_DIR}/frontend"
 DEVOPS_DIR="${ROOT_DIR}/monitoring"
 # No-sudo writable location for filebeat
-GOINFRE_DIR="/home/ncampbel/goinfre"
+GOINFRE_DIR="/home/$USER/goinfre"
 
 echo "Root directory: $ROOT_DIR"
 echo "Database directory: $DB_DIR"
