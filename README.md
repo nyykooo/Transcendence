@@ -1,190 +1,192 @@
-# &#128640; Transcendence &#128640;
-## General requirements
-- The project must be a web application with frontend, backend, and a database;
-- Containers (Docker, Podman, ...) and run with a single comand;
-- Compatible with Latest Stable Version of Google Chrome;
-- Privacy Policy and Terms of Service:
-    - easily accessible from the app;
-    - Contain relevant and appropriate content;
-    - Not just placeholder or empty pages;
-- Multi-User:
-    - Users should be able to interact with the app at the same time;
-    - Multiple users logged in;
-    - Concurrent actions by different users handled properly;
-    - Real-time updates are reflected across all connected users when
-applicable;
-    - No data corruptions or race conditions with simultaneous actions;
+*This project has been created as part of the 42 curriculum by ncamobel, duamarqu, framador, dioalexa, lede-gui*
 
-## Technical requirements
-- Frontend:
-    - Clear;
-    - Responsive;
-    - Accessible across all devices;
-    - Use CSS Framework or styling solution (Tailwind CSS, Bootstrap, Material-UI, ...);
-    - Validate user inputs and forms;
-    - No WARNINGS OR ERRORS in Dev Tools terminal;
-- Backend:
-    - HTTPS everywhere;
-    - User management system:
-        - Minimum: e-mail and password, with proper security;
-        - Additional validation method (2FA, OAuth, through modules);
-    - Validate user inputs and forms;
-- Database:
-    - Clear schema;
-    - Well defined relations;
-- Secrets:
-    - Store credentials in an .env file
+# Brunchio
 
-## Backend microservices containers
+Brunchio is the working name of this Transcendence project: a secure recipe-sharing web application built with a React frontend, an HTTPS API gateway, and two backend microservices backed by PostgreSQL and Redis.
 
-Run only the backend services (without frontend/database):
+## Description
 
-- Build + start: `make -C backend docker_build docker_up`
-- Stop + remove volumes: `make -C backend docker_down`
-- Logs: `make -C backend docker_logs`
+The app lets users register, log in, complete 2FA, connect GitHub OAuth, edit their profile, upload avatars, manage friends, and browse or submit recipes for moderation. Public recipes and pending recipes are split into separate flows so the admin side can review submissions before they become visible to everyone.
 
-Services:
+The frontend is built with React, TypeScript, Vite, Material UI, and SSR support. The backend is split into an auth service, a recipes service, and an HTTPS API gateway. The whole stack is containerized and designed to run with a single command.
 
-- API Gateway (HTTPS): https://localhost:3443
-- Auth service (internal HTTP): http://auth-service:3001
-- Recipes service (internal HTTP): http://recipes-service:3002
+## Features
 
-Public API entrypoint:
+- Email/password authentication with JWT sessions.
+- GitHub OAuth login.
+- Two-factor authentication with TOTP.
+- Profile management, public profiles, and avatar uploads.
+- Friend requests and friend lists.
+- Public recipes and pending recipe moderation.
+- CSV recipe import support.
+- HTTPS everywhere through the gateway.
+- Redis-backed rate limiting.
+- Privacy Policy and Terms of Service pages accessible from the footer.
+- Responsive UI with Material UI components.
+- Server-side rendering for the frontend.
 
-- Through frontend nginx: https://localhost/api
-- Direct gateway access: https://localhost:3443/api
+## Instructions
 
-## API documentation
+### Prerequisites
 
-### Base URL
+- Docker and Docker Compose.
+- Node.js 22+ if you want local frontend development outside Docker.
+- A root-level `.env` file.
 
-- `https://localhost/api` (recommended)
-- `https://localhost:3443/api` (direct gateway)
+### Environment Setup
+
+1. Copy `.env.example` to `.env`.
+2. Replace the placeholder values with your real PostgreSQL, JWT, GitHub OAuth, and host settings.
+3. Generate the local certificates with `./gen_certs.sh` if they are missing.
+
+### Run The Project
+
+1. Start the full stack from the repository root with `make`.
+2. Stop everything with `make down`.
+3. Restart the stack with `make restart`.
+4. Run only the backend services with `make -C backend docker_build docker_up`.
+5. Stop only the backend services with `make -C backend docker_down`.
+6. View backend logs with `make -C backend docker_logs`.
+
+### Main URLs
+
+- Frontend: `https://localhost:1025`
+- API gateway: `https://localhost:3443`
+- Public API: `https://localhost/api`
+- Privacy Policy: `https://localhost/privacy-policy`
+- Terms of Service: `https://localhost/terms-of-service`
+- PgAdmin: `https://localhost:5050`
+
+### Local Frontend Development
+
+- Run the frontend only with `cd frontend && npm install && npm run dev:ssr`.
+- The root Makefile also includes a combined development target: `make dev-frontend-local`.
+
+## Team Information
+
+Ncampbel - Product Owner, Project Manager, Developer
+Framador - Project Manager, Technical Lead, Developer
+Duamarqu - Technical Lead, Developer
+Dioalexa - Project Manager, Developer
+Lede-gui - Architect, Developer
+
+### Role Breakdown
+
+Product Owner
+
+ncampbell — defines the product vision, maintains the product backlog, prioritizes features, validates completed work, and communicates with stakeholders.
+
+Project Manager / Scrum Master
+
+ncampbell, framador, dioalexa — collectively responsible for organizing meetings, tracking progress and deadlines, ensuring team communication, and managing risks and blockers.
+
+Technical Lead / Architect
+
+framador, duamarqu, lede-gui — oversee technical decisions and architecture, define the technology stack, ensure code quality and best practices, and review critical code changes.
+
+Developers
+
+All team members — implement assigned features, participate in code reviews, test their own implementations, and document their work.
+
+## Project Management
+
+To stay organised and aligned throughout the project, we relied on a combination of structured planning and constant communication.
+
+- Planning method: Regular group meetings and calls, supplemented by ongoing discussions over WhatsApp.
+- Task tracking tool: We used Linear to manage and track tasks, keeping everyone aware of progress and priorities.
+- Communication channel: Day-to-day communication happened primarily over WhatsApp, allowing for quick updates and decisions.
+- Code review practice: We enforced a strict branching policy — direct pushes to main were not allowed. Every pull request required approval from at least one other team member, with review coverage across all changed files.
+
+## Technical Stack
+
+- Frontend: React 19, TypeScript, Vite, React Router, Material UI, GSAP.
+- Backend: Express 5, JWT, bcrypt, Multer, Speakeasy, Redis, Axios, node-postgres.
+- Database: PostgreSQL.
+- Infra: Docker, Docker Compose, HTTPS certificates, API gateway, Prometheus metrics, Grafana and ELK-related monitoring services.
+
+## API Overview
 
 ### Authentication
 
-- Protected routes require header:
+Protected routes require this header:
 
-```http
+```https
 Authorization: Bearer <jwt_token>
 ```
 
-- Auth middleware behavior:
-    - rejects missing token (`401`);
-    - rejects invalid/expired token (`401`);
-    - rejects temporary tokens with `purpose` field (`401`);
-    - requires user identity (`sub` or `id`) in token payload (`401`).
+The auth middleware rejects missing, invalid, expired, or temporary tokens and requires a stable user identity in the payload.
 
-### Common status codes
+### Main Auth Routes
 
-- `200` success
-- `201` created
-- `204` deleted/no content
-- `400` invalid payload/validation error
-- `401` unauthenticated or invalid token
-- `403` authenticated but forbidden
-- `404` resource not found
-- `429` rate limit exceeded
-- `500` internal server error
+- `POST /register`
+- `POST /login`
+- `POST /login/2fa`
+- `GET /auth`
+- `GET /auth/github`
+- `GET /auth/github/callback`
 
-### Auth endpoints
+### Profile Routes
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/register` | No | Register user (`email`, `password`, `name`) |
-| POST | `/login` | No | Login with email/password |
-| POST | `/login/2fa` | No | Complete login using `twoFactorToken` + `otp` |
-| GET | `/auth` | Yes | Validate token and return authenticated profile info |
-| GET | `/auth/github` | No | Start GitHub OAuth flow |
-| GET | `/auth/github/callback` | No | GitHub OAuth callback |
+- `PUT /profile`
+- `PUT /profile/password`
+- `POST /profile/avatar`
+- `DELETE /profile/avatar`
+- `POST /profile/2fa/setup`
+- `POST /profile/2fa/verify`
+- `POST /profile/2fa/disable`
 
-### Profile endpoints
+### Friends Routes
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| PUT | `/profile` | Yes | Update profile data |
-| PUT | `/profile/password` | Yes | Change password |
-| POST | `/profile/avatar` | Yes | Upload avatar (`multipart/form-data`) |
-| DELETE | `/profile/avatar` | Yes | Remove custom avatar |
+- `GET /profile/friends`
+- `POST /profile/friends`
+- `GET /profile/friends/requests`
+- `POST /profile/friends/requests/accept`
+- `DELETE /profile/friends/requests`
+- `DELETE /profile/friends`
 
-### 2FA endpoints
+### Recipes Routes
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/profile/2fa/setup` | Yes | Generate/setup TOTP secret |
-| POST | `/profile/2fa/verify` | Yes | Verify setup code and enable 2FA |
-| POST | `/profile/2fa/disable` | Yes | Disable 2FA |
+- `GET /recipes`
+- `GET /recipes/:name`
+- `POST /recipes`
+- `PUT /recipes/:name`
+- `DELETE /recipes/:name`
+- `GET /pending/recipes`
+- `POST /pending/recipes`
+- `GET /pending/recipes/:name`
+- `PUT /pending/recipes/:name`
+- `DELETE /pending/recipes/:name`
 
-### Friends endpoints
+Legacy view aliases are also available for the frontend routes:
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/profile/friends` | Yes | List friends |
-| POST | `/profile/friends` | Yes | Send friend request |
-| GET | `/profile/friends/requests` | Yes | List pending friend requests |
-| POST | `/profile/friends/requests/accept` | Yes | Accept friend request |
-| DELETE | `/profile/friends/requests` | Yes | Reject/cancel friend request |
-| DELETE | `/profile/friends` | Yes | Remove friend |
+- `/RecipeListView`
+- `/RecipeView/:name`
+- `/pending/RecipeListView`
+- `/pending/RecipeView/:name`
 
-### Recipes endpoints
+## Database Schema
 
-#### Public recipes (`all_recipes`)
+The schema is organized around the main application flows:
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/recipes` | Yes | List all recipes |
-| GET | `/recipes/:name` | Yes | Get recipe by name |
-| POST | `/recipes` | Yes (admin) | Create recipe directly in all recipes |
-| PUT | `/recipes/:name` | Yes (admin + owner checks) | Update recipe by name |
-| DELETE | `/recipes/:name` | Yes (admin + owner checks) | Delete recipe by name |
+- `dev_dba.users`: user authentication, profile data, roles, avatar, 2FA state, and friend/request lists.
+- `dev_dba.ingredients`: ingredient catalog data used by recipe import and moderation flows.
+- `public.all_recipes`: approved recipes visible to all users.
+- `public.pending_recipes`: user-submitted recipes waiting for review.
 
-#### Pending recipes (`pending_recipes`)
+The relationships are centered on user ownership and moderation: users submit pending recipes, admins approve or reject them, and approved entries are promoted into the public recipe table.
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/pending/recipes` | Yes | List pending recipes |
-| POST | `/pending/recipes` | Yes | Submit recipe for review |
-| GET | `/pending/recipes/:name` | Yes | Get pending recipe by name |
-| PUT | `/pending/recipes/:name` | Yes (owner) | Update pending recipe by name |
-| DELETE | `/pending/recipes/:name` | Yes (owner) | Delete pending recipe by name |
+## Resources
 
-### Route aliases
+- React documentation: https://react.dev/
+- Vite documentation: https://vite.dev/
+- Express documentation: https://expressjs.com/
+- Material UI documentation: https://mui.com/
+- PostgreSQL documentation: https://www.postgresql.org/docs/
+- Docker documentation: https://docs.docker.com/
+- JSON Web Token introduction: https://jwt.io/introduction
+- GitHub OAuth documentation: https://docs.github.com/apps/oauth-apps
+- TOTP / 2FA reference: https://github.com/speakeasyjs/speakeasy
 
-- Recipes module also exposes view aliases used by legacy frontend routes:
-    - `/RecipeListView`, `/RecipeView/:name`
-    - `/pending/RecipeListView`, `/pending/RecipeView/:name`
+### AI Usage
 
-### Ingredients payload format
-
-- `ingredients` must be a JSON array of objects.
-
-```json
-[
-    {
-        "name": "Kiwi",
-        "unit": "g",
-        "quantity": 22
-    },
-    {
-        "name": "Pineapple",
-        "unit": "g",
-        "quantity": 56
-    }
-]
-```
-
-### Minimal request example
-
-```bash
-curl -k -X POST "https://localhost:3443/pending/recipes" \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <token>" \
-    -d '{
-        "name": "Fruit Bowl",
-        "ingredients": [
-            {"name": "Kiwi", "unit": "g", "quantity": 22},
-            {"name": "Pineapple", "unit": "g", "quantity": 56}
-        ],
-        "diet": "Vegan"
-    }'
-```
+AI was used to reorganize and proofread this README, align it with the project rules, and format the setup and API sections from the repository content. The concrete stack, routes, and run commands were verified against the codebase before writing.
