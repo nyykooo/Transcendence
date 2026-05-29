@@ -232,6 +232,7 @@ router.post(['/pending/recipes/approve/:name', '/pending/RecipeListView/approve/
                 diet,
                 instructions,
                 url,
+                image,
                 cost,
                 portions,
                 prep_time,
@@ -239,8 +240,8 @@ router.post(['/pending/recipes/approve/:name', '/pending/RecipeListView/approve/
                 is_public,
                 liked,
                 viewed
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-            RETURNING id, author, name, ingredients, diet, instructions, url, cost, portions, prep_time, cooking_time
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            RETURNING id, author, name, ingredients, diet, instructions, url, image, cost, portions, prep_time, cooking_time
         `, [
             pendingRecipe.author,
             pendingRecipe.name,
@@ -248,6 +249,7 @@ router.post(['/pending/recipes/approve/:name', '/pending/RecipeListView/approve/
             pendingRecipe.diet,
             pendingRecipe.instructions,
             pendingRecipe.url,
+            pendingRecipe.image,
             pendingRecipe.cost,
             pendingRecipe.portions,
             pendingRecipe.prep_time,
