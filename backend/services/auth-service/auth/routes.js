@@ -90,7 +90,7 @@ async function loadUserFriendRequests(userId) {
 async function loadUserLikedRecipes(userId) {
   const ownerResult = await pool.query(
     `SELECT liked
-     FROM public.users
+     FROM dev_dba.users
      WHERE id = $1
      LIMIT 1`,
     [userId]

@@ -51,13 +51,13 @@ fclean: down prune prune_net
 re: fclean all
 
 logs:
-	cd srcs && docker-compose logs
+	cd srcs && docker compose logs
 
 dev:
-	docker-compose -f ./docker-compose.yml up -d api auth-service recipes-service postgres redis pgadmin
+	docker compose -f ./docker-compose.yml up -d api auth-service recipes-service postgres redis pgadmin
 
 build_dev: certs
-	docker-compose -p brunchio -f ./docker-compose.yml build api auth-service recipes-service postgres redis pgadmin
+	docker compose -p brunchio -f ./docker-compose.yml build api auth-service recipes-service postgres redis pgadmin
 
 # Frontend local development mode
 # Runs backend services in containers, frontend locally on port 3000

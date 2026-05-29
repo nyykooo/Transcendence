@@ -169,9 +169,7 @@ services:
     restart: always
     networks:
       - transcendence
-    profiles:
-      - monitoring
-    
+
   prometheus:
     container_name: brunchio_prometheus
     image: prom/prometheus:latest
@@ -192,8 +190,6 @@ services:
     restart: always
     networks:
       - transcendence
-    profiles:
-      - monitoring
 
   grafana:
     container_name: brunchio_grafana
@@ -213,8 +209,6 @@ services:
     restart: always
     networks:
       - transcendence
-    profiles:
-      - monitoring
 
   filebeat:
     container_name: brunchio_filebeat
@@ -224,7 +218,7 @@ services:
     user: root
     command: ["filebeat", "-e", "--strict.perms=false"]
     volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /home/ncampbel/goinfre:/home/ncampbel/goinfre:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./monitoring/tools/certs/elk-ca/ca.crt:/usr/share/filebeat/certs/ca.crt:ro
       - filebeat_data:/usr/share/filebeat/data
@@ -238,8 +232,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    profiles:
-      - monitoring
 
   logstash:
     container_name: brunchio_logstash
@@ -264,8 +256,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    profiles:
-      - monitoring
 
   elasticsearch:
     container_name: brunchio_elasticsearch
@@ -290,8 +280,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    profiles:
-      - monitoring
 
   kibana:
     container_name: brunchio_kibana
@@ -327,8 +315,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    profiles:
-      - monitoring
 
 volumes:
     postgres_data:
