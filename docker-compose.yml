@@ -217,8 +217,10 @@ services:
       dockerfile: Dockerfile
     user: root
     command: ["filebeat", "-e", "--strict.perms=false"]
+    environment:
+      - GOINFRE_PATH=/home/${USER}/goinfre
     volumes:
-      - /home/ncampbel/goinfre:/home/ncampbel/goinfre:ro
+      - /home/$USER/goinfre:/home/$USER/goinfre:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./monitoring/tools/certs/elk-ca/ca.crt:/usr/share/filebeat/certs/ca.crt:ro
       - filebeat_data:/usr/share/filebeat/data
@@ -264,6 +266,18 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+    environment:
+      - discovery.type=${ELASTICSEARCH_DISCOVERY_TYPE:-single-node}
+      - xpack.security.enabled=${ELASTICSEARCH_XPACK_SECURITY_ENABLED:-true}
+      - xpack.security.http.ssl.enabled=${ELASTICSEARCH_XPACK_SECURITY_HTTP_SSL_ENABLED:-true}
+      - xpack.security.http.ssl.certificate=${ELASTICSEARCH_XPACK_SECURITY_HTTP_SSL_CERTIFICATE:-/usr/share/elasticsearch/config/certs/elasticsearch.crt}
+      - xpack.security.http.ssl.key=${ELASTICSEARCH_XPACK_SECURITY_HTTP_SSL_KEY:-/usr/share/elasticsearch/config/certs/elasticsearch.key}
+      - xpack.security.http.ssl.certificate_authorities=${ELASTICSEARCH_XPACK_SECURITY_HTTP_SSL_CERTIFICATE_AUTHORITIES:-/usr/share/elasticsearch/config/certs/ca.crt}
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/elasticsearch.crt
+      - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/elasticsearch.key
+      - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca.crt
     ports:
       - "9200:9200"
     volumes:
