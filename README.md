@@ -175,6 +175,198 @@ The schema is organized around the main application flows:
 
 The relationships are centered on user ownership and moderation: users submit pending recipes, admins approve or reject them, and approved entries are promoted into the public recipe table.
 
+# Modules
+
+## Overview
+
+| Category | Count | Points |
+|---|---|---|
+| Major Modules | 7 | 14 |
+| Minor Modules | 9 | 9 |
+| **Total** | **16** | **23** |
+
+> The first 14 points (all Major modules) fulfill the mandatory requirement. All 9 Minor modules qualify as bonus, as the mandatory threshold is fully covered by Major modules alone.
+
+---
+
+## Major Modules (2 pts each)
+
+| # | Module | Team Member(s) | Points |
+|---|---|---|---|
+| M1 | Framework — React/TS + Express | ncampbell, duamarqu, framador | 2 |
+| M2 | Public API (secured, rate-limited, 5+ endpoints) | duamarqu | 2 |
+| M3 | Standard User Management & Authentication | framador | 2 |
+| M4 | Advanced Permissions System | lede-gui, ncampbell | 2 |
+| M5 | Log Management Infrastructure (ELK Stack) | dioalexa | 2 |
+| M6 | Monitoring System (Prometheus + Grafana) | dioalexa | 2 |
+| M7 | Backend as Microservices | duamarqu, framador | 2 |
+
+**Major subtotal: 14 pts** ✅ — Mandatory threshold met
+
+---
+
+## Minor Modules — Bonus (1 pt each)
+
+| # | Module | Team Member(s) | Points |
+|---|---|---|---|
+| m1 | ORM for Database | lede-gui | 1 |
+| m2 | Server-Side Rendering (SSR) | framador | 1 |
+| m3 | Custom Design System (10+ reusable components) | ncampbell | 1 |
+| m4 | Advanced Search (filters, sorting, pagination) | ncampbell, duamarqu | 1 |
+| m5 | File Upload & Management System | framador | 1 |
+| m6 | Cross-Browser Support | duamarqu, ncampbell | 1 |
+| m7 | OAuth 2.0 Remote Authentication | framador | 1 |
+| m8 | Data Export & Import | framador | 1 |
+| m9 | Two-Factor Authentication (2FA) | framador | 1 |
+
+**Minor subtotal: 9 pts** — All bonus-eligible
+
+---
+
+## Module Details
+
+### M1 — Framework: React/TypeScript + Express
+**Type:** Major | **Points:** 2 | **Team:** ncampbell, duamarqu, framador
+
+**Justification:** Using established frameworks on both ends ensures maintainability, type safety, and a clear separation of concerns across the stack.
+
+**Implementation:** The frontend was built with React and TypeScript, providing a strongly-typed component-based UI. The backend was built with Express.js, serving as the primary HTTP layer for the application's REST API.
+
+---
+
+### M2 — Public API
+**Type:** Major | **Points:** 2 | **Team:** duamarqu
+
+**Justification:** A well-documented public API enables third-party integrations and provides a clean, stable interface for interacting with application data.
+
+**Implementation:** A RESTful API was implemented with Express, secured via API key authentication. Rate limiting was enforced using middleware. The API exposes 5+ endpoints.
+
+---
+
+### M3 — User Management & Authentication
+**Type:** Major | **Points:** 2 | **Team:** framador
+
+**Justification:** A secure and standard authentication system is fundamental to any multi-user application.
+
+**Implementation:** Full user lifecycle management including registration, login, password hashing, session handling, and JWT-based authentication.
+
+---
+
+### M4 — Advanced Permissions System
+**Type:** Major | **Points:** 2 | **Team:** lede-gui, ncampbell
+
+**Justification:** Role-based access control (RBAC) ensures users can only access and modify resources they are authorised for.
+
+**Implementation:** A permissions layer was built on top of the authentication system, defining roles and enforcing access rules both at the API level and within the frontend UI.
+
+---
+
+### M5 — Log Management Infrastructure (ELK Stack)
+**Type:** Major | **Points:** 2 | **Team:** dioalexa
+
+**Justification:** Centralised log management is essential for debugging, auditing, and observability in a microservices architecture.
+
+**Implementation:** Elasticsearch, Logstash, and Kibana were deployed via Docker Compose. Application logs are shipped through Logstash, stored in Elasticsearch, and visualised in Kibana dashboards.
+
+---
+
+### M6 — Monitoring System (Prometheus + Grafana)
+**Type:** Major | **Points:** 2 | **Team:** dioalexa
+
+**Justification:** Real-time metrics and alerting are critical for maintaining service health and detecting issues proactively.
+
+**Implementation:** Prometheus scrapes metrics from each microservice. Grafana connects to Prometheus as a data source and displays custom dashboards tracking latency, error rates, and resource usage.
+
+---
+
+### M7 — Backend as Microservices
+**Type:** Major | **Points:** 2 | **Team:** duamarqu, framador
+
+**Justification:** A microservices architecture improves scalability, fault isolation, and independent deployability of each service.
+
+**Implementation:** The backend was split into independent services (e.g. auth, user, API gateway), each running in its own container and communicating via defined interfaces, orchestrated with Docker Compose.
+
+---
+
+### m1 — ORM for Database
+**Type:** Minor | **Points:** 1 | **Team:** lede-gui
+
+**Justification:** An ORM abstracts raw SQL, reduces boilerplate, and improves type safety when interacting with the database.
+
+**Implementation:** An ORM was integrated into the backend services, handling schema definition, migrations, and queries.
+
+---
+
+### m2 — Server-Side Rendering (SSR)
+**Type:** Minor | **Points:** 1 | **Team:** framador
+
+**Justification:** SSR improves initial page load performance.
+
+**Implementation:** Key public-facing pages are rendered server-side, returning fully populated HTML to the client on first load.
+
+---
+
+### m3 — Custom Design System
+**Type:** Minor | **Points:** 1 | **Team:** ncampbell
+
+**Justification:** A consistent design system accelerates development and ensures visual coherence across the application.
+
+**Implementation:** A component library was built from scratch with 10+ reusable components (buttons, inputs, modals, cards, etc.), a defined colour palette, typography scale, and iconography.
+
+---
+
+### m4 — Advanced Search
+**Type:** Minor | **Points:** 1 | **Team:** ncampbell, duamarqu
+
+**Justification:** Advanced search improves usability and discoverability of content within the application.
+
+**Implementation:** Search functionality supports keyword queries, multiple filter criteria, sorting options, and paginated results, implemented at both the API and UI levels.
+
+---
+
+### m5 — File Upload & Management
+**Type:** Minor | **Points:** 1 | **Team:** framador
+
+**Justification:** File handling is a common user need and adds practical value to the platform.
+
+**Implementation:** Users can upload files via the UI. Files are stored and managed server-side, with metadata tracked in the database and access controlled via permissions.
+
+---
+
+### m6 — Cross-Browser Support
+**Type:** Minor | **Points:** 1 | **Team:** duamarqu, ncampbell
+
+**Justification:** Ensuring compatibility across major browsers widens the accessible user base.
+
+**Implementation:** The frontend was tested and adjusted for compatibility across Chrome, Firefox, Safari, and Edge, addressing layout and API inconsistencies where needed.
+
+---
+
+### m7 — OAuth 2.0 Remote Authentication
+**Type:** Minor | **Points:** 1 | **Team:** framador
+
+**Justification:** OAuth 2.0 provides a familiar, secure, and frictionless login experience through trusted identity providers.
+
+**Implementation:** OAuth 2.0 login flows were integrated with at least one provider (e.g. Google, GitHub, or 42), handling token exchange and account linking.
+
+---
+
+### m8 — Data Export & Import
+**Type:** Minor | **Points:** 1 | **Team:** framador
+
+**Justification:** Export and import capabilities give users control over their data and enable interoperability.
+
+**Implementation:** Users can export their data in structured formats (CSV or JSON) and re-import it, with validation handled server-side.
+
+---
+
+### m9 — Two-Factor Authentication (2FA)
+**Type:** Minor | **Points:** 1 | **Team:** framador
+
+**Justification:** 2FA significantly strengthens account security by requiring a second verification step beyond the password.
+
+**Implementation:** TOTP-based 2FA was implemented, allowing users to enrol via an authenticator app. Verification is required at login after password validation.
+
 ## Resources
 
 - React documentation: https://react.dev/
