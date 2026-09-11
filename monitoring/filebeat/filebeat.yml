@@ -2,7 +2,7 @@ filebeat.inputs:
   - type: filestream
     id: docker-containers
     paths:
-      - ${GOINFRE_PATH}/*/*.log
+      - /var/lib/docker/containers/*/*.log
     parsers:
       - container: ~
 
